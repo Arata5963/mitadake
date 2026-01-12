@@ -7,6 +7,17 @@ export default class extends Controller {
   connect() {
     // 初期状態でボタンの表示を更新
     setTimeout(() => this.updateNavigation(), 100)
+
+    // 画面リサイズ時にボタン表示を更新
+    this.resizeHandler = () => this.updateNavigation()
+    window.addEventListener("resize", this.resizeHandler)
+  }
+
+  disconnect() {
+    // クリーンアップ
+    if (this.resizeHandler) {
+      window.removeEventListener("resize", this.resizeHandler)
+    }
   }
 
   scrollRight() {
@@ -36,14 +47,17 @@ export default class extends Controller {
   updateNavigation() {
     if (!this.hasContainerTarget) return
 
+    // モバイル（768px未満）ではボタンを表示しない
+    const isMobile = window.innerWidth < 768
+
     const container = this.containerTarget
     const scrollLeft = container.scrollLeft
     const scrollWidth = container.scrollWidth
     const clientWidth = container.clientWidth
     const maxScroll = scrollWidth - clientWidth
 
-    const canScrollLeft = scrollLeft > 10
-    const canScrollRight = scrollLeft < maxScroll - 10
+    const canScrollLeft = scrollLeft > 10 && !isMobile
+    const canScrollRight = scrollLeft < maxScroll - 10 && !isMobile
 
     // 左ボタン
     if (this.hasLeftBtnTarget) {

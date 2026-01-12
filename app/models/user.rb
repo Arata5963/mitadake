@@ -15,10 +15,23 @@ class User < ApplicationRecord
   has_many :post_entries, dependent: :destroy
 
   # 達成数ランキング（TOP N ユーザー）
-  def self.by_achieved_count(limit: 10)
-    User
+  # period: :all（全期間）, :today（本日）, :week（週間）, :month（月間）
+  def self.by_achieved_count(limit: 10, period: :all)
+    scope = User
       .joins(:post_entries)
       .where.not(post_entries: { achieved_at: nil })
+
+    # 期間フィルター
+    case period.to_sym
+    when :today
+      scope = scope.where(post_entries: { achieved_at: Time.current.beginning_of_day.. })
+    when :week
+      scope = scope.where(post_entries: { achieved_at: Time.current.beginning_of_week.. })
+    when :month
+      scope = scope.where(post_entries: { achieved_at: Time.current.beginning_of_month.. })
+    end
+
+    scope
       .group("users.id")
       .order(Arel.sql("COUNT(post_entries.id) DESC"))
       .limit(limit)

@@ -1,8 +1,8 @@
 <%# 各ページ番号のリンク %>
 <% if page.current? %>
-  <span class="px-4 py-2 border-2 border-accent bg-accent text-white font-bold rounded-lg">
+  <span class="w-10 h-10 flex items-center justify-center bg-gray-900 text-white text-sm font-medium rounded-lg">
     <%= page %>
   </span>
 <% else %>
-  <%= link_to page, url, class: "px-4 py-2 border-2 border-accent/30 bg-white hover:bg-accent/10 text-primary font-bold rounded-lg transition-colors", rel: page.rel %>
+  <%= link_to page, url, class: "w-10 h-10 flex items-center justify-center border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg transition-colors", rel: page.rel %>
 <% end %>

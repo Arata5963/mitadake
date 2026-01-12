@@ -18,7 +18,7 @@
                data-index-search-target="input"
                data-action="input->index-search#handleInput keydown->index-search#handleKeydown"
                placeholder="URLを貼り付け、またはタイトルで検索..."
-               class="w-full rounded-lg border border-gray-200 bg-white pl-12 pr-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gray-400 focus:ring-2 focus:ring-gray-100 focus:outline-none transition-colors">
+               class="w-full rounded-lg border border-gray-200 bg-white pl-12 pr-4 py-3 text-base text-gray-900 placeholder:text-gray-400 focus:border-gray-400 focus:ring-2 focus:ring-gray-100 focus:outline-none transition-colors">
         <%# 検索結果ドロップダウン %>
         <div data-index-search-target="results"
              class="hidden absolute z-20 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-96 overflow-y-auto">
@@ -106,8 +106,8 @@
       <% end %>
 
       <%# セクション3: 達成数ランキング %>
-      <% if @user_ranking.present? %>
-        <%= render 'posts/section_user_ranking', users: @user_ranking %>
+      <% if @user_ranking.present? || @user_ranking_period.present? %>
+        <%= render 'posts/section_user_ranking', users: @user_ranking || [], period: @user_ranking_period %>
       <% end %>
 
       <%# セクション4: 最近の投稿 %>

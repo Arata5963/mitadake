@@ -1,2 +1,7 @@
 <%# 次のページへのリンク %>
-<%= link_to_unless current_page.last?, raw("次へ →"), url, rel: 'next', class: "px-4 py-2 border-2 border-accent/30 bg-white hover:bg-accent/10 text-primary font-bold rounded-lg transition-colors" %>
+<%= link_to url, rel: 'next', class: "h-10 px-4 flex items-center justify-center border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg transition-colors" do %>
+  次へ
+  <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+  </svg>
+<% end %>

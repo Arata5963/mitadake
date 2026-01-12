@@ -1,6 +1,6 @@
 # app/controllers/posts_controller.rb
 class PostsController < ApplicationController
-  before_action :authenticate_user!, except: [ :index, :show, :autocomplete, :youtube_search, :find_or_create, :youtube_comments, :discover_comments, :trending, :ranking, :channels, :user_ranking, :recent ]
+  before_action :authenticate_user!, except: [ :index, :show, :autocomplete, :youtube_search, :find_or_create, :youtube_comments, :discover_comments, :trending, :channels, :recent ]
   before_action :set_post, only: [ :show, :edit, :update, :destroy, :summarize, :youtube_comments, :discover_comments, :suggest_action_plans ]
   before_action :check_has_entries, only: [ :edit, :update, :destroy ]
 
@@ -29,7 +29,10 @@ class PostsController < ApplicationController
       # ===== セクション表示用データ =====
       @popular_channels = Post.popular_channels(limit: 20)
       @ranking_posts = Post.by_action_count(limit: 30)
-      @user_ranking = User.by_achieved_count(limit: 5)
+
+      # ユーザー達成数ランキング（期間フィルター対応）
+      @user_ranking_period = (params[:user_ranking_period] || :all).to_sym
+      @user_ranking = User.by_achieved_count(limit: 5, period: @user_ranking_period)
 
       # 最近の投稿（ランキングと重複してもOK）
       @recent_posts = Post.recent.includes(:post_entries).limit(20)
@@ -52,20 +55,11 @@ class PostsController < ApplicationController
     @posts = Post.trending(limit: nil).page(params[:page]).per(20)
   end
 
-  # ランキング一覧ページ
-  def ranking
-    @posts = Post.by_action_count(limit: nil).page(params[:page]).per(20)
-  end
-
   # チャンネル一覧ページ
   def channels
     @channels = Post.popular_channels(limit: 100)
   end
 
-  # ユーザー達成数ランキングページ
-  def user_ranking
-    @users = User.by_achieved_count(limit: 10)
-  end
 
   # 最近の投稿一覧ページ
   def recent

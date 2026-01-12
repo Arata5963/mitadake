@@ -1,5 +1,26 @@
 [x-cloak] { display: none !important; }
 
+/* ===== iOS自動ズーム防止 ===== */
+/* iOSでは16px未満の入力フィールドにフォーカスすると自動ズームする */
+@media screen and (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="search"],
+  input[type="date"],
+  input[type="datetime-local"],
+  input[type="time"],
+  input[type="month"],
+  input[type="week"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
 /* ===== スクロールバー非表示 ===== */
 .hide-scrollbar,
 .scrollbar-hide {

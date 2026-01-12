@@ -129,7 +129,7 @@
               <textarea name="post_entry[content]" required rows="1"
                         placeholder="アクションプランを書く..."
                         oninput="this.style.height='auto'; this.style.height=this.scrollHeight+'px';"
-                        style="flex: 1; min-width: 0; padding: 6px 0; font-size: 14px; line-height: 1.5; color: #1f2937; background: transparent; border: none; outline: none; resize: none; overflow: hidden;"></textarea>
+                        style="flex: 1; min-width: 0; padding: 6px 0; font-size: 16px; line-height: 1.5; color: #1f2937; background: transparent; border: none; outline: none; resize: none; overflow: hidden;"></textarea>
 
               <%# 右側ボタン群 %>
               <div style="display: flex; align-items: center; gap: 16px; flex-shrink: 0; padding-top: 2px;">
@@ -138,7 +138,7 @@
                   <input type="date" name="post_entry[deadline]"
                          id="deadline-input-<%= @post.id %>"
                          required
-                         style="position: absolute; top: 0; left: 0; width: 32px; height: 32px; opacity: 0; cursor: pointer;">
+                         style="position: absolute; top: 0; left: 0; width: 32px; height: 32px; opacity: 0; cursor: pointer; font-size: 16px;">
                   <label for="deadline-input-<%= @post.id %>" style="cursor: pointer; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px;" title="期限を設定（必須）">
                     <svg style="width: 20px; height: 20px; color: #6b7280;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/>

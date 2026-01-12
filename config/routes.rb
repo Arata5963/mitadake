@@ -41,9 +41,7 @@ Rails.application.routes.draw do
       get :youtube_search
       post :find_or_create
       get :trending
-      get :ranking
       get :channels
-      get :user_ranking
       get :recent
     end
     member do

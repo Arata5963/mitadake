@@ -30,7 +30,7 @@
       <%# ページネーション %>
       <% if @posts.total_pages > 1 %>
         <div class="mt-8 flex justify-center">
-          <%= paginate @posts, theme: 'tailwind' %>
+          <%= paginate @posts %>
         </div>
       <% end %>
     <% end %>

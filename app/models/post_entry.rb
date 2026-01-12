@@ -6,6 +6,7 @@ class PostEntry < ApplicationRecord
 
   # バリデーション
   validates :content, presence: true
+  validates :deadline, presence: true
 
   # スコープ
   scope :recent, -> { order(created_at: :desc) }

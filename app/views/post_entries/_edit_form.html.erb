@@ -1,0 +1,57 @@
+<%# app/views/post_entries/_edit_form.html.erb %>
+<%# インライン編集フォーム %>
+
+<%= turbo_frame_tag dom_id(entry) do %>
+<div style="display: flex; gap: 8px; padding: 10px 8px; align-items: flex-start;">
+
+  <%# アバター %>
+  <div style="flex-shrink: 0;">
+    <% if entry.display_anonymous? %>
+      <div style="width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(145deg, #a0aec0, #718096); display: flex; align-items: center; justify-content: center;">
+        <svg style="width: 18px; height: 18px; color: white;" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+        </svg>
+      </div>
+    <% elsif entry.display_avatar.present? %>
+      <%= image_tag entry.display_avatar.url, style: "width: 36px; height: 36px; border-radius: 10px; object-fit: cover;" %>
+    <% else %>
+      <div style="width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(145deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px;">
+        <%= entry.display_user_name&.first&.upcase || '?' %>
+      </div>
+    <% end %>
+  </div>
+
+  <%# 編集フォーム %>
+  <div style="flex: 1; min-width: 0;">
+    <%= form_with model: [entry.post, entry], style: "background: #f9fafb; border-radius: 14px; padding: 12px; border: 2px solid #6b7280;" do |f| %>
+
+      <%# 内容 %>
+      <%= f.text_area :content,
+          rows: 2,
+          required: true,
+          placeholder: "アクションプランを入力...",
+          style: "width: 100%; padding: 8px; font-size: 14px; line-height: 1.5; color: #1f2937; background: white; border: 1px solid #d1d5db; border-radius: 8px; resize: none; outline: none; margin-bottom: 10px;",
+          oninput: "this.style.height='auto'; this.style.height=this.scrollHeight+'px';" %>
+
+      <%# 期限 + ボタン %>
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <svg style="width: 14px; height: 14px; color: #6b7280;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/>
+          </svg>
+          <%= f.date_field :deadline,
+              style: "padding: 6px 10px; font-size: 13px; color: #374151; background: white; border: 1px solid #d1d5db; border-radius: 8px; outline: none;" %>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <%= link_to "キャンセル", post_path(entry.post),
+              style: "padding: 6px 14px; font-size: 13px; font-weight: 500; color: #6b7280; background: white; border: 1px solid #d1d5db; border-radius: 8px; text-decoration: none;",
+              data: { turbo_frame: dom_id(entry) } %>
+          <%= f.submit "保存",
+              style: "padding: 6px 14px; font-size: 13px; font-weight: 500; color: white; background: #374151; border: none; border-radius: 8px; cursor: pointer;" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+<% end %>

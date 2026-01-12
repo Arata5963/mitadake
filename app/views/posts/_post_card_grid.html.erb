@@ -1,5 +1,7 @@
-<%# app/views/posts/_post_card_note.html.erb %>
+<%# app/views/posts/_post_card_grid.html.erb %>
 <%# グリッド風デザイン: サムネイル上、テキスト下の縦型カード %>
+<%# 使用方法: render 'posts/post_card_grid', post: post %>
+<%# index.html.erb のグリッド設定: style="grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));" %>
 
 <article class="group">
   <%# サムネイル（16:9, 小さい角丸） %>
@@ -40,3 +42,18 @@
     </div>
   </div>
 </article>
+
+<%#
+========================================
+index.html.erb で使用する際のグリッド設定:
+========================================
+
+<div id="posts-container"
+     data-load-more-target="container"
+     class="grid gap-4"
+     style="grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));">
+  <%% @posts.each do |post| %>
+    <%%= render 'posts/post_card_grid', post: post %>
+  <%% end %>
+</div>
+%>

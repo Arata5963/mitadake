@@ -1,0 +1,185 @@
+<%# app/views/posts/_section_ranking.html.erb %>
+<%# ランキングセクション（横スクロール） %>
+<%# locals: posts, design %>
+
+<section class="mb-8">
+  <%# セクションヘッダー %>
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-bold text-gray-900">アクション数ランキング</h2>
+  </div>
+
+  <%# 横スクロールコンテナ %>
+  <div class="relative overflow-hidden" data-controller="horizontal-scroll">
+    <%# 左スクロールボタン %>
+    <button type="button"
+            data-horizontal-scroll-target="leftBtn"
+            data-action="click->horizontal-scroll#scrollLeft"
+            class="hidden absolute z-10 w-10 h-10 bg-white rounded-full shadow-lg items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200"
+            style="left: 8px; top: 56px; transform: translateY(-50%);">
+      <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+    </button>
+
+    <%# 投稿リスト %>
+    <div data-horizontal-scroll-target="container"
+         data-action="scroll->horizontal-scroll#onScroll"
+         class="flex gap-4 overflow-x-auto scrollbar-hide pb-2 pr-12"
+         style="scroll-behavior: smooth; -ms-overflow-style: none; scrollbar-width: none;">
+
+      <% posts.each_with_index do |post, index| %>
+        <% rank = index + 1 %>
+
+        <% case design %>
+        <% when 'A' %>
+          <%# 案A: サムネイル左上にバッジ %>
+          <article class="flex-shrink-0 group" style="width: 200px; min-width: 200px; max-width: 200px;">
+            <%= link_to post_path(post), class: "block" do %>
+              <div class="relative rounded-lg overflow-hidden bg-gray-100" style="width: 200px; height: 112px;">
+                <%= image_tag post.youtube_thumbnail_url(size: :mqdefault),
+                      alt: post.youtube_title,
+                      class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-200",
+                      loading: "lazy" %>
+                <%# ランキングバッジ %>
+                <div class="absolute top-2 left-2 w-7 h-7 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg
+                  <%= rank <= 3 ? 'bg-gray-900' : 'bg-gray-700 bg-opacity-80' %>">
+                  <%= rank %>
+                </div>
+              </div>
+            <% end %>
+            <div class="pt-2" style="height: 72px;">
+              <%= link_to post_path(post), class: "block" do %>
+                <h3 class="text-sm font-medium text-gray-900 group-hover:text-gray-700 transition-colors line-clamp-2">
+                  <%= post.youtube_title %>
+                </h3>
+              <% end %>
+              <p class="text-xs text-gray-500 mt-1 truncate"><%= post.youtube_channel_name %></p>
+            </div>
+          </article>
+
+        <% when 'D' %>
+          <%# 案D: カード左に大きな数字（YouTube Music風） %>
+          <article class="flex-shrink-0 group flex items-start gap-2" style="width: 240px; min-width: 240px; max-width: 240px;">
+            <%# 大きなランキング番号 %>
+            <div class="flex-shrink-0 w-10 flex items-center justify-center pt-8">
+              <span class="text-3xl font-black <%= rank <= 3 ? 'text-gray-900' : 'text-gray-300' %>">
+                <%= rank %>
+              </span>
+            </div>
+            <%# カード本体 %>
+            <div class="flex-1" style="width: 190px;">
+              <%= link_to post_path(post), class: "block" do %>
+                <div class="rounded-lg overflow-hidden bg-gray-100" style="width: 190px; height: 107px;">
+                  <%= image_tag post.youtube_thumbnail_url(size: :mqdefault),
+                        alt: post.youtube_title,
+                        class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-200",
+                        loading: "lazy" %>
+                </div>
+              <% end %>
+              <div class="pt-2" style="height: 72px;">
+                <%= link_to post_path(post), class: "block" do %>
+                  <h3 class="text-sm font-medium text-gray-900 group-hover:text-gray-700 transition-colors line-clamp-2">
+                    <%= post.youtube_title %>
+                  </h3>
+                <% end %>
+                <p class="text-xs text-gray-500 mt-1 truncate"><%= post.youtube_channel_name %></p>
+              </div>
+            </div>
+          </article>
+
+        <% when 'G' %>
+          <%# 案G: タイトル横にインライン %>
+          <article class="flex-shrink-0 group" style="width: 200px; min-width: 200px; max-width: 200px;">
+            <%= link_to post_path(post), class: "block" do %>
+              <div class="rounded-lg overflow-hidden bg-gray-100" style="width: 200px; height: 112px;">
+                <%= image_tag post.youtube_thumbnail_url(size: :mqdefault),
+                      alt: post.youtube_title,
+                      class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-200",
+                      loading: "lazy" %>
+              </div>
+            <% end %>
+            <div class="pt-2" style="height: 72px;">
+              <%= link_to post_path(post), class: "block" do %>
+                <div class="flex items-start gap-2">
+                  <%# インラインランキング番号 %>
+                  <span class="flex-shrink-0 text-sm font-bold <%= rank <= 3 ? 'text-gray-900' : 'text-gray-400' %>">
+                    #<%= rank %>
+                  </span>
+                  <h3 class="text-sm font-medium text-gray-900 group-hover:text-gray-700 transition-colors line-clamp-2">
+                    <%= post.youtube_title %>
+                  </h3>
+                </div>
+              <% end %>
+              <p class="text-xs text-gray-500 mt-1 truncate pl-7"><%= post.youtube_channel_name %></p>
+            </div>
+          </article>
+
+        <% when 'H' %>
+          <%# 案H: TOP3特別デザイン（王冠・メダル） %>
+          <article class="flex-shrink-0 group" style="width: 200px; min-width: 200px; max-width: 200px;">
+            <%= link_to post_path(post), class: "block" do %>
+              <div class="relative rounded-lg overflow-hidden bg-gray-100" style="width: 200px; height: 112px;">
+                <%= image_tag post.youtube_thumbnail_url(size: :mqdefault),
+                      alt: post.youtube_title,
+                      class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-200",
+                      loading: "lazy" %>
+                <% if rank == 1 %>
+                  <%# 1位: 王冠 %>
+                  <div class="absolute top-0 left-0 right-0 bg-gradient-to-b from-yellow-400/90 to-transparent py-1 px-2">
+                    <div class="flex items-center gap-1">
+                      <span class="text-lg">👑</span>
+                      <span class="text-white font-bold text-sm drop-shadow-md">1位</span>
+                    </div>
+                  </div>
+                <% elsif rank == 2 %>
+                  <%# 2位: 銀メダル %>
+                  <div class="absolute top-2 left-2 flex items-center gap-1 bg-gray-100/90 rounded-full px-2 py-0.5">
+                    <span class="text-sm">🥈</span>
+                    <span class="text-gray-700 font-bold text-xs">2位</span>
+                  </div>
+                <% elsif rank == 3 %>
+                  <%# 3位: 銅メダル %>
+                  <div class="absolute top-2 left-2 flex items-center gap-1 bg-orange-100/90 rounded-full px-2 py-0.5">
+                    <span class="text-sm">🥉</span>
+                    <span class="text-orange-700 font-bold text-xs">3位</span>
+                  </div>
+                <% else %>
+                  <%# 4位以降: シンプルな数字 %>
+                  <div class="absolute top-2 left-2 w-6 h-6 rounded-full bg-gray-700/80 flex items-center justify-center">
+                    <span class="text-white text-xs font-bold"><%= rank %></span>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+            <div class="pt-2" style="height: 72px;">
+              <%= link_to post_path(post), class: "block" do %>
+                <h3 class="text-sm font-medium text-gray-900 group-hover:text-gray-700 transition-colors line-clamp-2">
+                  <%= post.youtube_title %>
+                </h3>
+              <% end %>
+              <p class="text-xs text-gray-500 mt-1 truncate"><%= post.youtube_channel_name %></p>
+            </div>
+          </article>
+        <% end %>
+
+      <% end %>
+    </div>
+
+    <%# 右スクロールボタン %>
+    <button type="button"
+            data-horizontal-scroll-target="rightBtn"
+            data-action="click->horizontal-scroll#scrollRight"
+            class="flex absolute z-10 w-10 h-10 bg-white rounded-full shadow-lg items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200 cursor-pointer"
+            style="right: 8px; top: 56px; transform: translateY(-50%);">
+      <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+      </svg>
+    </button>
+  </div>
+</section>
+
+<style>
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+</style>

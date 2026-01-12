@@ -35,25 +35,27 @@ Rails.application.routes.draw do
     post :mark_all_as_read, on: :collection
   end
 
-  resources :posts do
+  resources :posts, except: [ :new, :create ] do
     collection do
       get :autocomplete
       get :youtube_search
       post :find_or_create
+      get :trending
+      get :ranking
+      get :channels
+      get :user_ranking
+      get :recent
     end
     member do
       post :summarize
       get :youtube_comments
       post :discover_comments
+      post :suggest_action_plans
     end
     resources :achievements, only: [ :create, :destroy ]
     resources :cheers, only: [ :create, :destroy ]
-    resources :post_entries, only: [ :create, :destroy ] do
+    resources :post_entries, only: [ :create, :edit, :update, :destroy ] do
       patch :achieve, on: :member
-    end
-    resource :quiz, only: [ :show ] do
-      post :generate
-      post :submit
     end
   end
 

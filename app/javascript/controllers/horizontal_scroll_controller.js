@@ -2,18 +2,18 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["container", "leftBtn", "rightBtn", "leftFade", "rightFade"]
+  static targets = ["container", "leftBtn", "rightBtn"]
 
   connect() {
     // 初期状態でボタンの表示を更新
-    this.updateNavigation()
+    setTimeout(() => this.updateNavigation(), 100)
   }
 
   scrollRight() {
     if (this.hasContainerTarget) {
-      const cardWidth = 172 // カード幅160px + gap12px
+      const scrollAmount = 220 // カード幅200px + gap20px
       this.containerTarget.scrollBy({
-        left: cardWidth * 2,
+        left: scrollAmount * 2,
         behavior: "smooth"
       })
     }
@@ -21,9 +21,9 @@ export default class extends Controller {
 
   scrollLeft() {
     if (this.hasContainerTarget) {
-      const cardWidth = 172
+      const scrollAmount = 220
       this.containerTarget.scrollBy({
-        left: -cardWidth * 2,
+        left: -scrollAmount * 2,
         behavior: "smooth"
       })
     }
@@ -47,22 +47,24 @@ export default class extends Controller {
 
     // 左ボタン
     if (this.hasLeftBtnTarget) {
-      this.leftBtnTarget.classList.toggle("hidden", !canScrollLeft)
+      if (canScrollLeft) {
+        this.leftBtnTarget.classList.remove("hidden")
+        this.leftBtnTarget.classList.add("flex")
+      } else {
+        this.leftBtnTarget.classList.add("hidden")
+        this.leftBtnTarget.classList.remove("flex")
+      }
     }
 
     // 右ボタン
     if (this.hasRightBtnTarget) {
-      this.rightBtnTarget.classList.toggle("hidden", !canScrollRight)
-    }
-
-    // 左フェード
-    if (this.hasLeftFadeTarget) {
-      this.leftFadeTarget.classList.toggle("hidden", !canScrollLeft)
-    }
-
-    // 右フェード
-    if (this.hasRightFadeTarget) {
-      this.rightFadeTarget.classList.toggle("hidden", !canScrollRight)
+      if (canScrollRight) {
+        this.rightBtnTarget.classList.remove("hidden")
+        this.rightBtnTarget.classList.add("flex")
+      } else {
+        this.rightBtnTarget.classList.add("hidden")
+        this.rightBtnTarget.classList.remove("flex")
+      }
     }
   }
 }

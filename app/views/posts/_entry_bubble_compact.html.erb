@@ -1,0 +1,28 @@
+<%# app/views/posts/_entry_bubble_compact.html.erb %>
+<%# コンパクト版エントリー表示（カード統合用） %>
+
+<div class="flex items-start gap-2 py-2">
+  <%# アバター（小さめ） %>
+  <% if entry.display_anonymous? %>
+    <div class="flex-shrink-0 w-7 h-7 rounded-lg bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center">
+      <svg class="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+      </svg>
+    </div>
+  <% elsif entry.display_avatar.present? %>
+    <%= image_tag entry.display_avatar.url, class: "flex-shrink-0 w-7 h-7 rounded-lg object-cover" %>
+  <% else %>
+    <div class="flex-shrink-0 w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-[10px]">
+      <%= entry.display_user_name&.first&.upcase || '?' %>
+    </div>
+  <% end %>
+
+  <%# コンテンツ %>
+  <div class="flex-1 min-w-0">
+    <div class="flex items-center gap-2 mb-0.5">
+      <span class="text-xs font-medium text-gray-700 truncate"><%= entry.display_user_name %></span>
+      <span class="text-[10px] text-gray-400"><%= entry.created_at.strftime("%m/%d") %></span>
+    </div>
+    <p class="text-sm text-gray-600 line-clamp-2"><%= entry.content %></p>
+  </div>
+</div>

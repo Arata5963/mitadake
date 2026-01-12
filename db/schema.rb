@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_07_085408) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_12_014653) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -135,40 +135,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_07_085408) do
     t.string "youtube_video_id"
     t.string "youtube_channel_thumbnail_url"
     t.text "ai_summary"
+    t.jsonb "suggested_action_plans"
+    t.string "youtube_channel_id"
     t.index ["user_id"], name: "index_posts_on_user_id"
     t.index ["youtube_video_id"], name: "index_posts_on_youtube_video_id", unique: true
-  end
-
-  create_table "quiz_answers", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "quiz_id", null: false
-    t.integer "score"
-    t.integer "total_questions"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["quiz_id"], name: "index_quiz_answers_on_quiz_id"
-    t.index ["user_id"], name: "index_quiz_answers_on_user_id"
-  end
-
-  create_table "quiz_questions", force: :cascade do |t|
-    t.bigint "quiz_id", null: false
-    t.text "question_text"
-    t.string "option_1"
-    t.string "option_2"
-    t.string "option_3"
-    t.string "option_4"
-    t.integer "correct_option"
-    t.integer "position"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["quiz_id"], name: "index_quiz_questions_on_quiz_id"
-  end
-
-  create_table "quizzes", force: :cascade do |t|
-    t.bigint "post_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["post_id"], name: "index_quizzes_on_post_id"
   end
 
   create_table "recommendation_clicks", force: :cascade do |t|
@@ -370,10 +340,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_07_085408) do
   add_foreign_key "post_entries", "posts"
   add_foreign_key "post_entries", "users"
   add_foreign_key "posts", "users"
-  add_foreign_key "quiz_answers", "quizzes"
-  add_foreign_key "quiz_answers", "users"
-  add_foreign_key "quiz_questions", "quizzes"
-  add_foreign_key "quizzes", "posts"
   add_foreign_key "recommendation_clicks", "posts"
   add_foreign_key "recommendation_clicks", "users"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade

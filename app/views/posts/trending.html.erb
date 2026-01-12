@@ -1,0 +1,38 @@
+<%# app/views/posts/trending.html.erb %>
+<%# 急上昇一覧ページ %>
+
+<div class="min-h-screen bg-white">
+  <div class="max-w-6xl mx-auto px-4 sm:px-8 py-6">
+    <%# ヘッダー %>
+    <div class="flex items-center gap-4 mb-6">
+      <%= link_to posts_path, class: "text-gray-400 hover:text-gray-600 transition-colors" do %>
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+      <% end %>
+      <h1 class="text-xl font-bold text-gray-900">急上昇</h1>
+      <span class="text-sm text-gray-500">過去30日間でアクションが増えた投稿</span>
+    </div>
+
+    <%# 投稿グリッド %>
+    <% if @posts.present? %>
+      <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
+        <% @posts.each do |post| %>
+          <%= render 'posts/post_card_note', post: post %>
+        <% end %>
+      </div>
+
+      <%# ページネーション %>
+      <% if @posts.respond_to?(:total_pages) && @posts.total_pages > 1 %>
+        <div class="mt-8 flex justify-center">
+          <%= paginate @posts %>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="py-16 text-center">
+        <span class="text-5xl block mb-4">📈</span>
+        <p class="text-gray-700 font-medium">急上昇の投稿はまだありません</p>
+      </div>
+    <% end %>
+  </div>
+</div>

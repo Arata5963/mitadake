@@ -1,10 +1,10 @@
 <%# app/views/posts/index.html.erb %>
-<%# シンプルな時系列表示 + もっと見るボタン %>
+<%# YouTube風セクション表示 %>
 
 <div class="min-h-screen bg-white">
   <%# ===== 統合検索バー ===== %>
   <div class="border-b border-gray-100">
-    <div class="max-w-xl mx-auto px-4 py-3">
+    <div class="max-w-6xl mx-auto px-4 sm:px-8 py-3">
       <div class="relative"
            data-controller="index-search"
            data-index-search-youtube-url-value="<%= youtube_search_posts_path %>"
@@ -18,7 +18,7 @@
                data-index-search-target="input"
                data-action="input->index-search#handleInput keydown->index-search#handleKeydown"
                placeholder="URLを貼り付け、またはタイトルで検索..."
-               class="w-full rounded-lg border border-gray-200 bg-white pl-11 pr-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-orange-300 focus:ring-2 focus:ring-orange-100 focus:outline-none transition-colors">
+               class="w-full rounded-lg border border-gray-200 bg-white pl-12 pr-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gray-400 focus:ring-2 focus:ring-gray-100 focus:outline-none transition-colors">
         <%# 検索結果ドロップダウン %>
         <div data-index-search-target="results"
              class="hidden absolute z-20 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-96 overflow-y-auto">
@@ -28,9 +28,9 @@
   </div>
 
   <%# ===== メインコンテンツ ===== %>
-  <div class="max-w-4xl mx-auto px-8 md:px-12 py-5">
+  <div class="max-w-6xl mx-auto px-4 sm:px-8 py-6">
     <% if @filter_user.present? %>
-      <%# ユーザーフィルター時のヘッダー %>
+      <%# ===== ユーザーフィルター時: 従来のグリッド表示 ===== %>
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-2">
           <h1 class="text-lg font-bold text-gray-900">投稿一覧</h1>
@@ -41,43 +41,100 @@
           ← 戻る
         <% end %>
       </div>
-    <% end %>
 
-    <%# ===== 投稿一覧 ===== %>
-    <% if @posts.blank? %>
-      <%# 空状態 %>
-      <div class="py-16 text-center">
-        <span class="text-5xl block mb-4">📺</span>
-        <p class="text-gray-700 font-medium mb-2">まだアウトプットがありません</p>
-        <p class="text-sm text-gray-500 mb-6">YouTube動画を見たら記録してみましょう</p>
-        <% if user_signed_in? %>
-          <%= link_to new_post_path, class: "inline-flex items-center gap-2 px-6 py-2.5 bg-orange-500 text-white rounded-full font-medium hover:bg-orange-600 transition-colors" do %>
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-            </svg>
-            最初のアウトプットを記録
-          <% end %>
-        <% else %>
-          <%= link_to new_user_session_path, class: "inline-flex items-center gap-2 px-6 py-2.5 bg-orange-500 text-white rounded-full font-medium hover:bg-orange-600 transition-colors" do %>
-            ログインして始める
-          <% end %>
+      <% if @posts.blank? %>
+        <div class="py-16 text-center">
+          <span class="text-5xl block mb-4">📺</span>
+          <p class="text-gray-700 font-medium mb-2">まだアウトプットがありません</p>
+        </div>
+      <% else %>
+        <div data-controller="load-more">
+          <div id="posts-container"
+               data-load-more-target="container"
+               class="grid gap-4"
+               style="grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));">
+            <% @posts.each do |post| %>
+              <%= render 'posts/post_card_note', post: post %>
+            <% end %>
+          </div>
+          <%= render 'posts/load_more_button', posts: @posts %>
+        </div>
+      <% end %>
+
+    <% elsif @filter_channel.present? %>
+      <%# ===== チャンネルフィルター時: グリッド表示 ===== %>
+      <div class="flex items-center gap-4 mb-6">
+        <%= link_to posts_path, class: "text-gray-400 hover:text-gray-600 transition-colors" do %>
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
         <% end %>
+        <h1 class="text-xl font-bold text-gray-900"><%= @filter_channel %></h1>
+        <span class="text-sm text-gray-500"><%= @posts.total_count %>件の投稿</span>
       </div>
+
+      <% if @posts.blank? %>
+        <div class="py-16 text-center">
+          <span class="text-5xl block mb-4">📺</span>
+          <p class="text-gray-700 font-medium mb-2">このチャンネルの投稿はまだありません</p>
+        </div>
+      <% else %>
+        <div data-controller="load-more">
+          <div id="posts-container"
+               data-load-more-target="container"
+               class="grid gap-4"
+               style="grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));">
+            <% @posts.each do |post| %>
+              <%= render 'posts/post_card_note', post: post %>
+            <% end %>
+          </div>
+          <%= render 'posts/load_more_button', posts: @posts %>
+        </div>
+      <% end %>
+
     <% else %>
-      <div data-controller="load-more">
-        <%# 投稿グリッド %>
-        <div id="posts-container"
-             data-load-more-target="container"
-             class="grid gap-4"
-             style="grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));">
-          <% @posts.each do |post| %>
-            <%= render 'posts/post_card_note', post: post %>
+      <%# ===== セクション表示 ===== %>
+
+      <%# セクション1: 人気のチャンネル %>
+      <% if @popular_channels.present? %>
+        <%= render 'posts/section_channels', channels: @popular_channels %>
+      <% end %>
+
+      <%# セクション2: アクション数ランキング %>
+      <% if @ranking_posts.present? %>
+        <%= render 'posts/section_ranking', posts: @ranking_posts, design: 'D' %>
+      <% end %>
+
+      <%# セクション3: 達成数ランキング %>
+      <% if @user_ranking.present? %>
+        <%= render 'posts/section_user_ranking', users: @user_ranking %>
+      <% end %>
+
+      <%# セクション4: 最近の投稿 %>
+      <% if @recent_posts.present? %>
+        <%= render 'posts/section_recent_posts', posts: @recent_posts %>
+      <% end %>
+
+      <%# 空状態 %>
+      <% if @popular_channels.blank? && @user_ranking.blank? && @ranking_posts.blank? && @recent_posts.blank? %>
+        <div class="py-16 text-center">
+          <span class="text-5xl block mb-4">📺</span>
+          <p class="text-gray-700 font-medium mb-2">まだアウトプットがありません</p>
+          <p class="text-sm text-gray-500 mb-6">YouTube動画を見たら記録してみましょう</p>
+          <% if user_signed_in? %>
+            <%= link_to new_post_path, class: "inline-flex items-center gap-2 px-6 py-2.5 bg-gray-900 text-white rounded-full font-medium hover:bg-gray-700 transition-colors" do %>
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+              </svg>
+              最初のアウトプットを記録
+            <% end %>
+          <% else %>
+            <%= link_to new_user_session_path, class: "inline-flex items-center gap-2 px-6 py-2.5 bg-gray-900 text-white rounded-full font-medium hover:bg-gray-700 transition-colors" do %>
+              ログインして始める
+            <% end %>
           <% end %>
         </div>
-
-        <%# もっと見るボタン %>
-        <%= render 'posts/load_more_button', posts: @posts %>
-      </div>
+      <% end %>
     <% end %>
   </div>
 </div>

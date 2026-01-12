@@ -10,9 +10,20 @@ class User < ApplicationRecord
   has_many :achievements, dependent: :destroy
   has_many :cheers, dependent: :destroy
   has_many :favorite_videos, -> { order(:position) }, dependent: :destroy
-  has_many :quiz_answers, dependent: :destroy
   has_many :comment_bookmarks, dependent: :destroy
   has_many :bookmarked_comments, through: :comment_bookmarks, source: :youtube_comment
+  has_many :post_entries, dependent: :destroy
+
+  # 達成数ランキング（TOP N ユーザー）
+  def self.by_achieved_count(limit: 10)
+    User
+      .joins(:post_entries)
+      .where.not(post_entries: { achieved_at: nil })
+      .group("users.id")
+      .order(Arel.sql("COUNT(post_entries.id) DESC"))
+      .limit(limit)
+      .select("users.*, COUNT(post_entries.id) AS achieved_count")
+  end
 
   mount_uploader :avatar, ImageUploader
 

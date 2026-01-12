@@ -5,8 +5,8 @@ class PostEntriesController < ApplicationController
 
   before_action :authenticate_user!
   before_action :set_post
-  before_action :set_entry, only: [ :destroy, :achieve ]
-  before_action :check_entry_owner, only: [ :destroy, :achieve ]
+  before_action :set_entry, only: [ :edit, :update, :destroy, :achieve ]
+  before_action :check_entry_owner, only: [ :edit, :update, :destroy, :achieve ]
 
   def create
     @entry = @post.post_entries.build(entry_params)
@@ -20,13 +20,11 @@ class PostEntriesController < ApplicationController
     end
   end
 
-  def destroy
-    @entry.destroy
-    redirect_to @post, notice: "アクションプランを削除しました"
+  def edit
   end
 
-  def achieve
-    if @entry.achieve!
+  def update
+    if @entry.update(entry_params)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: turbo_stream.replace(
@@ -35,7 +33,39 @@ class PostEntriesController < ApplicationController
             locals: { entry: @entry }
           )
         end
-        format.html { redirect_to @post, notice: @entry.achieved? ? "達成おめでとうございます！" : "未達成に戻しました" }
+        format.html { redirect_to @post, notice: "アクションプランを更新しました" }
+      end
+    else
+      respond_to do |format|
+        format.turbo_stream { render :edit, status: :unprocessable_entity }
+        format.html { render :edit, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  def destroy
+    @entry.destroy
+    redirect_to @post, notice: "アクションプランを削除しました"
+  end
+
+  def achieve
+    if @entry.achieve!
+      notice_message = @entry.achieved? ? "達成おめでとうございます！" : "未達成に戻しました"
+      redirect_url = params[:redirect_to] == "mypage" ? mypage_path : request.referer || @post
+
+      respond_to do |format|
+        format.turbo_stream do
+          if request.referer&.include?("mypage") || params[:redirect_to] == "mypage"
+            redirect_to mypage_path, notice: notice_message
+          else
+            render turbo_stream: turbo_stream.replace(
+              dom_id(@entry),
+              partial: "post_entries/entry_card",
+              locals: { entry: @entry }
+            )
+          end
+        end
+        format.html { redirect_to redirect_url, notice: notice_message }
       end
     else
       respond_to do |format|

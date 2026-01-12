@@ -1,0 +1,39 @@
+<%# app/views/posts/_post_card_newspicks.html.erb %>
+<%# NewsPicks風デザイン: テキスト左、サムネイル右の横型カード %>
+<%# 使用方法: render 'posts/post_card_newspicks', post: post %>
+<%# 注意: index.html.erb の <style> タグ内にある .np-card 関連のCSSが必要です %>
+
+<article class="np-card">
+  <%= link_to post_path(post), class: "np-card-link" do %>
+    <div class="np-card-inner">
+      <%# 左側: テキストコンテンツ %>
+      <div class="np-card-content">
+        <%# タイトル %>
+        <h3 class="np-card-title">
+          <%= post.youtube_title.presence || post.action_plan %>
+        </h3>
+
+        <%# チャンネル名 %>
+        <% if post.youtube_channel_name.present? %>
+          <p class="np-card-source"><%= post.youtube_channel_name %></p>
+        <% end %>
+
+        <%# スペーサー %>
+        <div class="np-card-spacer"></div>
+
+        <%# アクション数（サムネ下部と揃う） %>
+        <div class="np-card-footer">
+          <span class="np-card-count"><%= post.post_entries.count %></span>
+          <span class="np-card-label">アクション</span>
+        </div>
+      </div>
+
+      <%# 右側: サムネイル %>
+      <div class="np-card-thumb">
+        <%= image_tag post.youtube_thumbnail_url(size: :mqdefault),
+              alt: post.youtube_title || post.action_plan,
+              loading: "lazy" %>
+      </div>
+    </div>
+  <% end %>
+</article>

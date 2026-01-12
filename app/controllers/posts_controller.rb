@@ -1,7 +1,7 @@
 # app/controllers/posts_controller.rb
 class PostsController < ApplicationController
-  before_action :authenticate_user!, except: [ :index, :show, :autocomplete, :youtube_search, :find_or_create, :youtube_comments, :discover_comments ]
-  before_action :set_post, only: [ :show, :edit, :update, :destroy, :summarize, :youtube_comments, :discover_comments ]
+  before_action :authenticate_user!, except: [ :index, :show, :autocomplete, :youtube_search, :find_or_create, :youtube_comments, :discover_comments, :trending, :ranking, :channels, :user_ranking, :recent ]
+  before_action :set_post, only: [ :show, :edit, :update, :destroy, :summarize, :youtube_comments, :discover_comments, :suggest_action_plans ]
   before_action :check_has_entries, only: [ :edit, :update, :destroy ]
 
   def index
@@ -15,23 +15,64 @@ class PostsController < ApplicationController
         # そのユーザーがエントリーを持つ投稿のみ表示
         post_ids_with_entries = PostEntry.where(user_id: params[:user_id]).select(:post_id).distinct
         base_scope = base_scope.where(id: post_ids_with_entries)
+        # ユーザーフィルター時は従来のグリッド表示
+        @posts = base_scope.recent.page(params[:page]).per(20)
       end
-    end
 
-    # シンプルに時系列表示
-    @posts = base_scope.recent.page(params[:page]).per(20)
+    # ===== チャンネル絞り込み =====
+    elsif params[:channel].present?
+      @filter_channel = params[:channel]
+      base_scope = base_scope.where(youtube_channel_name: @filter_channel)
+      @posts = base_scope.recent.page(params[:page]).per(20)
+
+    else
+      # ===== セクション表示用データ =====
+      @popular_channels = Post.popular_channels(limit: 20)
+      @ranking_posts = Post.by_action_count(limit: 30)
+      @user_ranking = User.by_achieved_count(limit: 5)
+
+      # 最近の投稿（ランキングと重複してもOK）
+      @recent_posts = Post.recent.includes(:post_entries).limit(20)
+    end
 
     respond_to do |format|
       format.html
-      format.turbo_stream { render partial: "posts/posts_page", locals: { posts: @posts } }
+      format.turbo_stream do
+        if @posts.present?
+          render partial: "posts/posts_page", locals: { posts: @posts }
+        else
+          head :ok
+        end
+      end
     end
   end
 
-  def show
+  # 急上昇一覧ページ
+  def trending
+    @posts = Post.trending(limit: nil).page(params[:page]).per(20)
   end
 
-  def new
-    @post = Post.new(youtube_url: params[:youtube_url])
+  # ランキング一覧ページ
+  def ranking
+    @posts = Post.by_action_count(limit: nil).page(params[:page]).per(20)
+  end
+
+  # チャンネル一覧ページ
+  def channels
+    @channels = Post.popular_channels(limit: 100)
+  end
+
+  # ユーザー達成数ランキングページ
+  def user_ranking
+    @users = User.by_achieved_count(limit: 10)
+  end
+
+  # 最近の投稿一覧ページ
+  def recent
+    @posts = Post.recent.page(params[:page]).per(20)
+  end
+
+  def show
   end
 
   # YouTube URLから投稿を検索または作成してリダイレクト
@@ -59,32 +100,6 @@ class PostsController < ApplicationController
     else
       render json: { success: false, error: "動画の情報を取得できませんでした" }, status: :unprocessable_entity
     end
-  end
-
-  def create
-    youtube_url = post_params[:youtube_url]
-
-    # 動画IDでPostを検索または作成
-    @post = Post.find_or_create_by_video(youtube_url: youtube_url)
-
-    unless @post
-      @post = Post.new(youtube_url: youtube_url)
-      unless @post.save
-        render :new, status: :unprocessable_entity
-        return
-      end
-    end
-
-    # AI要約を自動生成（まだない場合）
-    if @post.ai_summary.blank?
-      begin
-        GenerateSummaryJob.perform_later(@post.id)
-      rescue StandardError => e
-        Rails.logger.warn("Failed to enqueue GenerateSummaryJob: #{e.message}")
-      end
-    end
-
-    redirect_to @post, notice: "動画を記録しました"
   end
 
   def edit
@@ -176,6 +191,41 @@ class PostsController < ApplicationController
       format.json { render json: { success: true, comments: @comments } }
       format.turbo_stream
       format.html { render layout: false }
+    end
+  end
+
+  # AIアクションプラン提案を生成
+  def suggest_action_plans
+    # 既にDB保存済みの提案があれば返す
+    if @post.suggested_action_plans.present?
+      respond_to do |format|
+        format.json { render json: { success: true, action_plans: @post.suggested_action_plans, cached: true } }
+      end
+      return
+    end
+
+    # 新規生成
+    result = GeminiService.suggest_action_plans(
+      video_id: @post.youtube_video_id,
+      title: @post.youtube_title,
+      description: nil
+    )
+
+    respond_to do |format|
+      if result[:success]
+        # DBに保存
+        @post.update(suggested_action_plans: result[:action_plans])
+        format.json { render json: { success: true, action_plans: result[:action_plans] } }
+        format.turbo_stream do
+          @action_plans = result[:action_plans]
+        end
+      else
+        format.json { render json: { success: false, error: result[:error] }, status: :unprocessable_entity }
+        format.turbo_stream do
+          @error = result[:error]
+          render :suggest_action_plans_error
+        end
+      end
     end
   end
 

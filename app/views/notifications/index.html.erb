@@ -1,15 +1,15 @@
 <%# app/views/notifications/index.html.erb %>
 
-<div class="min-h-screen pb-20">
+<div class="min-h-screen bg-gray-50 pb-20">
   <div class="max-w-2xl mx-auto px-4 py-6">
     <%# ヘッダー %>
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold text-primary">通知</h1>
+      <h1 class="text-lg font-bold text-gray-900">通知</h1>
 
       <% if @unread_count > 0 %>
         <%= button_to mark_all_as_read_notifications_path,
               method: :post,
-              class: "text-sm text-accent hover:text-accent/80 transition-colors" do %>
+              class: "text-sm text-gray-500 hover:text-gray-700 transition-colors" do %>
           すべて既読にする
         <% end %>
       <% end %>
@@ -17,17 +17,17 @@
 
     <%# 通知リスト %>
     <% if @notifications.empty? %>
-      <div class="rounded-2xl bg-white border border-accent/20 p-12 text-center shadow-sm">
-        <div class="mx-auto h-14 w-14 rounded-full bg-accent/10 flex items-center justify-center">
-          <svg class="h-7 w-7 text-primary/40" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <div class="py-16 text-center">
+        <div class="mx-auto h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+          <svg class="h-6 w-6 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
           </svg>
         </div>
-        <h3 class="mt-4 text-xl font-bold text-primary">通知はありません</h3>
-        <p class="mt-1 text-sm text-primary/60">応援やコメントがあると通知が届きます</p>
+        <p class="text-gray-700 font-medium">通知はありません</p>
+        <p class="mt-1 text-sm text-gray-500">応援やコメントがあると通知が届きます</p>
       </div>
     <% else %>
-      <div id="notifications-list" class="space-y-3">
+      <div id="notifications-list" class="space-y-2">
         <% @notifications.each do |notification| %>
           <%= render 'notifications/notification', notification: notification %>
         <% end %>

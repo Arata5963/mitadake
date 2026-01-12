@@ -63,6 +63,35 @@ class GeminiService
       { success: false, error: "引用の抽出に失敗しました: #{e.message}" }
     end
 
+    # アクションプランの提案を生成（3個）
+    # @param video_id [String] YouTube動画ID
+    # @param title [String] 動画タイトル
+    # @param description [String] 動画説明文（オプション）
+    # @return [Hash] { success: true, action_plans: [...] } または { success: false, error: "エラーメッセージ" }
+    def suggest_action_plans(video_id:, title:, description: nil)
+      api_key = ENV["GEMINI_API_KEY"]
+      return { success: false, error: "Gemini APIキーが設定されていません" } if api_key.blank?
+      return { success: false, error: "動画IDがありません" } if video_id.blank?
+
+      # 1. 字幕ベースで生成を試行
+      transcript_result = TranscriptService.fetch_with_status(video_id)
+
+      if transcript_result[:success] && transcript_result[:transcript].length >= 100
+        # 字幕から生成
+        prompt = build_action_plans_prompt(title, transcript_result[:transcript])
+      else
+        # 2. 字幕がない場合はタイトル＋説明文から生成
+        Rails.logger.info("Transcript not available, using title+description for action plans")
+        prompt = build_action_plans_from_title_prompt(title, description)
+      end
+
+      response = call_gemini_with_text(api_key, prompt)
+      extract_action_plans(response)
+    rescue StandardError => e
+      Rails.logger.error("Gemini suggest_action_plans error: #{e.message}")
+      { success: false, error: "アクションプランの生成に失敗しました: #{e.message}" }
+    end
+
     # エントリータイプに応じたコンテンツを生成
     # @param video_id [String] YouTube動画ID
     # @param entry_type [String] "keyPoint", "quote", "action"
@@ -434,6 +463,132 @@ class GeminiService
       rescue JSON::ParserError => e
         Rails.logger.error("JSON parse error: #{e.message}")
         { success: false, error: "引用データの解析に失敗しました" }
+      end
+    end
+
+    # アクションプラン提案用プロンプト（字幕ベース）
+    def build_action_plans_prompt(title, transcript)
+      max_chars = 30_000
+      truncated_transcript = if transcript.length > max_chars
+                                transcript[0, max_chars] + "\n\n（字幕が長いため一部省略）"
+                              else
+                                transcript
+                              end
+
+      <<~PROMPT
+        以下はYouTube動画「#{title}」の字幕テキストです。
+        この動画を見た視聴者が「今日すぐに」実行できる単発アクションを3個提案してください。
+
+        【字幕テキスト】
+        #{truncated_transcript}
+
+        【回答形式】
+        以下のJSON形式で回答してください。JSONのみを返し、他のテキストは含めないでください。
+
+        {
+          "action_plans": [
+            "アクション1",
+            "アクション2",
+            "アクション3"
+          ]
+        }
+
+        【重要な作成ルール】
+        - 必ず3個のアクションを提案してください
+        - 「1回で完了する」単発アクションのみ（習慣化や継続的な取り組みはNG）
+        - 「今日」「今すぐ」「今週末に」など、すぐに実行できる内容
+        - 「〜する」という形式で、短く簡潔に記載してください（25文字以内）
+        - 動画の内容に直接関連したアクションのみを提案してください
+
+        【良い例】
+        - 「〇〇をAmazonで検索してカートに入れる」
+        - 「〇〇のアプリをダウンロードする」
+        - 「〇〇について10分調べる」
+        - 「〇〇を試しに1回やってみる」
+
+        【悪い例（これらは提案しないこと）】
+        - 「毎日〇〇する習慣をつける」
+        - 「〇〇を継続的に改善する」
+        - 「週に1回〇〇する」
+      PROMPT
+    end
+
+    # アクションプラン提案用プロンプト（タイトル＋説明文ベース）
+    def build_action_plans_from_title_prompt(title, description)
+      desc_text = description.present? ? "\n動画の説明: #{description.truncate(1000)}" : ""
+
+      <<~PROMPT
+        以下のYouTube動画について、視聴者が「今日すぐに」実行できる単発アクションを3個提案してください。
+
+        動画タイトル: #{title}#{desc_text}
+
+        【回答形式】
+        以下のJSON形式で回答してください。JSONのみを返し、他のテキストは含めないでください。
+
+        {
+          "action_plans": [
+            "アクション1",
+            "アクション2",
+            "アクション3"
+          ]
+        }
+
+        【重要な作成ルール】
+        - 必ず3個のアクションを提案してください
+        - タイトルから推測される動画内容に基づいて提案してください
+        - 「1回で完了する」単発アクションのみ（習慣化や継続的な取り組みはNG）
+        - 「今日」「今すぐ」「今週末に」など、すぐに実行できる内容
+        - 「〜する」という形式で、短く簡潔に記載してください（25文字以内）
+
+        【良い例】
+        - 「〇〇をAmazonで検索してカートに入れる」
+        - 「〇〇のアプリをダウンロードする」
+        - 「〇〇について10分調べる」
+        - 「〇〇を試しに1回やってみる」
+
+        【悪い例（これらは提案しないこと）】
+        - 「毎日〇〇する習慣をつける」
+        - 「〇〇を継続的に改善する」
+        - 「週に1回〇〇する」
+      PROMPT
+    end
+
+    # アクションプランのJSONレスポンスをパース
+    def extract_action_plans(response)
+      if response["error"]
+        error_message = response.dig("error", "message") || "APIエラーが発生しました"
+        Rails.logger.error("Gemini API error response: #{error_message}")
+        return { success: false, error: "アクションプランの生成に失敗しました: #{error_message}" }
+      end
+
+      text = response.dig("candidates", 0, "content", "parts", 0, "text")
+
+      if text.blank?
+        return { success: false, error: "アクションプランを生成できませんでした" }
+      end
+
+      # JSONを抽出してパース
+      json_match = text.match(/\{[\s\S]*\}/m)
+      unless json_match
+        Rails.logger.error("Failed to extract JSON from action plans response: #{text}")
+        return { success: false, error: "アクションプランの解析に失敗しました" }
+      end
+
+      begin
+        data = JSON.parse(json_match[0])
+        action_plans = data["action_plans"]
+
+        unless action_plans.is_a?(Array) && action_plans.length > 0
+          return { success: false, error: "アクションプランが見つかりませんでした" }
+        end
+
+        # 3個に制限
+        action_plans = action_plans.first(3)
+
+        { success: true, action_plans: action_plans }
+      rescue JSON::ParserError => e
+        Rails.logger.error("JSON parse error in action plans: #{e.message}")
+        { success: false, error: "アクションプランの解析に失敗しました" }
       end
     end
 

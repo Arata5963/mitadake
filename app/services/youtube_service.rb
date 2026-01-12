@@ -129,7 +129,7 @@ class YoutubeService
 
     # YouTube Data API v3から動画情報を取得
     # @param video_id [String] YouTube動画ID
-    # @return [Hash, nil] { title:, channel_name:, channel_thumbnail_url: } または nil
+    # @return [Hash, nil] { title:, channel_name:, channel_id:, channel_thumbnail_url: } または nil
     def fetch_from_api(video_id)
       youtube = Rails.application.config.youtube_service
       return nil if youtube.nil?
@@ -144,6 +144,7 @@ class YoutubeService
       {
         title: video.snippet.title,
         channel_name: video.snippet.channel_title,
+        channel_id: channel_id,
         channel_thumbnail_url: channel_thumbnail_url
       }
     end

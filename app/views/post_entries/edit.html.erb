@@ -1,0 +1,5 @@
+<%# app/views/post_entries/edit.html.erb %>
+<% content_for :title, "アクションプラン編集" %>
+
+<%# Turbo Frame リクエストの場合はインラインフォームを返す %>
+<%= render "post_entries/edit_form", entry: @entry %>

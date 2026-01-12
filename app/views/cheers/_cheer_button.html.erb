@@ -4,23 +4,23 @@
 <div id="cheer_button_<%= post.id %>" class="flex items-center gap-1.5">
   <% if user_signed_in? %>
     <% if post.cheered_by?(current_user) %>
-      <%# 応援済み（オレンジで塗りつぶし） %>
+      <%# 応援済み（黒で塗りつぶし） %>
       <% cheer = post.cheers.find_by(user: current_user) %>
       <%= button_to post_cheer_path(post, cheer),
                     method: :delete,
                     data: { turbo_frame: "_top" },
-                    class: "inline-flex items-center gap-1 text-orange-500 hover:text-orange-600 transition-colors" do %>
+                    class: "inline-flex items-center gap-1 text-gray-900 hover:text-gray-700 transition-colors" do %>
         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
         </svg>
         <span class="text-sm font-medium"><%= post.cheers.count %></span>
       <% end %>
     <% else %>
-      <%# 未応援（薄いオレンジ・枠線のみ） %>
+      <%# 未応援（グレー・枠線のみ） %>
       <%= button_to post_cheers_path(post),
                     method: :post,
                     data: { turbo_frame: "_top" },
-                    class: "inline-flex items-center gap-1 text-orange-400 hover:text-orange-500 transition-colors" do %>
+                    class: "inline-flex items-center gap-1 text-gray-400 hover:text-gray-600 transition-colors" do %>
         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
         </svg>
@@ -28,8 +28,8 @@
       <% end %>
     <% end %>
   <% else %>
-    <%# 未ログイン（薄いオレンジ） %>
-    <div class="inline-flex items-center gap-1 text-orange-400">
+    <%# 未ログイン（グレー） %>
+    <div class="inline-flex items-center gap-1 text-gray-400">
       <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
       </svg>

@@ -1,0 +1,70 @@
+<%# app/views/posts/user_ranking.html.erb %>
+<%# ユーザー達成数ランキングページ %>
+
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-2xl mx-auto px-4 py-6">
+    <%# ヘッダー %>
+    <div class="flex items-center gap-4 mb-6">
+      <%= link_to posts_path, class: "text-gray-400 hover:text-gray-600 transition-colors" do %>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+      <% end %>
+      <h1 class="text-lg font-bold text-gray-900">達成数ランキング</h1>
+    </div>
+
+    <% if @users.blank? %>
+      <div class="py-16 text-center">
+        <span class="text-4xl block mb-4">🏆</span>
+        <p class="text-gray-700 font-medium mb-2">まだランキングがありません</p>
+        <p class="text-sm text-gray-500">アクションプランを達成するとランキングに表示されます</p>
+      </div>
+    <% else %>
+      <div class="space-y-2">
+        <% @users.each_with_index do |user, index| %>
+          <% rank = index + 1 %>
+          <div class="flex items-center gap-3 rounded-lg border border-gray-100 p-3">
+            <%# ランキング番号 %>
+            <div class="flex-shrink-0 w-8 text-center">
+              <span class="text-xl font-bold <%= rank <= 3 ? 'text-gray-900' : 'text-gray-400' %>">
+                <%= rank %>
+              </span>
+            </div>
+
+            <%# ユーザーアイコン（プロフィールへ） %>
+            <%= link_to user_profile_path(user), class: "flex-shrink-0 w-12 h-12 rounded-full overflow-hidden bg-gray-200 hover:opacity-80 transition-opacity" do %>
+              <% if user.avatar.present? %>
+                <%= image_tag user.avatar.url,
+                      alt: user.name,
+                      class: "w-full h-full object-cover",
+                      loading: "lazy" %>
+              <% else %>
+                <div class="w-full h-full flex items-center justify-center bg-gray-300 text-gray-600 font-bold text-lg">
+                  <%= user.name&.first&.upcase || '?' %>
+                </div>
+              <% end %>
+            <% end %>
+
+            <%# ユーザー情報 %>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <%= link_to user_profile_path(user), class: "text-sm font-medium text-gray-900 truncate hover:underline" do %>
+                  <%= user.name %>
+                <% end %>
+                <span class="text-xs font-medium text-gray-500"><%= user.achieved_count %>達成</span>
+              </div>
+              <% if user.favorite_quote.present? %>
+                <%= link_to user.favorite_quote_url.presence || "#",
+                      target: user.favorite_quote_url.present? ? "_blank" : nil,
+                      rel: "noopener noreferrer",
+                      class: "block text-xs text-gray-400 truncate mt-0.5 hover:text-gray-600 transition-colors" do %>
+                  「<%= user.favorite_quote %>」
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

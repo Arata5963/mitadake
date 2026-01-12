@@ -5,7 +5,6 @@ class Post < ApplicationRecord
   has_many :cheers, dependent: :destroy
   has_many :post_entries, dependent: :destroy
   has_many :youtube_comments, dependent: :destroy
-  has_one :quiz, dependent: :destroy
 
   scope :recent, -> { order(created_at: :desc) }
 
@@ -116,6 +115,101 @@ class Post < ApplicationRecord
     post_entries.exists?(user: user)
   end
 
+  # 達成率データを返す（グラフ表示用）
+  def achievement_stats
+    total = post_entries.count
+    return nil if total == 0
+
+    achieved = post_entries.achieved.count
+    percentage = (achieved.to_f / total * 100).round
+
+    { total: total, achieved: achieved, percentage: percentage }
+  end
+
+  # アクション数ランキング（TOP 10内なら順位を返す、それ以外はnil）
+  def action_count_rank
+    my_count = post_entries.count
+    return nil if my_count == 0
+
+    # 自分より多いアクション数を持つ投稿の数 + 1 = 順位
+    rank = Post.joins(:post_entries)
+               .group("posts.id")
+               .having("COUNT(post_entries.id) > ?", my_count)
+               .count
+               .size + 1
+
+    rank <= 10 ? rank : nil
+  end
+
+  # YouTubeチャンネルURL（外部リンク用）
+  def youtube_channel_url
+    return nil unless youtube_channel_id.present?
+
+    "https://www.youtube.com/channel/#{youtube_channel_id}"
+  end
+
+  # ===== セクション用クラスメソッド =====
+
+  # 人気のチャンネル（総アクション数順、2投稿以上）
+  # @return [Array<Hash>] [{ channel_name:, channel_id:, thumbnail_url:, post_count:, action_count:, youtube_url: }, ...]
+  def self.popular_channels(limit: 20)
+    Post
+      .where.not(youtube_channel_name: [ nil, "" ])
+      .joins(:post_entries)
+      .group(:youtube_channel_name)
+      .having("COUNT(DISTINCT posts.id) >= 1")
+      .order("COUNT(post_entries.id) DESC")
+      .limit(limit)
+      .pluck(
+        :youtube_channel_name,
+        Arel.sql("(array_agg(youtube_channel_id))[1]"),
+        Arel.sql("(array_agg(youtube_channel_thumbnail_url))[1]"),
+        Arel.sql("COUNT(DISTINCT posts.id)"),
+        Arel.sql("COUNT(post_entries.id)")
+      )
+      .map do |name, channel_id, thumbnail, post_count, action_count|
+        youtube_url = if channel_id.present?
+          "https://www.youtube.com/channel/#{channel_id}"
+        else
+          "https://www.youtube.com/results?search_query=#{ERB::Util.url_encode(name)}"
+        end
+
+        {
+          channel_name: name,
+          channel_id: channel_id,
+          thumbnail_url: thumbnail,
+          post_count: post_count,
+          action_count: action_count,
+          youtube_url: youtube_url
+        }
+      end
+  end
+
+  # 急上昇（過去30日のアクション数が多い投稿）
+  # @param limit [Integer, nil] 取得数（nilでページネーション用）
+  def self.trending(limit: 20)
+    base = Post
+      .joins(:post_entries)
+      .where("post_entries.created_at >= ?", 30.days.ago)
+      .group("posts.id")
+      .order(Arel.sql("COUNT(post_entries.id) DESC"))
+      .select("posts.*")
+
+    limit ? base.limit(limit) : base
+  end
+
+  # アクション数ランキング（総アクション数順）
+  # @param limit [Integer, nil] 取得数（nilでページネーション用）
+  def self.by_action_count(limit: 20)
+    base = Post
+      .joins(:post_entries)
+      .group("posts.id")
+      .order(Arel.sql("COUNT(post_entries.id) DESC"))
+      .select("posts.*")
+
+    limit ? base.limit(limit) : base
+  end
+
   private
 
   # YouTube情報を取得すべきかどうか判定
@@ -137,6 +231,7 @@ class Post < ApplicationRecord
 
     self.youtube_title = info[:title]
     self.youtube_channel_name = info[:channel_name]
+    self.youtube_channel_id = info[:channel_id]
     self.youtube_channel_thumbnail_url = info[:channel_thumbnail_url]
   end
 end

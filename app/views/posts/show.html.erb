@@ -31,7 +31,7 @@
       </div>
       <%# 再生ボタン %>
       <div class="absolute inset-0 flex items-center justify-center">
-        <div class="w-14 h-14 bg-black/60 rounded-full flex items-center justify-center group-hover:bg-red-600 group-hover:scale-110 transition-all duration-300">
+        <div class="w-14 h-14 bg-black/60 rounded-full flex items-center justify-center group-hover:bg-gray-700 group-hover:scale-110 transition-all duration-300">
           <svg class="w-6 h-6 text-white ml-0.5" viewBox="0 0 24 24" fill="currentColor">
             <path d="M8 5v14l11-7z"/>
           </svg>
@@ -53,63 +53,34 @@
 
     <%# ===== チャンネル名 ===== %>
     <% if @post.youtube_channel_name.present? %>
-      <p style="font-size: 14px; color: #6b7280; margin-bottom: 16px;">
-        <%= @post.youtube_channel_name %>
-      </p>
-    <% end %>
-
-    <%# ===== いいね数 + ユーザー数 ===== %>
-    <div class="flex items-center gap-3 mb-5 flex-wrap">
-      <div class="flex items-center gap-1 text-gray-500">
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
-        </svg>
-        <span class="text-sm"><%= @post.cheers.count %></span>
-      </div>
-      <span class="text-xs text-gray-400"><%= @post.entry_users.count %> ユーザーがアクションプランを投稿</span>
-    </div>
-
-    <%# ===== 日時 ===== %>
-    <div style="border-top: 1px solid #f3f4f6; padding: 16px 0; margin-bottom: 24px;">
-      <div class="flex items-center justify-between">
-        <p style="font-size: 12px; color: #9ca3af;"><%= l(@post.created_at, format: :long) %></p>
-        <% if user_signed_in? && @post.has_entries_by?(current_user) %>
-          <div class="flex items-center gap-2" style="font-size: 12px;">
-            <%= link_to "削除", post_path(@post),
-                  data: { turbo_method: :delete, turbo_confirm: "本当に削除しますか？" },
-                  class: "text-gray-400 hover:text-red-500" %>
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+        <% if @post.youtube_channel_thumbnail_url.present? %>
+          <%= image_tag @post.youtube_channel_thumbnail_url,
+                style: "width: 24px; height: 24px; border-radius: 50%; object-fit: cover;",
+                alt: @post.youtube_channel_name,
+                loading: "lazy" %>
+        <% else %>
+          <div style="width: 24px; height: 24px; border-radius: 50%; background: #e5e7eb; display: flex; align-items: center; justify-content: center;">
+            <svg style="width: 14px; height: 14px; color: #9ca3af;" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
           </div>
         <% end %>
-      </div>
-    </div>
-
-    <%# ===== クイズ結果セクション ===== %>
-    <% if user_signed_in? && @post.quiz&.answered_by?(current_user) %>
-      <% latest_answer = @post.quiz.latest_answer_for(current_user) %>
-      <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 16px; margin-bottom: 24px;">
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <span style="font-size: 24px;">✅</span>
-          <div style="flex: 1;">
-            <p style="font-size: 14px; font-weight: 500; color: #166534;">クイズ回答済み</p>
-            <p style="font-size: 13px; color: #15803d;">
-              スコア: <%= latest_answer.score %>/<%= latest_answer.total_questions %> (<%= latest_answer.percentage %>%)
-            </p>
-          </div>
-          <%= link_to "もう一度挑戦", post_quiz_path(@post), style: "padding: 8px 16px; background: white; color: #15803d; font-size: 13px; font-weight: 500; border: 1px solid #bbf7d0; border-radius: 8px; text-decoration: none;" %>
-        </div>
-      </div>
-    <% elsif @post.quiz.present? %>
-      <div style="background: #fef3c7; border: 1px solid #fde68a; border-radius: 12px; padding: 16px; margin-bottom: 24px;">
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <span style="font-size: 24px;">🧠</span>
-          <div style="flex: 1;">
-            <p style="font-size: 14px; font-weight: 500; color: #92400e;">理解度チェッククイズがあります</p>
-            <p style="font-size: 13px; color: #b45309;">この動画の内容をどれだけ理解できたかチェックしましょう</p>
-          </div>
-          <%= link_to "挑戦する", post_quiz_path(@post), style: "padding: 8px 16px; background: #f59e0b; color: white; font-size: 13px; font-weight: 500; border-radius: 8px; text-decoration: none; white-space: nowrap;" %>
-        </div>
+        <p style="font-size: 14px; color: #6b7280;">
+          <%= @post.youtube_channel_name %>
+        </p>
       </div>
     <% end %>
+
+    <%# ===== ユーザー数 & ランキング ===== %>
+    <div class="mb-5" style="display: flex; align-items: center; gap: 8px;">
+      <span class="text-xs text-gray-400"><%= @post.entry_users.count %> ユーザーがアクションプランを投稿</span>
+      <% if (rank = @post.action_count_rank) %>
+        <span style="display: inline-flex; align-items: center; padding: 2px 8px; background: #f3f4f6; border-radius: 10px; font-size: 11px; font-weight: 600; color: #374151;">
+          TOP <%= rank %>
+        </span>
+      <% end %>
+    </div>
 
     <%# ===== アクションプランセクション ===== %>
     <section style="border-top: 1px solid #f3f4f6; padding-top: 32px; margin-bottom: 32px;">
@@ -118,6 +89,24 @@
         <span>みんなのアクションプラン</span>
         <span style="font-size: 14px; font-weight: 400; color: #9ca3af;">(<%= @post.post_entries.count %>)</span>
       </h2>
+
+      <%# ===== AI提案セクション（自動取得） ===== %>
+      <% if user_signed_in? %>
+        <div id="ai-suggestions-container" style="margin-bottom: 20px;" data-controller="ai-suggestions" data-ai-suggestions-url-value="<%= suggest_action_plans_post_path(@post) %>">
+          <%# ローディング（最初に表示） %>
+          <div id="ai-suggestions-loading" data-ai-suggestions-target="loading" style="padding: 16px; background: #f9fafb; border-radius: 12px; text-align: center;">
+            <div style="display: inline-flex; align-items: center; gap: 8px; color: #6b7280; font-size: 14px;">
+              <svg style="width: 18px; height: 18px; animation: spin 1s linear infinite;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+              </svg>
+              <span>AIがアクションプランを考え中...</span>
+            </div>
+          </div>
+
+          <%# 提案一覧 %>
+          <div id="ai-suggestions-list" data-ai-suggestions-target="list" style="display: none;"></div>
+        </div>
+      <% end %>
 
       <%# アクションプラン投稿フォーム（ログインユーザーのみ） %>
       <% if user_signed_in? %>
@@ -130,7 +119,7 @@
                 <% if current_user.avatar.present? %>
                   <%= image_tag current_user.avatar.url, style: "width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" %>
                 <% else %>
-                  <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(145deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 12px;">
+                  <div style="width: 32px; height: 32px; border-radius: 50%; background: #374151; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 12px;">
                     <%= current_user.name&.first&.upcase || '?' %>
                   </div>
                 <% end %>
@@ -143,17 +132,22 @@
                         style="flex: 1; min-width: 0; padding: 6px 0; font-size: 14px; line-height: 1.5; color: #1f2937; background: transparent; border: none; outline: none; resize: none; overflow: hidden;"></textarea>
 
               <%# 右側ボタン群 %>
-              <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0; padding-top: 2px;">
-                <%# 期限 %>
-                <div style="position: relative;">
+              <div style="display: flex; align-items: center; gap: 16px; flex-shrink: 0; padding-top: 2px;">
+                <%# 期限（必須） %>
+                <div style="position: relative; width: 32px; height: 32px;">
                   <input type="date" name="post_entry[deadline]"
                          id="deadline-input-<%= @post.id %>"
-                         style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
-                  <label for="deadline-input-<%= @post.id %>" style="cursor: pointer; font-size: 16px; display: block;">📅</label>
+                         required
+                         style="position: absolute; top: 0; left: 0; width: 32px; height: 32px; opacity: 0; cursor: pointer;">
+                  <label for="deadline-input-<%= @post.id %>" style="cursor: pointer; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px;" title="期限を設定（必須）">
+                    <svg style="width: 20px; height: 20px; color: #6b7280;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/>
+                    </svg>
+                  </label>
                 </div>
 
                 <%# 送信ボタン %>
-                <button type="submit" style="width: 32px; height: 32px; border-radius: 50%; background: #10b981; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                <button type="submit" style="width: 32px; height: 32px; border-radius: 50%; background: #374151; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;">
                   <svg style="width: 16px; height: 16px; color: white;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
@@ -180,7 +174,7 @@
               </div>
               <div class="bg-white rounded-[18px] rounded-tl-sm shadow-[0_1px_2px_rgba(0,0,0,0.1)] px-4 py-3">
                 <p class="text-[15px] text-gray-600 mb-2">ログインしてアクションプランを投稿しよう</p>
-                <%= link_to "ログイン", new_user_session_path, class: "text-sm font-medium text-emerald-600 hover:text-emerald-700" %>
+                <%= link_to "ログイン", new_user_session_path, class: "text-sm font-medium text-gray-700 hover:text-gray-900 underline" %>
               </div>
             </div>
           </div>

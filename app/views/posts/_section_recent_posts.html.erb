@@ -5,7 +5,7 @@
   <%# セクションヘッダー %>
   <div class="flex items-center justify-between mb-4">
     <h2 class="text-lg font-bold text-gray-900">最近の投稿</h2>
-    <%= link_to recent_posts_path, class: "text-sm text-gray-500 hover:text-gray-700" do %>
+    <%= link_to recent_posts_path, data: { turbo: false }, class: "text-sm text-gray-500 hover:text-gray-700" do %>
       全てを表示 →
     <% end %>
   </div>

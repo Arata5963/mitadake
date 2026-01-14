@@ -1,0 +1,176 @@
+<%# app/views/users/designs/action_plan_comparison.html.erb %>
+<%# マイページのアクションプランカード デザイン比較 %>
+
+<%
+  sample_content = "毎朝10分間の瞑想を実践する"
+  sample_days = 5
+  badge_bg = '#f0fdf4'
+  badge_text = '#16a34a'
+  badge_label = "残り#{sample_days}日"
+%>
+
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold text-gray-900 mb-2">マイページ アクションプランカード デザイン比較</h1>
+  <p class="text-sm text-gray-500 mb-8">動画の下に表示するアクションプランカードのデザイン</p>
+
+  <div class="space-y-8">
+
+    <%# === 現在のデザイン === %>
+    <div>
+      <p class="text-xs text-gray-400 mb-2">現在のデザイン</p>
+      <div class="bg-gray-50 rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+          <span class="text-sm font-medium text-gray-700">アクションプラン</span>
+          <span style="display: inline-flex; align-items: center; padding: 2px 10px; background: <%= badge_bg %>; border-radius: 10px; font-size: 12px; font-weight: 500; color: <%= badge_text %>;"><%= badge_label %></span>
+        </div>
+        <div class="flex items-start gap-3">
+          <div class="w-6 h-6 rounded-full border-2 border-gray-900 cursor-pointer flex-shrink-0 mt-0.5"></div>
+          <div class="flex-1 min-w-0">
+            <p class="text-gray-900 leading-relaxed"><%= sample_content %></p>
+          </div>
+          <div class="flex-shrink-0 p-1 text-gray-300">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%# === デザインA: ミニマル === %>
+    <div>
+      <p class="text-xs text-gray-400 mb-2">A. ミニマル（バッジ右上）</p>
+      <div class="bg-gray-50 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+            <span class="text-sm font-medium text-gray-700">アクションプラン</span>
+          </div>
+          <span style="display: inline-flex; align-items: center; padding: 2px 10px; background: <%= badge_bg %>; border-radius: 10px; font-size: 12px; font-weight: 500; color: <%= badge_text %>;"><%= badge_label %></span>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="w-6 h-6 rounded-full border-2 border-gray-900 cursor-pointer flex-shrink-0"></div>
+          <p class="text-gray-900 flex-1"><%= sample_content %></p>
+        </div>
+      </div>
+    </div>
+
+    <%# === デザインB: カード内カード === %>
+    <div>
+      <p class="text-xs text-gray-400 mb-2">B. カード内カード（白背景）</p>
+      <div class="bg-gray-50 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-sm font-medium text-gray-700">🎯 アクションプラン</span>
+          <span style="display: inline-flex; align-items: center; padding: 2px 10px; background: <%= badge_bg %>; border-radius: 10px; font-size: 12px; font-weight: 500; color: <%= badge_text %>;"><%= badge_label %></span>
+        </div>
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+          <div class="flex items-center gap-3">
+            <div class="w-6 h-6 rounded-full border-2 border-gray-900 cursor-pointer flex-shrink-0"></div>
+            <p class="text-gray-900 flex-1"><%= sample_content %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%# === デザインC: フラット === %>
+    <div>
+      <p class="text-xs text-gray-400 mb-2">C. フラット（ボーダー）</p>
+      <div class="border border-gray-200 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+            <span class="text-sm font-bold text-gray-900">アクションプラン</span>
+          </div>
+          <span style="display: inline-flex; align-items: center; padding: 2px 10px; background: <%= badge_bg %>; border-radius: 10px; font-size: 12px; font-weight: 500; color: <%= badge_text %>;"><%= badge_label %></span>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="w-6 h-6 rounded-full border-2 border-gray-900 cursor-pointer flex-shrink-0"></div>
+          <p class="text-gray-900 flex-1"><%= sample_content %></p>
+        </div>
+      </div>
+    </div>
+
+    <%# === デザインD: グラデーション背景 === %>
+    <div>
+      <p class="text-xs text-gray-400 mb-2">D. グラデーション背景</p>
+      <div class="rounded-xl p-4" style="background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-sm font-medium text-gray-700">🎯 アクションプラン</span>
+          <span style="display: inline-flex; align-items: center; padding: 2px 10px; background: white; border-radius: 10px; font-size: 12px; font-weight: 500; color: <%= badge_text %>; box-shadow: 0 1px 2px rgba(0,0,0,0.05);"><%= badge_label %></span>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="w-6 h-6 rounded-full border-2 border-green-600 cursor-pointer flex-shrink-0"></div>
+          <p class="text-gray-900 flex-1"><%= sample_content %></p>
+        </div>
+      </div>
+    </div>
+
+    <%# === デザインE: 大きなチェック === %>
+    <div>
+      <p class="text-xs text-gray-400 mb-2">E. 大きなチェックボックス</p>
+      <div class="bg-gray-50 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-sm font-medium text-gray-500">アクションプラン</span>
+          <span style="display: inline-flex; align-items: center; padding: 2px 10px; background: <%= badge_bg %>; border-radius: 10px; font-size: 12px; font-weight: 500; color: <%= badge_text %>;"><%= badge_label %></span>
+        </div>
+        <div class="flex items-start gap-4">
+          <div class="w-8 h-8 rounded-lg border-2 border-gray-900 cursor-pointer flex-shrink-0 flex items-center justify-center hover:bg-green-50 transition-colors"></div>
+          <p class="text-lg text-gray-900 flex-1 pt-1"><%= sample_content %></p>
+        </div>
+      </div>
+    </div>
+
+    <%# === デザインF: プログレス付き === %>
+    <div>
+      <p class="text-xs text-gray-400 mb-2">F. プログレスバー付き</p>
+      <div class="bg-gray-50 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-sm font-medium text-gray-700">アクションプラン</span>
+          <span class="text-xs text-gray-500"><%= badge_label %></span>
+        </div>
+        <div class="h-1.5 bg-gray-200 rounded-full mb-3 overflow-hidden">
+          <div class="h-full bg-green-500 rounded-full" style="width: 71%;"></div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="w-6 h-6 rounded-full border-2 border-gray-900 cursor-pointer flex-shrink-0"></div>
+          <p class="text-gray-900 flex-1"><%= sample_content %></p>
+        </div>
+      </div>
+    </div>
+
+    <%# === デザインG: アイコン強調 === %>
+    <div>
+      <p class="text-xs text-gray-400 mb-2">G. 左アイコン強調</p>
+      <div class="bg-gray-50 rounded-xl overflow-hidden">
+        <div class="flex">
+          <div class="w-16 bg-green-500 flex items-center justify-center">
+            <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center cursor-pointer">
+              <span class="text-green-500 font-bold"><%= sample_days %></span>
+            </div>
+          </div>
+          <div class="flex-1 p-4">
+            <div class="text-xs text-gray-500 mb-1">アクションプラン</div>
+            <p class="text-gray-900"><%= sample_content %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%# === デザインH: シンプルリスト === %>
+    <div>
+      <p class="text-xs text-gray-400 mb-2">H. シンプルリスト風</p>
+      <div class="bg-white border border-gray-200 rounded-xl">
+        <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+          <span class="text-sm font-medium text-gray-900">アクションプラン</span>
+          <span style="display: inline-flex; align-items: center; padding: 2px 10px; background: <%= badge_bg %>; border-radius: 10px; font-size: 12px; font-weight: 500; color: <%= badge_text %>;"><%= badge_label %></span>
+        </div>
+        <div class="px-4 py-3 flex items-center gap-3">
+          <div class="w-5 h-5 rounded border-2 border-gray-900 cursor-pointer flex-shrink-0"></div>
+          <p class="text-gray-900"><%= sample_content %></p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

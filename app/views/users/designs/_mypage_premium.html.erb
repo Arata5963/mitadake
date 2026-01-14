@@ -1,0 +1,164 @@
+<%# app/views/users/designs/_mypage_premium.html.erb %>
+<%# デザイン: プレミアムカード（グラデーション＋グラスモーフィズム） %>
+
+<% current_action = user.current_action_plan %>
+<% current_video = user.current_video %>
+<% achieved_count = user.post_entries.achieved.count %>
+
+<div class="max-w-sm mx-auto">
+  <%# グラデーションヘッダー %>
+  <div class="relative bg-gradient-to-br from-violet-500 via-purple-500 to-indigo-600 pt-8 pb-16 px-4">
+    <%# 設定ボタン %>
+    <%= link_to edit_profile_path, class: "absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/30 transition-colors" do %>
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 011.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.56.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.893.149c-.425.07-.765.383-.93.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 01-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.397.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 01-.12-1.45l.527-.737c.25-.35.273-.806.108-1.204-.165-.397-.505-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.107-1.204l-.527-.738a1.125 1.125 0 01.12-1.45l.773-.773a1.125 1.125 0 011.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    <% end %>
+
+    <%# プロフィール %>
+    <div class="text-center">
+      <div class="relative inline-block mb-3">
+        <% if user.avatar.present? %>
+          <%= image_tag user.avatar.url, class: "w-20 h-20 rounded-full object-cover ring-4 ring-white/30" %>
+        <% else %>
+          <div class="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center ring-4 ring-white/30">
+            <span class="text-white text-2xl font-bold"><%= user.name&.first&.upcase || '?' %></span>
+          </div>
+        <% end %>
+        <% if achieved_count > 0 %>
+          <div class="absolute -bottom-1 -right-1 w-7 h-7 bg-amber-400 rounded-full flex items-center justify-center shadow-lg">
+            <svg class="w-4 h-4 text-amber-900" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+          </div>
+        <% end %>
+      </div>
+      <h1 class="text-xl font-bold text-white mb-1"><%= user.name.presence || "名無しさん" %></h1>
+      <p class="text-white/70 text-sm">動画で学び、行動する</p>
+    </div>
+  </div>
+
+  <%# メインコンテンツ（オーバーラップ） %>
+  <div class="px-4 -mt-10 pb-8">
+    <%# Stats カード %>
+    <div class="bg-white rounded-2xl shadow-lg shadow-gray-200/50 p-4 mb-4">
+      <div class="grid grid-cols-3 gap-4 text-center">
+        <div>
+          <p class="text-2xl font-bold text-gray-900"><%= achieved_count %></p>
+          <p class="text-xs text-gray-500">達成</p>
+        </div>
+        <div class="border-x border-gray-100">
+          <p class="text-2xl font-bold text-gray-900"><%= user.posts.count %></p>
+          <p class="text-xs text-gray-500">投稿</p>
+        </div>
+        <div>
+          <% streak = achieved_count > 0 ? [achieved_count, 7].min : 0 %>
+          <p class="text-2xl font-bold text-gray-900"><%= streak %></p>
+          <p class="text-xs text-gray-500">連続日</p>
+        </div>
+      </div>
+    </div>
+
+    <% if current_video && current_action %>
+      <%# 現在のアクション %>
+      <div class="bg-white rounded-2xl shadow-lg shadow-gray-200/50 overflow-hidden" data-controller="hero-video" data-hero-video-video-id-value="<%= current_video.youtube_video_id %>">
+        <div class="px-4 pt-4 pb-2">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+            <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Now Focusing</span>
+          </div>
+        </div>
+
+        <%# 動画 %>
+        <div class="group relative cursor-pointer mx-4 rounded-xl overflow-hidden" style="aspect-ratio: 16/9;">
+          <iframe
+            id="hero-player-<%= current_video.youtube_video_id %>"
+            data-hero-video-target="iframe"
+            src="https://www.youtube.com/embed/<%= current_video.youtube_video_id %>?autoplay=1&mute=1&loop=1&playlist=<%= current_video.youtube_video_id %>&controls=0&playsinline=1&rel=0&modestbranding=1&showinfo=0&enablejsapi=1&iv_load_policy=3"
+            class="absolute inset-0 w-full h-full pointer-events-none"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+          </iframe>
+          <div class="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+               data-action="click->hero-video#toggle">
+            <div class="absolute inset-0 bg-black/30"></div>
+            <button type="button" class="relative z-10 w-12 h-12 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-lg">
+              <svg data-hero-video-target="playButton" class="w-5 h-5 text-black ml-0.5 hidden" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+              <svg data-hero-video-target="pauseButton" class="w-5 h-5 text-black" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <%# 動画情報 %>
+        <div class="p-4">
+          <%= link_to post_path(current_video), class: "block group/info mb-3" do %>
+            <h3 class="text-sm font-semibold text-gray-900 line-clamp-1 group-hover/info:text-purple-600 transition-colors">
+              <%= current_video.youtube_title %>
+            </h3>
+            <% if current_video.youtube_channel_name.present? %>
+              <div class="flex items-center gap-1.5 mt-1">
+                <% if current_video.youtube_channel_thumbnail_url.present? %>
+                  <%= image_tag current_video.youtube_channel_thumbnail_url, class: "w-4 h-4 rounded-full", alt: current_video.youtube_channel_name %>
+                <% end %>
+                <span class="text-gray-400 text-xs"><%= current_video.youtube_channel_name %></span>
+              </div>
+            <% end %>
+          <% end %>
+
+          <%# アクションプラン %>
+          <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-3">
+            <div class="flex items-start gap-3">
+              <%= button_to achieve_post_post_entry_path(current_video, current_action),
+                    method: :patch, class: "flex-shrink-0 mt-0.5",
+                    form: { data: { turbo_confirm: "達成しますか？", turbo_frame: "_top" } } do %>
+                <div class="w-5 h-5 rounded-full border-2 border-purple-400 hover:border-purple-600 hover:bg-purple-100 transition-colors"></div>
+              <% end %>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm text-gray-900 leading-relaxed"><%= current_action.content %></p>
+                <% if current_action.deadline.present? %>
+                  <% is_overdue = current_action.deadline < Date.current %>
+                  <% is_today = current_action.deadline == Date.current %>
+                  <p class="text-xs mt-1 <%= is_overdue ? 'text-red-500' : (is_today ? 'text-purple-600 font-medium' : 'text-gray-400') %>">
+                    <%= is_overdue ? '期限切れ' : (is_today ? '今日まで' : "#{l(current_action.deadline, format: :short)}まで") %>
+                  </p>
+                <% end %>
+              </div>
+              <%= button_to post_post_entry_path(current_video, current_action),
+                    method: :delete,
+                    form: { data: { turbo_confirm: "削除しますか？", turbo_frame: "_top" } },
+                    class: "flex-shrink-0 p-1 text-gray-300 hover:text-red-500 transition-colors" do %>
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <% else %>
+      <%# Empty State %>
+      <div class="bg-white rounded-2xl shadow-lg shadow-gray-200/50 p-8 text-center">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center">
+          <svg class="w-8 h-8 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+        </div>
+        <h2 class="text-base font-bold text-gray-900 mb-1">アクションを始めよう</h2>
+        <p class="text-sm text-gray-500 mb-5">動画から学んで、<br>今日やることを決めましょう</p>
+        <%= link_to posts_path, class: "inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-sm rounded-full font-medium hover:from-purple-600 hover:to-indigo-600 transition-all shadow-lg shadow-purple-200" do %>
+          動画を探す
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

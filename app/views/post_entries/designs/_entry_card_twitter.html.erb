@@ -1,0 +1,115 @@
+<%# app/views/post_entries/designs/_entry_card_twitter.html.erb %>
+<%# Twitter/X風デザイン - ツイート形式、ダークモード %>
+
+<%= turbo_frame_tag dom_id(entry) do %>
+<article class="group" style="padding: 12px 16px; border-bottom: 1px solid #2f3336; transition: background-color 0.1s;"
+         onmouseover="this.style.backgroundColor='rgba(255,255,255,0.03)';"
+         onmouseout="this.style.backgroundColor='transparent';">
+  <div style="display: flex; gap: 12px;">
+
+    <%# アバター %>
+    <div style="flex-shrink: 0;">
+      <% if entry.display_avatar.present? %>
+        <%= image_tag entry.display_avatar.url, style: "width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" %>
+      <% else %>
+        <div style="width: 40px; height: 40px; border-radius: 50%; background: #333639; display: flex; align-items: center; justify-content: center;">
+          <span style="font-size: 18px; font-weight: 700; color: #e7e9ea;"><%= entry.display_user_name&.first&.upcase || '?' %></span>
+        </div>
+      <% end %>
+    </div>
+
+    <%# コンテンツ %>
+    <div style="flex: 1; min-width: 0;">
+      <%# ヘッダー %>
+      <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 2px;">
+        <span style="font-size: 15px; font-weight: 700; color: #e7e9ea;"><%= entry.display_user_name %></span>
+        <%# 認証バッジ風（達成済みの場合） %>
+        <% if entry.achieved? %>
+          <svg style="width: 18px; height: 18px; color: #1d9bf0;" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.437 2.25c-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .494.083.964.237 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.865.248 1.336.248 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484zm-6.616-3.334l-4.334 6.5c-.145.217-.382.334-.625.334-.143 0-.288-.04-.416-.126l-.115-.094-2.415-2.415c-.293-.293-.293-.768 0-1.06s.768-.294 1.06 0l1.77 1.767 3.825-5.74c.23-.345.696-.436 1.04-.207.346.23.44.696.21 1.04z"/>
+          </svg>
+        <% end %>
+        <span style="font-size: 15px; color: #71767b;">@<%= entry.display_user_name&.downcase&.gsub(/\s+/, '_') || 'user' %></span>
+        <span style="font-size: 15px; color: #71767b;">·</span>
+        <span style="font-size: 15px; color: #71767b;"><%= time_ago_in_words(entry.created_at) %></span>
+      </div>
+
+      <%# ツイート本文 %>
+      <div style="font-size: 15px; line-height: 1.4; color: <%= entry.achieved? ? '#71767b' : '#e7e9ea' %>; margin-bottom: 12px; <%= 'text-decoration: line-through;' if entry.achieved? %>">
+        <%= entry.content %>
+      </div>
+
+      <%# 期限カード %>
+      <% if entry.deadline.present? %>
+        <% is_overdue = entry.deadline < Date.current && !entry.achieved? %>
+        <div style="display: inline-flex; align-items: center; gap: 8px; padding: 12px; background: #16181c; border: 1px solid #2f3336; border-radius: 16px; margin-bottom: 12px;">
+          <div style="width: 40px; height: 40px; border-radius: 8px; background: <%= is_overdue ? '#67070f' : '#1d3a4a' %>; display: flex; align-items: center; justify-content: center;">
+            <svg style="width: 20px; height: 20px; color: <%= is_overdue ? '#f4212e' : '#1d9bf0' %>;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+          <div>
+            <div style="font-size: 13px; color: #71767b;">期限</div>
+            <div style="font-size: 15px; font-weight: 500; color: <%= is_overdue ? '#f4212e' : '#e7e9ea' %>;"><%= l(entry.deadline, format: :long) %></div>
+          </div>
+        </div>
+      <% end %>
+
+      <%# アクションバー（Twitter風） %>
+      <div style="display: flex; align-items: center; justify-content: space-between; max-width: 425px; margin-top: 4px;">
+        <%# 動画リンク（リプライ風） %>
+        <%= link_to post_path(entry.post), style: "display: flex; align-items: center; gap: 4px; padding: 8px; margin: -8px; border-radius: 50%; color: #71767b; text-decoration: none; transition: all 0.2s;", data: { turbo_frame: "_top" },
+              onmouseover: "this.style.color='#1d9bf0'; this.style.backgroundColor='rgba(29,155,240,0.1)'",
+              onmouseout: "this.style.color='#71767b'; this.style.backgroundColor='transparent'" do %>
+          <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+          </svg>
+        <% end %>
+
+        <%# 完了（リツイート風） %>
+        <% if user_signed_in? && entry.user == current_user && !entry.achieved? %>
+          <%= button_to achieve_post_post_entry_path(entry.post, entry),
+                method: :patch,
+                style: "display: flex; align-items: center; gap: 4px; padding: 8px; margin: -8px; border-radius: 50%; color: #71767b; background: none; border: none; cursor: pointer; transition: all 0.2s;",
+                form: { data: { turbo_confirm: "達成しますか？" } },
+                onmouseover: "this.style.color='#00ba7c'; this.style.backgroundColor='rgba(0,186,124,0.1)'",
+                onmouseout: "this.style.color='#71767b'; this.style.backgroundColor='transparent'" do %>
+            <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+          <% end %>
+        <% elsif entry.achieved? %>
+          <div style="display: flex; align-items: center; gap: 4px; padding: 8px; color: #00ba7c;">
+            <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+          </div>
+        <% else %>
+          <div style="width: 34px;"></div>
+        <% end %>
+
+        <%# 削除（いいね風） %>
+        <% if user_signed_in? && entry.user == current_user %>
+          <%= button_to post_post_entry_path(entry.post, entry),
+                method: :delete,
+                data: { turbo_confirm: "削除しますか？" },
+                style: "display: flex; align-items: center; gap: 4px; padding: 8px; margin: -8px; border-radius: 50%; color: #71767b; background: none; border: none; cursor: pointer; transition: all 0.2s;",
+                onmouseover: "this.style.color='#f4212e'; this.style.backgroundColor='rgba(244,33,46,0.1)'",
+                onmouseout: "this.style.color='#71767b'; this.style.backgroundColor='transparent'" do %>
+            <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+          <% end %>
+        <% else %>
+          <div style="width: 34px;"></div>
+        <% end %>
+
+        <div style="width: 34px;"></div>
+      </div>
+    </div>
+  </div>
+</article>
+<% end %>

@@ -53,7 +53,12 @@
                   <%= post.youtube_title %>
                 </h3>
               <% end %>
-              <p class="text-xs text-gray-500 mt-1 truncate"><%= post.youtube_channel_name %></p>
+              <div class="flex items-center gap-1 mt-1">
+                <% if post.youtube_channel_thumbnail_url.present? %>
+                  <%= image_tag post.youtube_channel_thumbnail_url, class: "w-4 h-4 rounded-full flex-shrink-0", loading: "lazy" %>
+                <% end %>
+                <p class="text-xs text-gray-500 truncate"><%= post.youtube_channel_name %></p>
+              </div>
             </div>
           </article>
 
@@ -82,7 +87,12 @@
                     <%= post.youtube_title %>
                   </h3>
                 <% end %>
-                <p class="text-xs text-gray-500 mt-1 truncate"><%= post.youtube_channel_name %></p>
+                <div class="flex items-center gap-1 mt-1">
+                  <% if post.youtube_channel_thumbnail_url.present? %>
+                    <%= image_tag post.youtube_channel_thumbnail_url, class: "w-4 h-4 rounded-full flex-shrink-0", loading: "lazy" %>
+                  <% end %>
+                  <p class="text-xs text-gray-500 truncate"><%= post.youtube_channel_name %></p>
+                </div>
               </div>
             </div>
           </article>
@@ -110,7 +120,12 @@
                   </h3>
                 </div>
               <% end %>
-              <p class="text-xs text-gray-500 mt-1 truncate pl-7"><%= post.youtube_channel_name %></p>
+              <div class="flex items-center gap-1 mt-1 pl-7">
+                <% if post.youtube_channel_thumbnail_url.present? %>
+                  <%= image_tag post.youtube_channel_thumbnail_url, class: "w-4 h-4 rounded-full flex-shrink-0", loading: "lazy" %>
+                <% end %>
+                <p class="text-xs text-gray-500 truncate"><%= post.youtube_channel_name %></p>
+              </div>
             </div>
           </article>
 
@@ -157,7 +172,12 @@
                   <%= post.youtube_title %>
                 </h3>
               <% end %>
-              <p class="text-xs text-gray-500 mt-1 truncate"><%= post.youtube_channel_name %></p>
+              <div class="flex items-center gap-1 mt-1">
+                <% if post.youtube_channel_thumbnail_url.present? %>
+                  <%= image_tag post.youtube_channel_thumbnail_url, class: "w-4 h-4 rounded-full flex-shrink-0", loading: "lazy" %>
+                <% end %>
+                <p class="text-xs text-gray-500 truncate"><%= post.youtube_channel_name %></p>
+              </div>
             </div>
           </article>
         <% end %>

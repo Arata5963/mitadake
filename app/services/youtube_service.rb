@@ -21,15 +21,17 @@ class YoutubeService
         order: "relevance"
       )
 
-      response.items.map do |item|
-        {
-          video_id: item.id.video_id,
-          title: item.snippet.title,
-          channel_name: item.snippet.channel_title,
-          thumbnail_url: item.snippet.thumbnails.medium&.url || item.snippet.thumbnails.default&.url,
-          youtube_url: "https://www.youtube.com/watch?v=#{item.id.video_id}"
-        }
-      end
+      response.items
+        .select { |item| item.id.video_id.present? }  # チャンネル等を除外
+        .map do |item|
+          {
+            video_id: item.id.video_id,
+            title: item.snippet.title,
+            channel_name: item.snippet.channel_title,
+            thumbnail_url: item.snippet.thumbnails.medium&.url || item.snippet.thumbnails.default&.url,
+            youtube_url: "https://www.youtube.com/watch?v=#{item.id.video_id}"
+          }
+        end
     rescue Google::Apis::ClientError => e
       Rails.logger.warn("YouTube API search error: #{e.message}")
       []

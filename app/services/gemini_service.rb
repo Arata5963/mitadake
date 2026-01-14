@@ -558,7 +558,13 @@ class GeminiService
       if response["error"]
         error_message = response.dig("error", "message") || "APIエラーが発生しました"
         Rails.logger.error("Gemini API error response: #{error_message}")
-        return { success: false, error: "アクションプランの生成に失敗しました: #{error_message}" }
+
+        # レート制限/クォータエラーを検出してユーザーフレンドリーなメッセージを返す
+        if error_message.include?("429") || error_message.include?("quota") || error_message.include?("rate")
+          return { success: false, error: "AIが混み合っています。約20秒後に再試行してください。", error_type: "rate_limit" }
+        end
+
+        return { success: false, error: "アクションプランの生成に失敗しました" }
       end
 
       text = response.dig("candidates", 0, "content", "parts", 0, "text")

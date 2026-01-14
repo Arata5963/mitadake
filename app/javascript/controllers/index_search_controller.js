@@ -4,7 +4,7 @@ import { Controller } from "@hotwired/stimulus"
 // 投稿一覧用の統合検索コントローラー
 // URL貼り付けまたはタイトル検索 → 動画選択で投稿を自動作成して遷移
 export default class extends Controller {
-  static targets = ["input", "results"]
+  static targets = ["input", "results", "pasteButton"]
   static values = {
     youtubeUrl: String,
     findOrCreateUrl: { type: String, default: "/posts/find_or_create" },
@@ -18,6 +18,11 @@ export default class extends Controller {
     // クリック外で結果を閉じる
     this.handleClickOutside = this.handleClickOutside.bind(this)
     document.addEventListener("click", this.handleClickOutside)
+
+    // Clipboard APIが使えない場合はペーストボタンを非表示
+    if (this.hasPasteButtonTarget && !navigator.clipboard) {
+      this.pasteButtonTarget.classList.add("hidden")
+    }
   }
 
   disconnect() {
@@ -93,6 +98,23 @@ export default class extends Controller {
         item.classList.remove("bg-gray-100")
       }
     })
+  }
+
+  // クリップボードから貼り付け
+  async pasteFromClipboard() {
+    try {
+      const text = await navigator.clipboard.readText()
+      if (text) {
+        this.inputTarget.value = text.trim()
+        this.inputTarget.focus()
+        this.handleInput()
+      }
+    } catch (error) {
+      // 権限がない場合やクリップボードが空の場合
+      console.log("Clipboard read failed:", error.message)
+      // ユーザーに入力を促す
+      this.inputTarget.focus()
+    }
   }
 
   // URL検出時の表示

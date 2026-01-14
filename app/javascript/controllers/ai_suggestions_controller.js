@@ -30,7 +30,7 @@ export default class extends Controller {
       if (data.success && data.action_plans) {
         this.displaySuggestions(data.action_plans)
       } else {
-        this.displayError(data.error || "提案の取得に失敗しました")
+        this.displayError(data.error || "提案の取得に失敗しました", data.error_type)
       }
     } catch (error) {
       console.error("AI suggestions error:", error)
@@ -113,16 +113,27 @@ export default class extends Controller {
     }
   }
 
-  displayError(message) {
+  displayError(message, errorType = null) {
     this.loadingTarget.style.display = "none"
     this.listTarget.style.display = "block"
 
+    // レート制限エラーは黄色系、その他は赤系で表示
+    const isRateLimit = errorType === "rate_limit"
+    const bgColor = isRateLimit ? "#fefce8" : "#fef2f2"
+    const textColor = isRateLimit ? "#a16207" : "#dc2626"
+    const icon = isRateLimit
+      ? `<svg style="width: 20px; height: 20px; color: ${textColor}; margin-bottom: 4px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+           <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+         </svg>`
+      : ""
+
     this.listTarget.innerHTML = `
-      <div style="padding: 12px; background: #fef2f2; border-radius: 12px; text-align: center;">
-        <p style="font-size: 13px; color: #dc2626;">${this.escapeHtml(message)}</p>
+      <div style="padding: 16px; background: ${bgColor}; border-radius: 12px; text-align: center;">
+        ${icon}
+        <p style="font-size: 13px; color: ${textColor}; line-height: 1.5;">${this.escapeHtml(message)}</p>
         <button type="button"
                 data-action="click->ai-suggestions#retry"
-                style="margin-top: 8px; padding: 6px 12px; font-size: 12px; color: #6b7280; background: white; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer;">
+                style="margin-top: 10px; padding: 8px 16px; font-size: 13px; color: #374151; background: white; border: 1px solid #d1d5db; border-radius: 8px; cursor: pointer; font-weight: 500;">
           再試行
         </button>
       </div>

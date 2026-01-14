@@ -216,6 +216,19 @@ ja:
     destroy:
       success: "応援を取り消しました"
 
+  # EntryFlamesController関連のメッセージ
+  entry_flames:
+    not_found: "応援が見つかりません"
+    create:
+      success: "応援しました"
+      already_flamed: "既に応援済みです"
+    destroy:
+      success: "応援を取り消しました"
+
+  # PostEntriesController関連のメッセージ
+  post_entries:
+    not_found: "アクションプランが見つかりません"
+
   # NotificationsController関連のメッセージ
   notifications:
     title: "通知"

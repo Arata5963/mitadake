@@ -131,22 +131,8 @@
                         oninput="this.style.height='auto'; this.style.height=this.scrollHeight+'px';"
                         style="flex: 1; min-width: 0; padding: 6px 0; font-size: 16px; line-height: 1.5; color: #1f2937; background: transparent; border: none; outline: none; resize: none; overflow: hidden;"></textarea>
 
-              <%# 右側ボタン群 %>
-              <div style="display: flex; align-items: center; gap: 16px; flex-shrink: 0; padding-top: 2px;">
-                <%# 期限（必須） %>
-                <div style="position: relative; width: 32px; height: 32px;">
-                  <input type="date" name="post_entry[deadline]"
-                         id="deadline-input-<%= @post.id %>"
-                         required
-                         style="position: absolute; top: 0; left: 0; width: 32px; height: 32px; opacity: 0; cursor: pointer; font-size: 16px;">
-                  <label for="deadline-input-<%= @post.id %>" style="cursor: pointer; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px;" title="期限を設定（必須）">
-                    <svg style="width: 20px; height: 20px; color: #6b7280;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/>
-                    </svg>
-                  </label>
-                </div>
-
-                <%# 送信ボタン %>
+              <%# 送信ボタン %>
+              <div style="flex-shrink: 0; padding-top: 2px;">
                 <button type="submit" style="width: 32px; height: 32px; border-radius: 50%; background: #374151; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;">
                   <svg style="width: 16px; height: 16px; color: white;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
@@ -181,15 +167,15 @@
         </div>
       <% end %>
 
-      <%# 既存のアクションプラン一覧 %>
+      <%# 既存のアクションプラン一覧（Appleデザイン） %>
       <% if @post.post_entries.any? %>
-        <div class="overflow-hidden">
+        <div class="bg-[#f2f2f7] rounded-xl overflow-hidden" style="padding: 8px;">
           <% @post.post_entries.recent.each do |entry| %>
-            <%= render 'post_entries/entry_card', entry: entry %>
+            <%= render 'post_entries/designs/entry_card_apple_reminders', entry: entry %>
           <% end %>
         </div>
       <% else %>
-        <div class="text-center py-8 px-4 bg-gray-50 rounded-2xl">
+        <div class="text-center py-8 px-4 bg-gray-50 rounded-xl">
           <div class="text-4xl mb-3 opacity-50">💭</div>
           <p class="text-sm text-gray-500">まだアクションプランがありません</p>
           <p class="text-xs text-gray-400 mt-1">最初のアクションプランを投稿してみましょう！</p>

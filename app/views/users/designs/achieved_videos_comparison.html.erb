@@ -1,0 +1,280 @@
+<%# app/views/users/designs/achieved_videos_comparison.html.erb %>
+<%# マイページの達成動画セクション デザイン比較 %>
+
+<%
+  # サンプルデータ
+  sample_videos = [
+    { title: "How to Learn Anything Fast", channel: "TED-Ed", video_id: "5MgBikgcWnY", achieved_at: 2.days.ago, content: "毎朝10分の学習時間を確保する" },
+    { title: "The Power of Habit", channel: "TED", video_id: "OMbsGBlpP30", achieved_at: 5.days.ago, content: "新しい習慣を21日間続ける" },
+    { title: "How to be More Productive", channel: "Ali Abdaal", video_id: "A2sS00egAzg", achieved_at: 1.week.ago, content: "タスクを細分化して取り組む" },
+    { title: "The Science of Motivation", channel: "Kurzgesagt", video_id: "u6XAPnuFjJc", achieved_at: 2.weeks.ago, content: "目標を紙に書き出す" },
+  ]
+%>
+
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold text-gray-900 mb-2">マイページ 達成動画セクション デザイン比較</h1>
+  <p class="text-sm text-gray-500 mb-8">アクションプランの下に表示する達成済み動画のデザイン</p>
+
+  <div class="space-y-12">
+
+    <%# === デザインA: グリッドサムネイル === %>
+    <div>
+      <p class="text-xs text-gray-400 mb-3">A. グリッドサムネイル（2列）</p>
+      <div class="bg-gray-50 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-bold text-gray-900">達成した動画</h3>
+          <span class="text-xs text-gray-400"><%= sample_videos.size %>本</span>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <% sample_videos.each do |video| %>
+            <div class="group cursor-pointer">
+              <div class="relative rounded-lg overflow-hidden bg-gray-200" style="aspect-ratio: 16/9;">
+                <img src="https://i.ytimg.com/vi/<%= video[:video_id] %>/mqdefault.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                  <div class="w-8 h-8 rounded-full bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <svg class="w-3 h-3 text-black ml-0.5" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                  </div>
+                </div>
+                <%# 達成バッジ %>
+                <div class="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-black flex items-center justify-center">
+                  <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                  </svg>
+                </div>
+              </div>
+              <p class="text-xs text-gray-700 mt-1.5 line-clamp-2 font-medium"><%= video[:title] %></p>
+              <%# チャンネル情報 %>
+              <div class="flex items-center gap-1.5 mt-1">
+                <div class="w-4 h-4 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0">
+                  <span class="text-white text-[8px] font-bold"><%= video[:channel].first %></span>
+                </div>
+                <span class="text-xs text-gray-500 truncate"><%= video[:channel] %></span>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <%# === デザインB: 横スクロール === %>
+    <div>
+      <p class="text-xs text-gray-400 mb-3">B. 横スクロールカルーセル</p>
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-5 h-5 rounded-full bg-black flex items-center justify-center">
+              <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+              </svg>
+            </div>
+            <h3 class="text-sm font-bold text-gray-900">達成した動画</h3>
+          </div>
+          <span class="text-xs text-gray-400"><%= sample_videos.size %>本達成</span>
+        </div>
+        <div class="flex gap-3 overflow-x-auto pb-2" style="-ms-overflow-style: none; scrollbar-width: none;">
+          <% sample_videos.each do |video| %>
+            <div class="flex-shrink-0 group cursor-pointer" style="width: 140px;">
+              <div class="relative rounded-lg overflow-hidden bg-gray-200" style="aspect-ratio: 16/9;">
+                <img src="https://i.ytimg.com/vi/<%= video[:video_id] %>/mqdefault.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+              </div>
+              <p class="text-xs text-gray-700 mt-1.5 line-clamp-2"><%= video[:title] %></p>
+              <p class="text-xs text-gray-400 mt-0.5"><%= time_ago_in_words(video[:achieved_at]) %>前</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <%# === デザインC: リスト（コンパクト） === %>
+    <div>
+      <p class="text-xs text-gray-400 mb-3">C. コンパクトリスト</p>
+      <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+          <h3 class="text-sm font-bold text-gray-900">達成した動画</h3>
+          <span class="text-xs text-gray-400"><%= sample_videos.size %>本</span>
+        </div>
+        <div class="divide-y divide-gray-100">
+          <% sample_videos.each do |video| %>
+            <div class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer">
+              <div class="flex-shrink-0 w-16 rounded overflow-hidden bg-gray-200" style="aspect-ratio: 16/9;">
+                <img src="https://i.ytimg.com/vi/<%= video[:video_id] %>/mqdefault.jpg" class="w-full h-full object-cover" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm text-gray-900 line-clamp-1"><%= video[:title] %></p>
+                <p class="text-xs text-gray-400"><%= video[:channel] %></p>
+              </div>
+              <div class="flex-shrink-0 w-5 h-5 rounded-full bg-black flex items-center justify-center">
+                <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                </svg>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <%# === デザインD: タイムライン === %>
+    <div>
+      <p class="text-xs text-gray-400 mb-3">D. タイムライン風</p>
+      <div>
+        <div class="flex items-center gap-2 mb-4">
+          <h3 class="text-sm font-bold text-gray-900">達成履歴</h3>
+          <span class="text-xs text-gray-400">(<%= sample_videos.size %>本)</span>
+        </div>
+        <div class="relative">
+          <%# 縦線 %>
+          <div class="absolute left-[9px] top-2 bottom-2 w-0.5 bg-gray-200"></div>
+          <div class="space-y-4">
+            <% sample_videos.each do |video| %>
+              <div class="flex items-start gap-3">
+                <%# ドット %>
+                <div class="flex-shrink-0 w-5 h-5 rounded-full bg-black flex items-center justify-center z-10">
+                  <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                  </svg>
+                </div>
+                <%# コンテンツ %>
+                <div class="flex-1 min-w-0 pb-2">
+                  <p class="text-xs text-gray-400 mb-1"><%= time_ago_in_words(video[:achieved_at]) %>前に達成</p>
+                  <div class="flex items-center gap-2">
+                    <div class="flex-shrink-0 w-12 rounded overflow-hidden bg-gray-200" style="aspect-ratio: 16/9;">
+                      <img src="https://i.ytimg.com/vi/<%= video[:video_id] %>/mqdefault.jpg" class="w-full h-full object-cover" />
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm text-gray-900 line-clamp-1"><%= video[:title] %></p>
+                      <p class="text-xs text-gray-500 line-clamp-1">「<%= video[:content] %>」</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%# === デザインE: カード（達成内容付き） === %>
+    <div>
+      <p class="text-xs text-gray-400 mb-3">E. カード（達成したアクション付き）</p>
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-bold text-gray-900">🏆 達成した動画</h3>
+          <span class="text-xs text-gray-400"><%= sample_videos.size %>本</span>
+        </div>
+        <div class="space-y-3">
+          <% sample_videos.first(2).each do |video| %>
+            <div class="bg-gray-50 rounded-xl p-3 cursor-pointer hover:bg-gray-100 transition-colors">
+              <div class="flex gap-3">
+                <div class="flex-shrink-0 w-24 rounded-lg overflow-hidden bg-gray-200" style="aspect-ratio: 16/9;">
+                  <img src="https://i.ytimg.com/vi/<%= video[:video_id] %>/mqdefault.jpg" class="w-full h-full object-cover" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-gray-900 line-clamp-1"><%= video[:title] %></p>
+                  <p class="text-xs text-gray-400 mt-0.5"><%= video[:channel] %></p>
+                  <div class="flex items-center gap-1.5 mt-2">
+                    <div class="w-4 h-4 rounded-full bg-black flex items-center justify-center">
+                      <svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                      </svg>
+                    </div>
+                    <span class="text-xs text-gray-600 line-clamp-1"><%= video[:content] %></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+          <% if sample_videos.size > 2 %>
+            <button class="w-full py-2 text-sm text-gray-500 hover:text-gray-700 transition-colors">
+              他<%= sample_videos.size - 2 %>本を見る →
+            </button>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <%# === デザインF: ミニサムネイル一覧 === %>
+    <div>
+      <p class="text-xs text-gray-400 mb-3">F. ミニサムネイル一覧</p>
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-bold text-gray-900">達成した動画</h3>
+          <a href="#" class="text-xs text-blue-500 hover:text-blue-600">すべて見る</a>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <% sample_videos.each do |video| %>
+            <div class="relative group cursor-pointer">
+              <div class="w-16 h-16 rounded-lg overflow-hidden bg-gray-200">
+                <img src="https://i.ytimg.com/vi/<%= video[:video_id] %>/mqdefault.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+              </div>
+              <div class="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-black flex items-center justify-center">
+                <svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                </svg>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <%# === デザインG: 統計付きセクション === %>
+    <div>
+      <p class="text-xs text-gray-400 mb-3">G. 統計付きセクション</p>
+      <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-4 text-white">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <p class="text-2xl font-bold"><%= sample_videos.size %></p>
+            <p class="text-xs text-gray-400">動画で学び、行動に移した</p>
+          </div>
+          <div class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
+            <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+        </div>
+        <div class="flex gap-2 overflow-x-auto pb-1" style="-ms-overflow-style: none; scrollbar-width: none;">
+          <% sample_videos.each do |video| %>
+            <div class="flex-shrink-0 w-20 rounded-lg overflow-hidden opacity-80 hover:opacity-100 transition-opacity cursor-pointer" style="aspect-ratio: 16/9;">
+              <img src="https://i.ytimg.com/vi/<%= video[:video_id] %>/mqdefault.jpg" class="w-full h-full object-cover" />
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <%# === デザインH: アコーディオン === %>
+    <div>
+      <p class="text-xs text-gray-400 mb-3">H. アコーディオン（折りたたみ）</p>
+      <details class="bg-white border border-gray-200 rounded-xl overflow-hidden group">
+        <summary class="px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-gray-50">
+          <div class="flex items-center gap-2">
+            <div class="w-5 h-5 rounded-full bg-black flex items-center justify-center">
+              <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+              </svg>
+            </div>
+            <span class="text-sm font-bold text-gray-900">達成した動画</span>
+            <span class="text-xs text-gray-400">(<%= sample_videos.size %>本)</span>
+          </div>
+          <svg class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </summary>
+        <div class="px-4 pb-4">
+          <div class="grid grid-cols-2 gap-2 pt-2">
+            <% sample_videos.each do |video| %>
+              <div class="group/item cursor-pointer">
+                <div class="rounded-lg overflow-hidden bg-gray-200" style="aspect-ratio: 16/9;">
+                  <img src="https://i.ytimg.com/vi/<%= video[:video_id] %>/mqdefault.jpg" class="w-full h-full object-cover group-hover/item:scale-105 transition-transform" />
+                </div>
+                <p class="text-xs text-gray-700 mt-1 line-clamp-1"><%= video[:title] %></p>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </details>
+    </div>
+
+  </div>
+</div>

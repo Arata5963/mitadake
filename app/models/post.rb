@@ -7,6 +7,14 @@ class Post < ApplicationRecord
   has_many :youtube_comments, dependent: :destroy
 
   scope :recent, -> { order(created_at: :desc) }
+  scope :without_entries, -> {
+    left_joins(:post_entries)
+      .group("posts.id")
+      .having("COUNT(post_entries.id) = 0")
+  }
+  scope :stale_empty, -> {
+    without_entries.where("posts.created_at < ?", 24.hours.ago)
+  }
 
   before_save :set_youtube_video_id, if: :should_fetch_youtube_info?
   before_save :fetch_youtube_info, if: :should_fetch_youtube_info?

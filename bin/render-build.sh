@@ -22,4 +22,8 @@ bundle exec rails assets:precompile
 echo "Running database migrations..."
 bundle exec rails db:migrate
 
+# テストデータ投入（一時的）
+echo "Seeding database..."
+bundle exec rails db:seed
+
 echo "Build completed successfully!"

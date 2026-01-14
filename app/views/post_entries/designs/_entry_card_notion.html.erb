@@ -1,0 +1,87 @@
+<%# app/views/post_entries/designs/_entry_card_notion.html.erb %>
+<%# Notion風デザイン - クリーンでミニマル、フォーカス重視 %>
+
+<%= turbo_frame_tag dom_id(entry) do %>
+<article class="group relative" style="padding: 6px 8px; margin: 0 -8px; border-radius: 4px; transition: background-color 0.1s ease;">
+  <div class="flex items-start gap-3">
+    <%# チェックボックス %>
+    <div class="flex-shrink-0 pt-0.5">
+      <% if user_signed_in? && entry.user == current_user && !entry.achieved? %>
+        <%= button_to achieve_post_post_entry_path(entry.post, entry),
+              method: :patch,
+              class: "block",
+              form: { data: { turbo_confirm: "「#{truncate(entry.content, length: 20)}」を達成しますか？" } } do %>
+          <div style="width: 18px; height: 18px; border: 2px solid #d4d4d4; border-radius: 3px; cursor: pointer; transition: all 0.15s ease; background: white;"
+               onmouseover="this.style.borderColor='#2383e2'; this.style.background='#f0f7ff';"
+               onmouseout="this.style.borderColor='#d4d4d4'; this.style.background='white';"></div>
+        <% end %>
+      <% elsif entry.achieved? %>
+        <div style="width: 18px; height: 18px; border: 2px solid #2383e2; border-radius: 3px; background: #2383e2; display: flex; align-items: center; justify-content: center;">
+          <svg style="width: 12px; height: 12px; color: white;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+          </svg>
+        </div>
+      <% else %>
+        <div style="width: 18px; height: 18px; border: 2px solid #d4d4d4; border-radius: 3px; background: white;"></div>
+      <% end %>
+    </div>
+
+    <%# コンテンツ %>
+    <div class="flex-1 min-w-0">
+      <%# メインテキスト %>
+      <p style="font-size: 15px; line-height: 1.6; color: <%= entry.achieved? ? '#9b9b9b' : '#37352f' %>; margin: 0; <%= 'text-decoration: line-through;' if entry.achieved? %>">
+        <%= entry.content %>
+      </p>
+
+      <%# メタ情報 %>
+      <div style="display: flex; align-items: center; gap: 12px; margin-top: 4px;">
+        <%# ユーザー %>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <% if entry.display_avatar.present? %>
+            <%= image_tag entry.display_avatar.url, style: "width: 16px; height: 16px; border-radius: 50%; object-fit: cover;" %>
+          <% else %>
+            <div style="width: 16px; height: 16px; border-radius: 50%; background: #e3e2e0; display: flex; align-items: center; justify-content: center;">
+              <span style="font-size: 9px; font-weight: 500; color: #787774;"><%= entry.display_user_name&.first&.upcase || '?' %></span>
+            </div>
+          <% end %>
+          <span style="font-size: 12px; color: #9b9a97;"><%= entry.display_user_name %></span>
+        </div>
+
+        <%# 期限 %>
+        <% if entry.deadline.present? %>
+          <span style="font-size: 12px; color: <%= entry.deadline < Date.current ? '#eb5757' : '#9b9a97' %>; display: flex; align-items: center; gap: 4px;">
+            <svg style="width: 12px; height: 12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <%= l(entry.deadline, format: :short) %>
+          </span>
+        <% end %>
+      </div>
+    </div>
+
+    <%# アクション（ホバー時表示） %>
+    <div class="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1" style="flex-shrink: 0;">
+      <%= link_to post_path(entry.post), class: "p-1.5 rounded hover:bg-gray-100 transition-colors", data: { turbo_frame: "_top" }, title: "動画を見る" do %>
+        <svg style="width: 14px; height: 14px; color: #9b9a97;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+        </svg>
+      <% end %>
+
+      <% if user_signed_in? && entry.user == current_user %>
+        <%= button_to post_post_entry_path(entry.post, entry),
+              method: :delete,
+              data: { turbo_confirm: "削除しますか？" },
+              class: "p-1.5 rounded hover:bg-red-50 transition-colors",
+              title: "削除" do %>
+          <svg style="width: 14px; height: 14px; color: #9b9a97;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</article>
+<% end %>

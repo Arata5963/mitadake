@@ -1,0 +1,57 @@
+<%# app/views/posts/_section_hero_video.html.erb %>
+<%# フィーチャー動画（アクション数TOP5からランダム）- 自動再生・ミュート %>
+<%# オーバーレイ: 再生/一時停止のみ / 動画情報: 常に下に表示 %>
+<% rank ||= 1 %>
+
+<section class="mb-8" data-controller="hero-video" data-hero-video-video-id-value="<%= post.youtube_video_id %>">
+  <%# 動画コンテナ %>
+  <div class="group relative rounded-2xl overflow-hidden bg-black cursor-pointer" style="aspect-ratio: 16/9;">
+    <%# YouTube埋め込み（自動再生・ミュート・ループ） %>
+    <iframe
+      id="hero-player-<%= post.youtube_video_id %>"
+      data-hero-video-target="iframe"
+      src="https://www.youtube.com/embed/<%= post.youtube_video_id %>?autoplay=1&mute=1&loop=1&playlist=<%= post.youtube_video_id %>&controls=0&playsinline=1&rel=0&modestbranding=1&showinfo=0&enablejsapi=1"
+      class="absolute inset-0 w-full h-full pointer-events-none"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen>
+    </iframe>
+
+    <%# ホバーオーバーレイ（再生/一時停止ボタンのみ） %>
+    <div class="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+         data-action="click->hero-video#toggle">
+      <div class="absolute inset-0 bg-black/30"></div>
+      <button type="button" class="relative z-10 w-16 h-16 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-transform hover:scale-110 shadow-lg">
+        <svg data-hero-video-target="playButton" class="w-7 h-7 text-black ml-1 hidden" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+        <svg data-hero-video-target="pauseButton" class="w-7 h-7 text-black" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <%# 動画情報（常に下に表示） %>
+  <%= link_to post_path(post), class: "block mt-3 group/info" do %>
+    <div class="flex items-center gap-2 mb-2">
+      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-black text-white">
+        TOP <%= rank %>
+      </span>
+      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+        <%= post.post_entries.count %> アクション
+      </span>
+    </div>
+    <h2 class="text-gray-900 text-base sm:text-lg font-bold leading-tight line-clamp-2 group-hover/info:text-gray-600 transition-colors">
+      <%= post.youtube_title %>
+    </h2>
+    <% if post.youtube_channel_name.present? %>
+      <div class="flex items-center gap-2 mt-1.5">
+        <% if post.youtube_channel_thumbnail_url.present? %>
+          <%= image_tag post.youtube_channel_thumbnail_url, class: "w-5 h-5 rounded-full", alt: post.youtube_channel_name %>
+        <% end %>
+        <span class="text-gray-500 text-sm"><%= post.youtube_channel_name %></span>
+      </div>
+    <% end %>
+  <% end %>
+</section>

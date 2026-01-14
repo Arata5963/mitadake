@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_12_014653) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_14_053819) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -54,6 +54,16 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_12_014653) do
     t.index ["post_id", "created_at"], name: "index_comments_on_post_id_and_created_at"
     t.index ["post_id"], name: "index_comments_on_post_id"
     t.index ["user_id"], name: "index_comments_on_user_id"
+  end
+
+  create_table "entry_flames", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "post_entry_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["post_entry_id"], name: "index_entry_flames_on_post_entry_id"
+    t.index ["user_id", "post_entry_id"], name: "index_entry_flames_on_user_id_and_post_entry_id", unique: true
+    t.index ["user_id"], name: "index_entry_flames_on_user_id"
   end
 
   create_table "favorite_videos", force: :cascade do |t|
@@ -334,6 +344,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_12_014653) do
   add_foreign_key "comment_bookmarks", "youtube_comments"
   add_foreign_key "comments", "posts"
   add_foreign_key "comments", "users"
+  add_foreign_key "entry_flames", "post_entries"
+  add_foreign_key "entry_flames", "users"
   add_foreign_key "favorite_videos", "users"
   add_foreign_key "post_comparisons", "posts", column: "source_post_id"
   add_foreign_key "post_comparisons", "posts", column: "target_post_id"

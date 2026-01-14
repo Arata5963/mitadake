@@ -1,36 +1,13 @@
 <%# app/views/posts/_section_user_ranking.html.erb %>
-<%# ユーザー達成数ランキングセクション %>
+<%# ユーザー達成数ランキングセクション（全期間） %>
 
-<% current_period = local_assigns[:period] || :all %>
-
-<section class="mb-8" data-controller="ranking-tabs">
+<section class="mb-8">
   <div class="mb-4">
     <h2 class="text-lg font-bold text-gray-900">達成数ランキング</h2>
   </div>
 
-  <%# 期間タブ %>
-  <div class="flex gap-2 mb-4 overflow-x-auto [-webkit-overflow-scrolling:touch] scrollbar-hide" data-ranking-tabs-target="tabContainer">
-    <% [
-      [:all, '全期間'],
-      [:today, '本日'],
-      [:week, '週間'],
-      [:month, '月間']
-    ].each do |period_key, label| %>
-      <button
-        type="button"
-        class="flex-shrink-0 px-3 py-1.5 text-sm font-medium rounded-full transition-colors whitespace-nowrap
-               <%= current_period.to_sym == period_key ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' %>"
-        data-ranking-tabs-target="tab"
-        data-period="<%= period_key %>"
-        data-action="click->ranking-tabs#switchTab"
-      >
-        <%= label %>
-      </button>
-    <% end %>
-  </div>
-
-  <%# ランキングリスト（Turbo Frame） %>
-  <turbo-frame id="user-ranking-list" data-ranking-tabs-target="list">
+  <%# ランキングリスト %>
+  <div id="user-ranking-list">
     <div class="space-y-2">
       <% if users.any? %>
         <% users.each_with_index do |user, index| %>
@@ -44,7 +21,7 @@
             </div>
 
             <%# ユーザーアイコン %>
-            <%= link_to user_profile_path(user), class: "flex-shrink-0 w-10 h-10 rounded-full overflow-hidden bg-gray-200 hover:opacity-80 transition-opacity [-webkit-tap-highlight-color:transparent]" do %>
+            <%= link_to user_profile_path(user), class: "flex-shrink-0 w-10 h-10 rounded-full overflow-hidden bg-gray-200 hover:opacity-80 transition-opacity [-webkit-tap-highlight-color:transparent]", data: { turbo_frame: "_top" } do %>
               <% if user.avatar.present? %>
                 <%= image_tag user.avatar.url,
                       alt: user.name,
@@ -60,24 +37,30 @@
             <%# ユーザー情報 %>
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2">
-                <%= link_to user_profile_path(user), class: "text-sm font-medium text-gray-900 truncate hover:underline [-webkit-tap-highlight-color:transparent]" do %>
+                <%= link_to user_profile_path(user), class: "text-sm font-medium text-gray-900 truncate hover:underline [-webkit-tap-highlight-color:transparent]", data: { turbo_frame: "_top" } do %>
                   <%= user.name %>
                 <% end %>
                 <span class="text-xs font-medium text-gray-500"><%= user.achieved_count %>達成</span>
               </div>
               <% if user.favorite_quote.present? %>
-                <p class="text-xs text-gray-400 line-clamp-2 mt-0.5">
-                  「<%= user.favorite_quote %>」
-                </p>
+                <% if user.favorite_quote_url.present? %>
+                  <%= link_to user.favorite_quote_url, target: "_blank", rel: "noopener noreferrer", class: "block text-sm text-gray-600 line-clamp-2 mt-1 hover:text-gray-900 transition-colors [-webkit-tap-highlight-color:transparent]" do %>
+                    「<%= user.favorite_quote %>」
+                  <% end %>
+                <% else %>
+                  <p class="text-sm text-gray-600 line-clamp-2 mt-1">
+                    「<%= user.favorite_quote %>」
+                  </p>
+                <% end %>
               <% end %>
             </div>
           </div>
         <% end %>
       <% else %>
         <div class="text-center py-8 text-gray-500 text-sm">
-          この期間の達成者はいません
+          まだ達成者はいません
         </div>
       <% end %>
     </div>
-  </turbo-frame>
+  </div>
 </section>

@@ -1,0 +1,138 @@
+<%# app/views/posts/_section_active_plans.html.erb %>
+<%# みんながセットしているアクションプラン（マイページと同じデザイン） %>
+
+<% if entries.present? %>
+<section class="mb-8">
+  <div class="mb-4">
+    <h2 class="text-lg font-bold text-gray-900">みんなのアクションプラン</h2>
+  </div>
+
+  <%# 横スクロールコンテナ %>
+  <div class="relative overflow-hidden" data-controller="horizontal-scroll">
+    <%# 左スクロールボタン %>
+    <button type="button"
+            data-horizontal-scroll-target="leftBtn"
+            data-action="click->horizontal-scroll#scrollLeft"
+            class="hidden absolute z-10 w-10 h-10 bg-white rounded-full shadow-lg items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200"
+            style="left: 8px; top: 100px; transform: translateY(-50%);">
+      <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+    </button>
+
+    <%# カードリスト %>
+    <div data-horizontal-scroll-target="container"
+         data-action="scroll->horizontal-scroll#onScroll"
+         class="flex gap-4 overflow-x-auto scrollbar-hide pb-2 pr-12"
+         style="scroll-behavior: smooth; -ms-overflow-style: none; scrollbar-width: none;">
+
+      <% entries.each do |entry| %>
+        <%
+          # 残り日数に応じたバッジスタイル
+          days = entry.days_remaining
+          status = entry.deadline_status
+
+          case status
+          when :expired
+            badge_bg = '#f3f4f6'
+            badge_text = '#6b7280'
+            badge_label = '期限切れ'
+          when :today
+            badge_bg = '#fef2f2'
+            badge_text = '#dc2626'
+            badge_label = '今日まで'
+          when :urgent
+            badge_bg = '#fef2f2'
+            badge_text = '#dc2626'
+            badge_label = '残り1日'
+          when :warning
+            badge_bg = '#fffbeb'
+            badge_text = '#d97706'
+            badge_label = "残り#{days}日"
+          else
+            badge_bg = '#f0fdf4'
+            badge_text = '#16a34a'
+            badge_label = "残り#{days}日"
+          end
+        %>
+        <article class="flex-shrink-0" style="width: 280px; min-width: 280px; max-width: 280px;">
+          <%# メインカード（マイページと同じ） %>
+          <div class="bg-gray-50 rounded-xl overflow-hidden">
+            <%# 動画サムネイル %>
+            <%= link_to post_path(entry.post), class: "block group relative" do %>
+              <div class="relative bg-gray-100" style="aspect-ratio: 16/9;">
+                <%= image_tag "https://i.ytimg.com/vi/#{entry.post.youtube_video_id}/mqdefault.jpg",
+                      class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-200",
+                      alt: entry.post.youtube_title,
+                      loading: "lazy" %>
+              </div>
+            <% end %>
+
+            <%# コンテンツ（マイページと同じレイアウト） %>
+            <div class="p-3">
+              <%= link_to post_path(entry.post), class: "block group/info mb-2" do %>
+                <%# タイトル: 2行固定 %>
+                <h3 class="text-sm font-medium text-gray-900 line-clamp-2 group-hover/info:text-gray-600 transition-colors" style="min-height: 2.5rem;">
+                  <%= entry.post.youtube_title %>
+                </h3>
+                <%# チャンネル: 1行固定 %>
+                <div class="flex items-center gap-1.5 mt-0.5 h-5">
+                  <% if entry.post.youtube_channel_name.present? %>
+                    <% if entry.post.youtube_channel_thumbnail_url.present? %>
+                      <%= image_tag entry.post.youtube_channel_thumbnail_url, class: "w-4 h-4 rounded-full flex-shrink-0", alt: entry.post.youtube_channel_name, loading: "lazy" %>
+                    <% end %>
+                    <span class="text-gray-400 text-xs truncate"><%= entry.post.youtube_channel_name %></span>
+                  <% end %>
+                </div>
+              <% end %>
+
+              <div class="border-t border-gray-200 pt-3">
+                <%# ヘッダー: バッジ右上 %>
+                <div class="flex items-center justify-between mb-2">
+                  <%# ユーザーアバター %>
+                  <%= link_to user_profile_path(entry.user), class: "flex items-center gap-1.5" do %>
+                    <% if entry.user.avatar.present? %>
+                      <%= image_tag entry.user.avatar.url, class: "w-5 h-5 rounded-full object-cover" %>
+                    <% else %>
+                      <div class="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center">
+                        <span class="text-gray-500 text-xs font-bold"><%= entry.user.name&.first&.upcase || '?' %></span>
+                      </div>
+                    <% end %>
+                    <span class="text-xs text-gray-500"><%= entry.user.name %></span>
+                  <% end %>
+                  <%# 炎ボタン + バッジ型残り日数 %>
+                  <div class="flex items-center gap-2">
+                    <%= render "entry_flames/flame_button", post_entry: entry %>
+                    <span style="display: inline-flex; align-items: center; padding: 2px 8px; background: <%= badge_bg %>; border-radius: 8px; font-size: 11px; font-weight: 500; color: <%= badge_text %>;">
+                      <%= badge_label %>
+                    </span>
+                  </div>
+                </div>
+                <%# アクションプラン: 1行 %>
+                <p style="font-size: 14px; color: #111827; line-height: 1.5; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical;"><%= entry.content %></p>
+              </div>
+            </div>
+          </div>
+        </article>
+      <% end %>
+    </div>
+
+    <%# 右スクロールボタン %>
+    <button type="button"
+            data-horizontal-scroll-target="rightBtn"
+            data-action="click->horizontal-scroll#scrollRight"
+            class="flex absolute z-10 w-10 h-10 bg-white rounded-full shadow-lg items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200 cursor-pointer"
+            style="right: 8px; top: 100px; transform: translateY(-50%);">
+      <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+      </svg>
+    </button>
+  </div>
+</section>
+
+<style>
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+</style>
+<% end %>

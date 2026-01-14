@@ -1,10 +1,10 @@
 <%# app/views/posts/_section_recent_posts.html.erb %>
-<%# 最近の投稿セクション（横スクロール） %>
+<%# 投稿一覧セクション（横スクロール） %>
 
 <section class="mb-8">
   <%# セクションヘッダー %>
   <div class="flex items-center justify-between mb-4">
-    <h2 class="text-lg font-bold text-gray-900">最近の投稿</h2>
+    <h2 class="text-lg font-bold text-gray-900">投稿一覧</h2>
     <%= link_to recent_posts_path, data: { turbo: false }, class: "text-sm text-gray-500 hover:text-gray-700" do %>
       全てを表示 →
     <% end %>
@@ -46,7 +46,12 @@
               </h3>
             <% end %>
             <% if post.youtube_channel_name.present? %>
-              <p class="text-xs text-gray-500 mt-1 truncate"><%= post.youtube_channel_name %></p>
+              <div class="flex items-center gap-1 mt-1">
+                <% if post.youtube_channel_thumbnail_url.present? %>
+                  <%= image_tag post.youtube_channel_thumbnail_url, class: "w-4 h-4 rounded-full flex-shrink-0", loading: "lazy" %>
+                <% end %>
+                <p class="text-xs text-gray-500 truncate"><%= post.youtube_channel_name %></p>
+              </div>
             <% end %>
           </div>
         </article>

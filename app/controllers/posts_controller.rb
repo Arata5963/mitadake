@@ -27,15 +27,29 @@ class PostsController < ApplicationController
 
     else
       # ===== セクション表示用データ =====
+      # フィーチャー動画（アクション数TOP5からランダム）
+      top5_posts = Post.by_action_count(limit: 5).to_a
+      if top5_posts.present?
+        selected_index = rand(top5_posts.size)
+        @featured_post = top5_posts[selected_index]
+        @featured_post_rank = selected_index + 1
+      end
+
       @popular_channels = Post.popular_channels(limit: 20)
       @ranking_posts = Post.by_action_count(limit: 30)
 
-      # ユーザー達成数ランキング（期間フィルター対応）
-      @user_ranking_period = (params[:user_ranking_period] || :all).to_sym
-      @user_ranking = User.by_achieved_count(limit: 5, period: @user_ranking_period)
+      # ユーザー達成数ランキング（全期間）
+      @user_ranking = User.by_achieved_count(limit: 5)
 
       # 最近の投稿（ランキングと重複してもOK）
       @recent_posts = Post.recent.includes(:post_entries).limit(20)
+
+      # みんなのアクションプラン（未達成・期限切れ除外・期限が近い順）
+      @active_plans = PostEntry.not_achieved
+                               .where("deadline >= ?", Date.current)
+                               .includes(:user, :post)
+                               .order(deadline: :asc)
+                               .limit(10)
     end
 
     respond_to do |format|

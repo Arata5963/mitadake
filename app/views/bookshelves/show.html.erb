@@ -1,109 +1,85 @@
-<div class="max-w-6xl mx-auto px-4 py-8">
-  <%# ヘッダー %>
-  <header class="mb-6">
-    <h1 class="text-2xl font-bold text-primary flex items-center gap-2">
-      <span>🎬</span>
-      <% if @is_own_page %>
-        マイフィルム
-      <% else %>
-        <%= @user.name %>さんのフィルム
-      <% end %>
-    </h1>
-    <p class="text-sm text-primary/60 mt-2">
-      総達成数: <%= @total_count %>本
-    </p>
-  </header>
+<%# app/views/bookshelves/show.html.erb %>
+<%# 達成した動画一覧ページ（最近の投稿と同じレイアウト） %>
 
-  <%# 月切り替えUI %>
-  <div class="film-month-nav">
-    <% prev_month = @current_date.prev_month %>
-    <% next_month = @current_date.next_month %>
-
-    <%= link_to bookshelf_path(year: prev_month.year, month: prev_month.month),
-          class: "film-month-btn" do %>
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-      </svg>
-    <% end %>
-
-    <span class="film-month-label">
-      <%= @current_date.strftime('%Y年%-m月') %>
-    </span>
-
-    <% if next_month <= Date.current %>
-      <%= link_to bookshelf_path(year: next_month.year, month: next_month.month),
-            class: "film-month-btn" do %>
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+<div class="min-h-screen bg-white">
+  <div class="max-w-6xl mx-auto px-4 sm:px-8 py-6">
+    <%# ヘッダー %>
+    <div class="flex items-center gap-4 mb-6">
+      <%= link_to mypage_path, class: "text-gray-400 hover:text-gray-600 transition-colors" do %>
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
         </svg>
       <% end %>
+      <h1 class="text-xl font-bold text-gray-900">
+        <% if @is_own_page %>
+          達成した動画
+        <% else %>
+          <%= @user.name %>さんが達成した動画
+        <% end %>
+      </h1>
+      <span class="text-sm text-gray-500"><%= @total_count %>本</span>
+    </div>
+
+    <% if @posts.blank? %>
+      <div class="py-16 text-center">
+        <span class="text-5xl block mb-4">🎯</span>
+        <p class="text-gray-700 font-medium mb-2">まだ達成した動画がありません</p>
+        <p class="text-sm text-gray-500 mb-6">動画を見て、アクションプランを達成しましょう</p>
+        <%= link_to posts_path, class: "inline-flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white rounded-full font-medium hover:bg-gray-700 transition-colors" do %>
+          動画を探す
+        <% end %>
+      </div>
     <% else %>
-      <span class="film-month-btn film-month-btn--disabled">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-        </svg>
-      </span>
-    <% end %>
-  </div>
+      <%# グリッド表示 %>
+      <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));">
+        <% @posts.each do |post| %>
+          <article class="group">
+            <%# サムネイル（達成バッジ付き） %>
+            <%= link_to post_path(post), class: "block" do %>
+              <div class="relative aspect-video rounded overflow-hidden bg-gray-100">
+                <%= image_tag post.youtube_thumbnail_url(size: :mqdefault),
+                      alt: post.youtube_title,
+                      class: "w-full h-full object-cover",
+                      loading: "lazy" %>
+                <%# 達成バッジ %>
+                <div class="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-black flex items-center justify-center">
+                  <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                  </svg>
+                </div>
+              </div>
+            <% end %>
 
-  <%# 日付別フィルム表示 %>
-  <% frames_per_day = 6 %>
-  <div class="film-calendar">
-    <% @dates.each do |date| %>
-      <% posts = @posts_by_date[date] || [] %>
-      <% has_posts = posts.any? %>
-      <% empty_frames_count = [frames_per_day - posts.size, 0].max %>
-
-      <div class="film-day <%= 'film-day--empty' unless has_posts %>">
-        <%# 日付ラベル %>
-        <div class="film-day-label">
-          <span class="film-day-date"><%= date.day %></span>
-          <span class="film-day-weekday"><%= %w[日 月 火 水 木 金 土][date.wday] %></span>
-        </div>
-
-        <%# フィルムストリップ %>
-        <div class="film-day-strip">
-          <div class="filmstrip-mini">
-            <div class="filmstrip-mini-perf"></div>
-            <div class="filmstrip-mini-frames">
-              <%# サムネイル表示 %>
-              <% posts.first(frames_per_day).each do |post| %>
-                <%= link_to post_path(post), class: "filmstrip-mini-frame" do %>
-                  <%= image_tag post.youtube_thumbnail_url(size: :mqdefault),
-                        alt: post.youtube_title || post.action_plan,
-                        class: "filmstrip-mini-image",
-                        loading: "lazy" %>
-                <% end %>
+            <%# コンテンツ %>
+            <div class="pt-2">
+              <%= link_to post_path(post), class: "block hover:underline" do %>
+                <h3 class="text-[13px] font-bold text-gray-900 leading-tight line-clamp-2">
+                  <%= post.youtube_title %>
+                </h3>
               <% end %>
-              <%# 空のコマで残りを埋める %>
-              <% empty_frames_count.times do %>
-                <div class="filmstrip-mini-frame filmstrip-mini-frame--empty"></div>
-              <% end %>
-              <%# 6コマ以上ある場合はスクロールで表示 %>
-              <% if posts.size > frames_per_day %>
-                <% posts.drop(frames_per_day).each do |post| %>
-                  <%= link_to post_path(post), class: "filmstrip-mini-frame" do %>
-                    <%= image_tag post.youtube_thumbnail_url(size: :mqdefault),
-                          alt: post.youtube_title || post.action_plan,
-                          class: "filmstrip-mini-image",
+
+              <% if post.youtube_channel_name.present? %>
+                <div class="mt-1.5 flex items-center gap-1.5">
+                  <% if post.youtube_channel_thumbnail_url.present? %>
+                    <%= image_tag post.youtube_channel_thumbnail_url,
+                          alt: post.youtube_channel_name,
+                          class: "w-4 h-4 rounded-full object-cover",
                           loading: "lazy" %>
                   <% end %>
-                <% end %>
+                  <span class="text-[11px] text-gray-500 truncate"><%= post.youtube_channel_name %></span>
+                </div>
               <% end %>
             </div>
-            <div class="filmstrip-mini-perf"></div>
-          </div>
-        </div>
+          </article>
+        <% end %>
       </div>
+
+      <%# ページネーション %>
+      <% if @posts.total_pages > 1 %>
+        <div class="mt-8 flex justify-center">
+          <%= paginate @posts %>
+        </div>
+      <% end %>
     <% end %>
   </div>
-
-  <%# 達成がない月 %>
-  <% if @posts_by_date.empty? %>
-    <div class="text-center mt-8">
-      <p class="text-primary/60 mb-4">この月はまだ達成がありません</p>
-      <%= link_to "投稿一覧を見る", posts_path,
-            class: "inline-block rounded-xl bg-accent text-white px-6 py-3 text-sm font-medium hover:bg-accent/90 transition-colors" %>
-    </div>
-  <% end %>
 </div>

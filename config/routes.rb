@@ -10,6 +10,9 @@ Rails.application.routes.draw do
   if Rails.env.development?
     mount LetterOpenerWeb::Engine, at: "/letter_opener"
     mount Sidekiq::Web, at: "/sidekiq"  # Sidekiq Web UI
+    get "design/countdown", to: "pages#countdown_design"
+    get "design/action-plan", to: "pages#action_plan_design"
+    get "design/achieved-videos", to: "pages#achieved_videos_design"
   end
 
   get "up" => "rails/health#show", as: :rails_health_check
@@ -54,6 +57,7 @@ Rails.application.routes.draw do
     resources :cheers, only: [ :create, :destroy ]
     resources :post_entries, only: [ :create, :edit, :update, :destroy ] do
       patch :achieve, on: :member
+      resources :entry_flames, only: [ :create, :destroy ]
     end
   end
 

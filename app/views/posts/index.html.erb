@@ -17,8 +17,19 @@
         <input type="text"
                data-index-search-target="input"
                data-action="input->index-search#handleInput keydown->index-search#handleKeydown"
-               placeholder="URLを貼り付け、またはタイトルで検索..."
-               class="w-full rounded-lg border border-gray-200 bg-white pl-12 pr-4 py-3 text-base text-gray-900 placeholder:text-gray-400 focus:border-gray-400 focus:ring-2 focus:ring-gray-100 focus:outline-none transition-colors">
+               placeholder="動画を検索..."
+               class="w-full rounded-lg border border-gray-200 bg-white pl-12 pr-28 py-3 text-base text-gray-900 placeholder:text-gray-400 focus:border-gray-400 focus:ring-2 focus:ring-gray-100 focus:outline-none transition-colors">
+        <%# ペーストボタン %>
+        <button type="button"
+                data-index-search-target="pasteButton"
+                data-action="click->index-search#pasteFromClipboard"
+                class="absolute top-1/2 -translate-y-1/2 right-3 flex items-center justify-center text-gray-500 hover:text-gray-900 transition-colors text-sm font-medium gap-1"
+                title="クリップボードから貼り付け">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+          </svg>
+          <span class="hidden sm:inline">貼り付け</span>
+        </button>
         <%# 検索結果ドロップダウン %>
         <div data-index-search-target="results"
              class="hidden absolute z-20 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-96 overflow-y-auto">
@@ -95,6 +106,11 @@
     <% else %>
       <%# ===== セクション表示 ===== %>
 
+      <%# フィーチャー動画（TOP5からランダム自動再生） %>
+      <% if @featured_post.present? %>
+        <%= render 'posts/section_hero_video', post: @featured_post, rank: @featured_post_rank %>
+      <% end %>
+
       <%# セクション1: 人気のチャンネル %>
       <% if @popular_channels.present? %>
         <%= render 'posts/section_channels', channels: @popular_channels %>
@@ -106,11 +122,16 @@
       <% end %>
 
       <%# セクション3: 達成数ランキング %>
-      <% if @user_ranking.present? || @user_ranking_period.present? %>
-        <%= render 'posts/section_user_ranking', users: @user_ranking || [], period: @user_ranking_period %>
+      <% if @user_ranking.present? %>
+        <%= render 'posts/section_user_ranking', users: @user_ranking %>
       <% end %>
 
-      <%# セクション4: 最近の投稿 %>
+      <%# セクション4: みんなのアクションプラン %>
+      <% if @active_plans.present? %>
+        <%= render 'posts/section_active_plans', entries: @active_plans %>
+      <% end %>
+
+      <%# セクション5: 最近の投稿 %>
       <% if @recent_posts.present? %>
         <%= render 'posts/section_recent_posts', posts: @recent_posts %>
       <% end %>

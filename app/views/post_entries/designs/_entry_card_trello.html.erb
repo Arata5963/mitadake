@@ -1,0 +1,148 @@
+<%# app/views/post_entries/designs/_entry_card_trello.html.erb %>
+<%# Trello風デザイン - カード形式、ラベル、チェックリスト風 %>
+
+<%= turbo_frame_tag dom_id(entry) do %>
+<article class="group" style="background: white; border-radius: 8px; box-shadow: 0 1px 0 rgba(9,30,66,0.25); margin-bottom: 8px; overflow: hidden; transition: background-color 0.1s, box-shadow 0.1s;"
+         onmouseover="this.style.backgroundColor='#f4f5f7';"
+         onmouseout="this.style.backgroundColor='white';">
+
+  <%# カラーラベル（上部） %>
+  <% if entry.deadline.present? %>
+    <%
+      is_overdue = entry.deadline < Date.current && !entry.achieved?
+      is_soon = entry.deadline <= Date.current + 2.days && !entry.achieved?
+
+      if entry.achieved?
+        label_color = '#61bd4f'
+      elsif is_overdue
+        label_color = '#eb5a46'
+      elsif is_soon
+        label_color = '#f2d600'
+      else
+        label_color = '#0079bf'
+      end
+    %>
+    <div style="height: 8px; background: <%= label_color %>;"></div>
+  <% end %>
+
+  <div style="padding: 8px 8px 4px;">
+    <%# ラベル（小さいピル） %>
+    <div style="display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap;">
+      <% if entry.achieved? %>
+        <span style="height: 8px; width: 40px; background: #61bd4f; border-radius: 4px;"></span>
+      <% end %>
+      <% if entry.deadline.present? && entry.deadline <= Date.current + 2.days && !entry.achieved? %>
+        <span style="height: 8px; width: 40px; background: #f2d600; border-radius: 4px;"></span>
+      <% end %>
+    </div>
+
+    <%# カードタイトル（タスク内容） %>
+    <div style="font-size: 14px; line-height: 1.4; color: <%= entry.achieved? ? '#a5adba' : '#172b4d' %>; margin-bottom: 8px; word-wrap: break-word; <%= 'text-decoration: line-through;' if entry.achieved? %>">
+      <%= entry.content %>
+    </div>
+
+    <%# バッジエリア %>
+    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+      <%# 期限バッジ %>
+      <% if entry.deadline.present? %>
+        <%
+          is_overdue = entry.deadline < Date.current && !entry.achieved?
+          is_soon = entry.deadline <= Date.current + 1.day && !entry.achieved?
+
+          if entry.achieved?
+            badge_bg = '#61bd4f'
+            badge_color = 'white'
+          elsif is_overdue
+            badge_bg = '#eb5a46'
+            badge_color = 'white'
+          elsif is_soon
+            badge_bg = '#f2d600'
+            badge_color = '#172b4d'
+          else
+            badge_bg = 'transparent'
+            badge_color = '#5e6c84'
+          end
+        %>
+        <div style="display: flex; align-items: center; gap: 4px; padding: 2px 6px; background: <%= badge_bg %>; border-radius: 3px;">
+          <svg style="width: 14px; height: 14px; color: <%= badge_color %>;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <span style="font-size: 12px; color: <%= badge_color %>;">
+            <%= l(entry.deadline, format: :short) %>
+          </span>
+          <% if entry.achieved? %>
+            <svg style="width: 12px; height: 12px; color: <%= badge_color %>;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+          <% end %>
+        </div>
+      <% end %>
+
+      <%# チェックリスト風プログレス %>
+      <% if user_signed_in? && entry.user == current_user && !entry.achieved? %>
+        <%= button_to achieve_post_post_entry_path(entry.post, entry),
+              method: :patch,
+              style: "display: flex; align-items: center; gap: 4px; padding: 2px 6px; background: none; border: none; cursor: pointer; border-radius: 3px; transition: background-color 0.1s;",
+              form: { data: { turbo_confirm: "達成しますか？" } },
+              onmouseover: "this.style.backgroundColor='#091e420a'",
+              onmouseout: "this.style.backgroundColor='transparent'" do %>
+          <svg style="width: 14px; height: 14px; color: #5e6c84;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          </svg>
+          <span style="font-size: 12px; color: #5e6c84;">0/1</span>
+        <% end %>
+      <% elsif entry.achieved? %>
+        <div style="display: flex; align-items: center; gap: 4px; padding: 2px 6px; background: #61bd4f; border-radius: 3px;">
+          <svg style="width: 14px; height: 14px; color: white;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/>
+          </svg>
+          <span style="font-size: 12px; color: white;">1/1</span>
+        </div>
+      <% end %>
+
+      <%# 動画リンク %>
+      <%= link_to post_path(entry.post), style: "display: flex; align-items: center; gap: 4px; padding: 2px 6px; text-decoration: none; border-radius: 3px; transition: background-color 0.1s;", data: { turbo_frame: "_top" },
+            onmouseover: "this.style.backgroundColor='#091e420a'",
+            onmouseout: "this.style.backgroundColor='transparent'" do %>
+        <svg style="width: 14px; height: 14px; color: #5e6c84;" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+        </svg>
+      <% end %>
+
+      <%# スペーサー %>
+      <div style="flex: 1;"></div>
+
+      <%# メンバーアバター %>
+      <div style="display: flex; align-items: center;">
+        <% if entry.display_avatar.present? %>
+          <%= image_tag entry.display_avatar.url, style: "width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 2px solid white;" %>
+        <% else %>
+          <% colors = ['#0079bf', '#d29034', '#519839', '#b04632', '#89609e'] %>
+          <% avatar_color = colors[entry.display_user_name.to_s.bytes.sum % colors.length] %>
+          <div style="width: 28px; height: 28px; border-radius: 50%; background: <%= avatar_color %>; display: flex; align-items: center; justify-content: center; border: 2px solid white;">
+            <span style="font-size: 12px; font-weight: 700; color: white;"><%= entry.display_user_name&.first&.upcase || '?' %></span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <%# 削除ボタン（ホバー時） %>
+  <% if user_signed_in? && entry.user == current_user %>
+    <div class="opacity-0 group-hover:opacity-100 transition-opacity" style="position: absolute; top: 4px; right: 4px;">
+      <%= button_to post_post_entry_path(entry.post, entry),
+            method: :delete,
+            data: { turbo_confirm: "削除しますか？" },
+            style: "width: 28px; height: 28px; background: rgba(255,255,255,0.9); border: none; border-radius: 3px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 0 rgba(9,30,66,0.25);",
+            title: "削除" do %>
+        <svg style="width: 14px; height: 14px; color: #6b778c;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      <% end %>
+    </div>
+  <% end %>
+</article>
+<% end %>

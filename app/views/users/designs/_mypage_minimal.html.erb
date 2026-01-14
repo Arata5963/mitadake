@@ -1,0 +1,109 @@
+<%# app/views/users/designs/_mypage_minimal.html.erb %>
+<%# デザインC: ミニマル版 %>
+<%# アクションにフォーカス、動画は背景的に %>
+
+<% current_action = user.current_action_plan %>
+<% current_video = user.current_video %>
+
+<div class="max-w-sm mx-auto px-4 py-8">
+  <%# プロフィール（ミニマル） %>
+  <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center gap-3">
+      <% if user.avatar.present? %>
+        <%= image_tag user.avatar.url, class: "w-10 h-10 rounded-full object-cover" %>
+      <% else %>
+        <div class="w-10 h-10 rounded-full bg-gray-900 flex items-center justify-center">
+          <span class="text-white font-bold text-sm"><%= user.name&.first&.upcase || '?' %></span>
+        </div>
+      <% end %>
+      <div>
+        <h1 class="text-base font-bold text-gray-900"><%= user.name.presence || "名無しさん" %></h1>
+        <p class="text-xs text-gray-400"><%= user.post_entries.achieved.count %>達成</p>
+      </div>
+    </div>
+    <%= link_to edit_profile_path, class: "text-gray-400 hover:text-gray-600" do %>
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+      </svg>
+    <% end %>
+  </div>
+
+  <% if current_video && current_action %>
+    <%# メインアクションカード %>
+    <div class="relative rounded-2xl overflow-hidden" data-controller="hero-video" data-hero-video-video-id-value="<%= current_video.youtube_video_id %>">
+      <%# 背景動画（暗めオーバーレイ付き） %>
+      <div class="absolute inset-0">
+        <iframe
+          id="hero-player-<%= current_video.youtube_video_id %>"
+          data-hero-video-target="iframe"
+          src="https://www.youtube.com/embed/<%= current_video.youtube_video_id %>?autoplay=1&mute=1&loop=1&playlist=<%= current_video.youtube_video_id %>&controls=0&playsinline=1&rel=0&modestbranding=1&showinfo=0&enablejsapi=1"
+          class="absolute inset-0 w-full h-full pointer-events-none scale-150"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen>
+        </iframe>
+        <div class="absolute inset-0 bg-black/70"></div>
+      </div>
+
+      <%# コンテンツ %>
+      <div class="relative z-10 p-6">
+        <%# アクション（メイン） %>
+        <div class="flex items-start gap-3 mb-6">
+          <%= button_to achieve_post_post_entry_path(current_video, current_action),
+                method: :patch, class: "flex-shrink-0 mt-1",
+                form: { data: { turbo_confirm: "達成しますか？", turbo_frame: "_top" } } do %>
+            <div class="w-7 h-7 rounded-full border-2 border-white cursor-pointer hover:bg-white/20 transition-colors"></div>
+          <% end %>
+          <div class="flex-1">
+            <p class="text-lg text-white font-medium leading-relaxed"><%= current_action.content %></p>
+            <% if current_action.deadline.present? %>
+              <% is_overdue = current_action.deadline < Date.current %>
+              <% is_today = current_action.deadline == Date.current %>
+              <p class="text-sm mt-2 <%= is_overdue ? 'text-red-400' : 'text-white/60' %>">
+                <%= is_overdue ? '期限切れ' : (is_today ? '今日まで' : "#{l(current_action.deadline, format: :short)}まで") %>
+              </p>
+            <% end %>
+          </div>
+        </div>
+
+        <%# 動画情報（サブ） %>
+        <%= link_to post_path(current_video), class: "flex items-center gap-2 text-white/60 hover:text-white/80 transition-colors" do %>
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+          </svg>
+          <span class="text-sm truncate"><%= current_video.youtube_title %></span>
+        <% end %>
+
+        <%# 再生/一時停止 %>
+        <button type="button"
+                data-action="click->hero-video#toggle"
+                class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors">
+          <svg data-hero-video-target="playButton" class="w-4 h-4 text-white ml-0.5 hidden" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+          <svg data-hero-video-target="pauseButton" class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+          </svg>
+        </button>
+
+        <%# 削除 %>
+        <%= button_to post_post_entry_path(current_video, current_action),
+              method: :delete,
+              form: { data: { turbo_confirm: "削除しますか？", turbo_frame: "_top" } },
+              class: "absolute bottom-4 right-4 text-white/40 hover:text-red-400 transition-colors" do %>
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+          </svg>
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <div class="bg-gray-100 rounded-2xl py-16 px-6 text-center">
+      <div class="text-4xl mb-3">🎯</div>
+      <p class="text-sm text-gray-500 mb-4">アクションプランを設定しよう</p>
+      <%= link_to posts_path, class: "inline-flex px-4 py-2 bg-gray-900 text-white text-sm rounded-full" do %>
+        動画を探す
+      <% end %>
+    </div>
+  <% end %>
+</div>

@@ -45,33 +45,24 @@ class PostEntriesController < ApplicationController
 
   def destroy
     @entry.destroy
-    redirect_to @post, notice: "アクションプランを削除しました"
+    design = extract_design_from_referer
+    redirect_to post_path(@post, design: design), notice: "アクションプランを削除しました"
   end
 
   def achieve
     if @entry.achieve!
       notice_message = @entry.achieved? ? "達成おめでとうございます！" : "未達成に戻しました"
-      redirect_url = params[:redirect_to] == "mypage" ? mypage_path : request.referer || @post
 
-      respond_to do |format|
-        format.turbo_stream do
-          if request.referer&.include?("mypage") || params[:redirect_to] == "mypage"
-            redirect_to mypage_path, notice: notice_message
-          else
-            render turbo_stream: turbo_stream.replace(
-              dom_id(@entry),
-              partial: "post_entries/entry_card",
-              locals: { entry: @entry }
-            )
-          end
-        end
-        format.html { redirect_to redirect_url, notice: notice_message }
+      # デザインパラメータを保持してリダイレクト
+      if params[:redirect_to] == "mypage" || request.referer&.include?("mypage")
+        redirect_to mypage_path, notice: notice_message
+      else
+        # リファラーからdesignパラメータを取得
+        design = extract_design_from_referer
+        redirect_to post_path(@post, design: design), notice: notice_message
       end
     else
-      respond_to do |format|
-        format.turbo_stream { head :unprocessable_entity }
-        format.html { redirect_to @post, alert: "達成処理に失敗しました" }
-      end
+      redirect_to @post, alert: "達成処理に失敗しました"
     end
   end
 
@@ -92,6 +83,15 @@ class PostEntriesController < ApplicationController
   end
 
   def entry_params
-    params.require(:post_entry).permit(:content, :deadline)
+    params.require(:post_entry).permit(:content)
+  end
+
+  def extract_design_from_referer
+    return nil unless request.referer
+    uri = URI.parse(request.referer)
+    query = Rack::Utils.parse_query(uri.query)
+    query["design"]
+  rescue URI::InvalidURIError
+    nil
   end
 end

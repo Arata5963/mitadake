@@ -1,0 +1,110 @@
+<%# app/views/post_entries/designs/_entry_card_todoist.html.erb %>
+<%# Todoist風デザイン - 赤アクセント、優先度表示、クリーンなUI %>
+
+<%= turbo_frame_tag dom_id(entry) do %>
+<article class="group" style="padding: 12px 0; border-bottom: 1px solid #f0f0f0;">
+  <div style="display: flex; align-items: flex-start; gap: 12px;">
+
+    <%# チェックボックス（丸形、優先度カラー） %>
+    <div style="flex-shrink: 0; padding-top: 1px;">
+      <% priority_color = entry.deadline.present? && entry.deadline <= Date.current + 1.day ? '#d1453b' : '#808080' %>
+      <% if user_signed_in? && entry.user == current_user && !entry.achieved? %>
+        <%= button_to achieve_post_post_entry_path(entry.post, entry),
+              method: :patch,
+              class: "block",
+              form: { data: { turbo_confirm: "「#{truncate(entry.content, length: 20)}」を達成しますか？" } } do %>
+          <div style="width: 18px; height: 18px; border-radius: 50%; border: 2px solid <%= priority_color %>; cursor: pointer; transition: all 0.2s ease; background: white;"
+               onmouseover="this.style.backgroundColor='<%= priority_color %>22';"
+               onmouseout="this.style.backgroundColor='white';"></div>
+        <% end %>
+      <% elsif entry.achieved? %>
+        <div style="width: 18px; height: 18px; border-radius: 50%; border: 2px solid #5297ff; background: #5297ff; display: flex; align-items: center; justify-content: center;">
+          <svg style="width: 10px; height: 10px; color: white;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+          </svg>
+        </div>
+      <% else %>
+        <div style="width: 18px; height: 18px; border-radius: 50%; border: 2px solid #808080; background: white;"></div>
+      <% end %>
+    </div>
+
+    <%# メインコンテンツ %>
+    <div style="flex: 1; min-width: 0;">
+      <%# タスクテキスト %>
+      <p style="font-size: 14px; line-height: 1.5; color: <%= entry.achieved? ? '#aaa' : '#202020' %>; margin: 0 0 6px 0; <%= 'text-decoration: line-through;' if entry.achieved? %>">
+        <%= entry.content %>
+      </p>
+
+      <%# メタ情報 %>
+      <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <%# 期限（Todoist風カラフル表示） %>
+        <% if entry.deadline.present? %>
+          <%
+            is_overdue = entry.deadline < Date.current && !entry.achieved?
+            is_today = entry.deadline == Date.current
+            is_tomorrow = entry.deadline == Date.current + 1.day
+
+            if is_overdue
+              date_color = '#d1453b'
+              date_text = "期限切れ・#{l(entry.deadline, format: :short)}"
+            elsif is_today
+              date_color = '#058527'
+              date_text = "今日"
+            elsif is_tomorrow
+              date_color = '#ad6200'
+              date_text = "明日"
+            else
+              date_color = '#692fc2'
+              date_text = l(entry.deadline, format: :short)
+            end
+          %>
+          <span style="font-size: 12px; color: <%= date_color %>; display: flex; align-items: center; gap: 4px;">
+            <svg style="width: 12px; height: 12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <%= date_text %>
+          </span>
+        <% end %>
+
+        <%# 投稿者 %>
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <% if entry.display_avatar.present? %>
+            <%= image_tag entry.display_avatar.url, style: "width: 14px; height: 14px; border-radius: 50%; object-fit: cover;" %>
+          <% end %>
+          <span style="font-size: 12px; color: #808080;"><%= entry.display_user_name %></span>
+        </div>
+
+        <%# 動画へのリンク %>
+        <%= link_to post_path(entry.post), style: "font-size: 12px; color: #808080; text-decoration: none; display: flex; align-items: center; gap: 4px;", data: { turbo_frame: "_top" },
+              onmouseover: "this.style.color='#d1453b'",
+              onmouseout: "this.style.color='#808080'" do %>
+          <svg style="width: 12px; height: 12px;" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+          </svg>
+          動画
+        <% end %>
+      </div>
+    </div>
+
+    <%# 右側アクション %>
+    <div class="opacity-0 group-hover:opacity-100 transition-opacity" style="display: flex; align-items: center; gap: 2px; flex-shrink: 0;">
+      <% if user_signed_in? && entry.user == current_user %>
+        <%= button_to post_post_entry_path(entry.post, entry),
+              method: :delete,
+              data: { turbo_confirm: "削除しますか？" },
+              style: "padding: 6px; border-radius: 4px; background: none; border: none; cursor: pointer; transition: all 0.15s;",
+              title: "削除",
+              onmouseover: "this.style.backgroundColor='#ffeaea'",
+              onmouseout: "this.style.backgroundColor='transparent'" do %>
+          <svg style="width: 16px; height: 16px; color: #808080;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</article>
+<% end %>

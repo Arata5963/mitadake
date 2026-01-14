@@ -17,3 +17,8 @@
       class: ReminderCheckJob
       queue: default
       description: "リマインダー対象を毎分チェックしてメール送信"
+    cleanup_expired_entries_job:
+      cron: "0 3 * * *"           # 毎日AM3:00に実行
+      class: CleanupExpiredEntriesJob
+      queue: default
+      description: "期限切れの未達成エントリーを削除"

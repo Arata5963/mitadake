@@ -5,12 +5,17 @@ puts "Seeding database..."
 
 # 既存データをクリア（外部キー制約を考慮した順序）
 puts "Clearing existing data..."
-ActivityNotification::Notification.destroy_all rescue nil
+
+# モデルが存在しないテーブルは直接SQLで削除
+ActiveRecord::Base.connection.execute("TRUNCATE TABLE post_comparisons CASCADE") rescue nil
+ActiveRecord::Base.connection.execute("TRUNCATE TABLE recommendation_clicks CASCADE") rescue nil
+ActiveRecord::Base.connection.execute("TRUNCATE TABLE comment_bookmarks CASCADE") rescue nil
+ActiveRecord::Base.connection.execute("TRUNCATE TABLE youtube_comments CASCADE") rescue nil
+ActiveRecord::Base.connection.execute("TRUNCATE TABLE subscriptions CASCADE") rescue nil
+ActiveRecord::Base.connection.execute("TRUNCATE TABLE notifications CASCADE") rescue nil
+
+# モデルがあるテーブル
 EntryFlame.destroy_all rescue nil
-CommentBookmark.destroy_all rescue nil
-YoutubeComment.destroy_all rescue nil
-PostComparison.destroy_all rescue nil
-RecommendationClick.destroy_all rescue nil
 Comment.destroy_all rescue nil
 Cheer.destroy_all
 Achievement.destroy_all

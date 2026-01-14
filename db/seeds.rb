@@ -3,26 +3,23 @@
 
 puts "Seeding database..."
 
-# 既存データをクリア（外部キー制約を考慮した順序）
+# 既存データをクリア（全テーブルをTRUNCATEで一括削除）
 puts "Clearing existing data..."
 
-# モデルが存在しないテーブルは直接SQLで削除
-ActiveRecord::Base.connection.execute("TRUNCATE TABLE post_comparisons CASCADE") rescue nil
-ActiveRecord::Base.connection.execute("TRUNCATE TABLE recommendation_clicks CASCADE") rescue nil
-ActiveRecord::Base.connection.execute("TRUNCATE TABLE comment_bookmarks CASCADE") rescue nil
-ActiveRecord::Base.connection.execute("TRUNCATE TABLE youtube_comments CASCADE") rescue nil
-ActiveRecord::Base.connection.execute("TRUNCATE TABLE subscriptions CASCADE") rescue nil
-ActiveRecord::Base.connection.execute("TRUNCATE TABLE notifications CASCADE") rescue nil
+# 外部キー制約を一時的に無効化して全削除
+ActiveRecord::Base.connection.execute("SET session_replication_role = 'replica'")
 
-# モデルがあるテーブル
-EntryFlame.destroy_all rescue nil
-Comment.destroy_all rescue nil
-Cheer.destroy_all
-Achievement.destroy_all
-PostEntry.destroy_all
-Post.destroy_all
-FavoriteVideo.destroy_all
-User.destroy_all
+tables_to_clear = %w[
+  post_comparisons recommendation_clicks comment_bookmarks youtube_comments
+  subscriptions notifications entry_flames comments cheers achievements
+  post_entries posts favorite_videos users
+]
+
+tables_to_clear.each do |table|
+  ActiveRecord::Base.connection.execute("TRUNCATE TABLE #{table} RESTART IDENTITY CASCADE") rescue nil
+end
+
+ActiveRecord::Base.connection.execute("SET session_replication_role = 'origin'")
 
 # メインユーザー作成（favorite_quoteは後でPost作成後に設定）
 puts "Creating main user..."

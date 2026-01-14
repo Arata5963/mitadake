@@ -3,23 +3,31 @@
 
 puts "Seeding database..."
 
-# 既存データをクリア（全テーブルをTRUNCATEで一括削除）
+# 既存データをクリア（外部キー依存順序でDELETE）
 puts "Clearing existing data..."
 
-# 外部キー制約を一時的に無効化して全削除
-ActiveRecord::Base.connection.execute("SET session_replication_role = 'replica'")
-
+# 依存関係の順序で削除（子テーブルから親テーブルへ）
 tables_to_clear = %w[
-  post_comparisons recommendation_clicks comment_bookmarks youtube_comments
-  subscriptions notifications entry_flames comments cheers achievements
-  post_entries posts favorite_videos users
+  entry_flames
+  comment_bookmarks
+  post_comparisons
+  recommendation_clicks
+  youtube_comments
+  notifications
+  subscriptions
+  comments
+  cheers
+  achievements
+  post_entries
+  posts
+  favorite_videos
+  users
 ]
 
 tables_to_clear.each do |table|
-  ActiveRecord::Base.connection.execute("TRUNCATE TABLE #{table} RESTART IDENTITY CASCADE") rescue nil
+  puts "  Deleting #{table}..."
+  ActiveRecord::Base.connection.execute("DELETE FROM #{table}") rescue nil
 end
-
-ActiveRecord::Base.connection.execute("SET session_replication_role = 'origin'")
 
 # メインユーザー作成（favorite_quoteは後でPost作成後に設定）
 puts "Creating main user..."

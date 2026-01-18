@@ -140,6 +140,38 @@ class GeminiService
       { success: false, error: "コメント分類に失敗しました: #{e.message}" }
     end
 
+    # アクションプランをYouTubeタイトル風に変換
+    # @param action_plan [String] 元のアクションプラン
+    # @return [Hash] { success: true, title: "変換後タイトル" } または { success: false, error: "エラーメッセージ" }
+    def convert_to_youtube_title(action_plan)
+      api_key = ENV["GEMINI_API_KEY"]
+      return { success: false, error: "Gemini APIキーが設定されていません" } if api_key.blank?
+      return { success: false, error: "アクションプランがありません" } if action_plan.blank?
+
+      prompt = build_youtube_title_prompt(action_plan)
+      response = call_gemini_with_text(api_key, prompt)
+      extract_youtube_title(response)
+    rescue StandardError => e
+      Rails.logger.error("Gemini convert_to_youtube_title error: #{e.message}")
+      { success: false, error: "変換に失敗しました: #{e.message}" }
+    end
+
+    # サムネイル画像を生成
+    # @param action_plan [String] アクションプラン内容
+    # @return [Hash] { success: true, image_data: "base64データ" } または { success: false, error: "エラーメッセージ" }
+    def generate_thumbnail(action_plan)
+      api_key = ENV["GEMINI_API_KEY"]
+      return { success: false, error: "Gemini APIキーが設定されていません" } if api_key.blank?
+      return { success: false, error: "アクションプランがありません" } if action_plan.blank?
+
+      prompt = build_thumbnail_prompt(action_plan)
+      response = call_gemini_for_image(api_key, prompt)
+      extract_image_data(response)
+    rescue StandardError => e
+      Rails.logger.error("Gemini generate_thumbnail error: #{e.message}")
+      { success: false, error: "サムネイル生成に失敗しました: #{e.message}" }
+    end
+
     # YouTube動画の学習ガイドを生成
     # 優先順位: 1. 字幕ベース → 2. タイトルベース
     # @param post [Post] 投稿オブジェクト
@@ -477,7 +509,7 @@ class GeminiService
 
       <<~PROMPT
         以下はYouTube動画「#{title}」の字幕テキストです。
-        この動画を見た視聴者が「今日すぐに」実行できる単発アクションを3個提案してください。
+        この動画を見た視聴者が「今日すぐに」実行できる単発アクションを3個、YouTubeの動画タイトル風に提案してください。
 
         【字幕テキスト】
         #{truncated_transcript}
@@ -487,29 +519,30 @@ class GeminiService
 
         {
           "action_plans": [
-            "アクション1",
-            "アクション2",
-            "アクション3"
+            "【やってみた】〇〇した結果",
+            "【検証】〇〇してみた",
+            "【実践】〇〇に挑戦してみた"
           ]
         }
 
         【重要な作成ルール】
         - 必ず3個のアクションを提案してください
+        - YouTubeの動画タイトル風に書いてください（【】を使う、「〜してみた」「〜した結果」など）
         - 「1回で完了する」単発アクションのみ（習慣化や継続的な取り組みはNG）
-        - 「今日」「今すぐ」「今週末に」など、すぐに実行できる内容
-        - 「〜する」という形式で、短く簡潔に記載してください（25文字以内）
+        - 過去形で書いてください（やってみた、した結果、など）
+        - 30文字以内に収めてください
         - 動画の内容に直接関連したアクションのみを提案してください
 
         【良い例】
-        - 「〇〇をAmazonで検索してカートに入れる」
-        - 「〇〇のアプリをダウンロードする」
-        - 「〇〇について10分調べる」
-        - 「〇〇を試しに1回やってみる」
+        - 「【やってみた】朝5時起きを実践した結果」
+        - 「【検証】読書メモをNotionに記録してみた」
+        - 「【実践】部屋の断捨離に挑戦してみた」
+        - 「10分間瞑想してみた結果がヤバい」
 
         【悪い例（これらは提案しないこと）】
-        - 「毎日〇〇する習慣をつける」
-        - 「〇〇を継続的に改善する」
-        - 「週に1回〇〇する」
+        - 「毎日〇〇する」（習慣化はNG）
+        - 「〇〇を継続する」（継続はNG）
+        - 「〇〇をする」（現在形はNG、過去形にする）
       PROMPT
     end
 
@@ -518,7 +551,7 @@ class GeminiService
       desc_text = description.present? ? "\n動画の説明: #{description.truncate(1000)}" : ""
 
       <<~PROMPT
-        以下のYouTube動画について、視聴者が「今日すぐに」実行できる単発アクションを3個提案してください。
+        以下のYouTube動画について、視聴者が「今日すぐに」実行できる単発アクションを3個、YouTubeの動画タイトル風に提案してください。
 
         動画タイトル: #{title}#{desc_text}
 
@@ -527,29 +560,30 @@ class GeminiService
 
         {
           "action_plans": [
-            "アクション1",
-            "アクション2",
-            "アクション3"
+            "【やってみた】〇〇した結果",
+            "【検証】〇〇してみた",
+            "【実践】〇〇に挑戦してみた"
           ]
         }
 
         【重要な作成ルール】
         - 必ず3個のアクションを提案してください
+        - YouTubeの動画タイトル風に書いてください（【】を使う、「〜してみた」「〜した結果」など）
         - タイトルから推測される動画内容に基づいて提案してください
         - 「1回で完了する」単発アクションのみ（習慣化や継続的な取り組みはNG）
-        - 「今日」「今すぐ」「今週末に」など、すぐに実行できる内容
-        - 「〜する」という形式で、短く簡潔に記載してください（25文字以内）
+        - 過去形で書いてください（やってみた、した結果、など）
+        - 30文字以内に収めてください
 
         【良い例】
-        - 「〇〇をAmazonで検索してカートに入れる」
-        - 「〇〇のアプリをダウンロードする」
-        - 「〇〇について10分調べる」
-        - 「〇〇を試しに1回やってみる」
+        - 「【やってみた】朝5時起きを実践した結果」
+        - 「【検証】読書メモをNotionに記録してみた」
+        - 「【実践】部屋の断捨離に挑戦してみた」
+        - 「10分間瞑想してみた結果がヤバい」
 
         【悪い例（これらは提案しないこと）】
-        - 「毎日〇〇する習慣をつける」
-        - 「〇〇を継続的に改善する」
-        - 「週に1回〇〇する」
+        - 「毎日〇〇する」（習慣化はNG）
+        - 「〇〇を継続する」（継続はNG）
+        - 「〇〇をする」（現在形はNG、過去形にする）
       PROMPT
     end
 
@@ -832,6 +866,164 @@ class GeminiService
         { success: true, summary: text }
       else
         { success: false, error: "ガイドを取得できませんでした" }
+      end
+    end
+
+    # YouTubeタイトル風変換用プロンプト
+    def build_youtube_title_prompt(action_plan)
+      <<~PROMPT
+        あなたはYouTubeタイトルのエキスパートです。
+        以下のアクションプランを、YouTubeの動画タイトル風に変換してください。
+
+        【元のアクションプラン】
+        #{action_plan}
+
+        【回答形式】
+        以下のJSON形式で回答してください。JSONのみを返し、他のテキストは含めないでください。
+
+        {
+          "title": "変換後のタイトル"
+        }
+
+        【変換ルール】
+        - 1回で完了するワンアクションを「やってみた」系のタイトルにする
+        - 【】や「」を使ってキャッチーにする
+        - 結果が気になる形にする
+        - 30文字以内に収める
+        - 過去形で書く（やってみた、した結果、など）
+
+        【変換例】
+        - 「読書メモをNotionに記録する」→「【やってみた】読書メモをNotionに記録した結果」
+        - 「朝5時に起きる」→「【検証】朝5時起きを実践してみた」
+        - 「1日水を2リットル飲む」→「1日2L水を飲んでみた結果がヤバい」
+        - 「部屋を断捨離する」→「【Before/After】部屋を断捨離してみた」
+        - 「コーヒーを1週間やめる」→「コーヒーやめてみた結果…」
+      PROMPT
+    end
+
+    # YouTubeタイトル変換レスポンスをパース
+    def extract_youtube_title(response)
+      if response["error"]
+        error_message = response.dig("error", "message") || "APIエラーが発生しました"
+        Rails.logger.error("Gemini API error response: #{error_message}")
+
+        if error_message.include?("429") || error_message.include?("quota") || error_message.include?("rate")
+          return { success: false, error: "AIが混み合っています。少し待ってから再試行してください。" }
+        end
+
+        return { success: false, error: "変換に失敗しました: #{error_message}" }
+      end
+
+      text = response.dig("candidates", 0, "content", "parts", 0, "text")
+
+      if text.blank?
+        return { success: false, error: "タイトルを生成できませんでした" }
+      end
+
+      # JSONを抽出してパース
+      json_match = text.match(/\{[\s\S]*\}/m)
+      unless json_match
+        Rails.logger.error("Failed to extract JSON from youtube title response: #{text}")
+        return { success: false, error: "タイトルの解析に失敗しました" }
+      end
+
+      begin
+        data = JSON.parse(json_match[0])
+        title = data["title"]
+
+        if title.blank?
+          return { success: false, error: "タイトルが見つかりませんでした" }
+        end
+
+        { success: true, title: title }
+      rescue JSON::ParserError => e
+        Rails.logger.error("JSON parse error in youtube title: #{e.message}")
+        { success: false, error: "タイトルの解析に失敗しました" }
+      end
+    end
+
+    # サムネイル生成用プロンプト
+    def build_thumbnail_prompt(action_plan)
+      <<~PROMPT
+        Generate a cute illustration for a YouTube thumbnail.
+
+        Theme: "#{action_plan}"
+
+        Style requirements:
+        - Main character: A cute yellow chick (ひよこ) character with expressive eyes
+        - The chick should be doing an action related to the theme
+        - Illustration style: Kawaii, simple, clean lines
+        - Background: Simple, colorful, eye-catching
+        - Mood: Positive, energetic, motivational
+        - Aspect ratio: 16:9 (horizontal, YouTube thumbnail format)
+        - No text in the image
+
+        Examples of poses based on themes:
+        - "早起き" → chick stretching with sunrise
+        - "筋トレ" → chick lifting tiny dumbbells
+        - "読書" → chick wearing glasses reading a book
+        - "瞑想" → chick sitting peacefully with closed eyes
+      PROMPT
+    end
+
+    # Gemini画像生成APIを呼び出す
+    def call_gemini_for_image(api_key, prompt)
+      uri = URI("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp-image-generation:generateContent?key=#{api_key}")
+
+      request_body = {
+        contents: [
+          {
+            parts: [
+              { text: prompt }
+            ]
+          }
+        ],
+        generationConfig: {
+          responseModalities: ["IMAGE", "TEXT"]
+        }
+      }
+
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+      http.read_timeout = 60 # 画像生成は時間がかかる場合がある
+
+      request = Net::HTTP::Post.new(uri)
+      request["Content-Type"] = "application/json"
+      request.body = request_body.to_json
+
+      response = http.request(request)
+      JSON.parse(response.body)
+    end
+
+    # 画像データを抽出
+    def extract_image_data(response)
+      Rails.logger.info("Gemini Image API response: #{response.to_json}")
+
+      if response["error"]
+        error_message = response.dig("error", "message") || "APIエラーが発生しました"
+        Rails.logger.error("Gemini Image API error: #{error_message}")
+
+        if error_message.include?("429") || error_message.include?("quota")
+          return { success: false, error: "API制限に達しました。しばらく待ってから再試行してください。" }
+        end
+
+        return { success: false, error: "画像生成に失敗しました: #{error_message}" }
+      end
+
+      # 画像データを探す
+      parts = response.dig("candidates", 0, "content", "parts")
+      return { success: false, error: "レスポンスに画像がありません" } if parts.blank?
+
+      image_part = parts.find { |p| p["inlineData"].present? }
+      return { success: false, error: "画像データが見つかりません" } if image_part.nil?
+
+      image_data = image_part.dig("inlineData", "data")
+      mime_type = image_part.dig("inlineData", "mimeType") || "image/png"
+
+      if image_data.present?
+        { success: true, image_data: image_data, mime_type: mime_type }
+      else
+        { success: false, error: "画像データが空です" }
       end
     end
   end

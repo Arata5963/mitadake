@@ -1,6 +1,6 @@
 # app/controllers/posts_controller.rb
 class PostsController < ApplicationController
-  before_action :authenticate_user!, except: [ :index, :show, :autocomplete, :youtube_search, :find_or_create, :youtube_comments, :discover_comments, :trending, :channels, :recent ]
+  before_action :authenticate_user!, except: [ :index, :show, :autocomplete, :youtube_search, :find_or_create, :youtube_comments, :discover_comments, :trending, :channels, :recent, :convert_to_youtube_title ]
   before_action :set_post, only: [ :show, :edit, :update, :destroy, :summarize, :youtube_comments, :discover_comments, :suggest_action_plans ]
   before_action :check_has_entries, only: [ :edit, :update, :destroy ]
 
@@ -83,6 +83,11 @@ class PostsController < ApplicationController
   def show
   end
 
+  # 新規投稿ページ
+  def new
+    # before_action :authenticate_user! で認証済み
+  end
+
   # YouTube URLから投稿を検索または作成してリダイレクト
   def find_or_create
     youtube_url = params[:youtube_url]
@@ -107,6 +112,71 @@ class PostsController < ApplicationController
       render json: { success: true, post_id: @post.id, url: post_path(@post) }
     else
       render json: { success: false, error: "動画の情報を取得できませんでした" }, status: :unprocessable_entity
+    end
+  end
+
+  # 動画とアクションプランを同時に作成
+  def create_with_action
+    youtube_url = params[:youtube_url]
+    action_plan = params[:action_plan]
+
+    # バリデーション
+    if youtube_url.blank?
+      render json: { success: false, error: "動画URLが必要です" }, status: :unprocessable_entity
+      return
+    end
+
+    if action_plan.blank?
+      render json: { success: false, error: "アクションプランが必要です" }, status: :unprocessable_entity
+      return
+    end
+
+    unless user_signed_in?
+      render json: { success: false, error: "ログインが必要です" }, status: :unauthorized
+      return
+    end
+
+    # 未達成のアクションプランがあるかチェック
+    existing_incomplete = PostEntry.not_achieved.where(user: current_user).first
+    if existing_incomplete.present?
+      render json: { success: false, error: "未達成のアクションプランがあります。達成してから新しいプランを投稿してください。" }, status: :unprocessable_entity
+      return
+    end
+
+    # 動画を検索または作成
+    is_new_post = !Post.exists?(youtube_video_id: Post.extract_video_id(youtube_url))
+    @post = Post.find_or_create_by_video(youtube_url: youtube_url)
+
+    unless @post
+      render json: { success: false, error: "動画の情報を取得できませんでした" }, status: :unprocessable_entity
+      return
+    end
+
+    # サムネイル処理
+    thumbnail_data = params[:thumbnail]
+    thumbnail_url = process_thumbnail(thumbnail_data) if thumbnail_data.present?
+
+    # アクションプランを作成（期限は7日後）
+    @entry = @post.post_entries.new(
+      user: current_user,
+      content: action_plan,
+      deadline: 7.days.from_now.to_date,
+      thumbnail_url: thumbnail_url
+    )
+
+    if @entry.save
+      # 新規作成時はAI要約を自動生成
+      if is_new_post && @post.ai_summary.blank?
+        begin
+          GenerateSummaryJob.perform_later(@post.id)
+        rescue StandardError => e
+          Rails.logger.warn("Failed to enqueue GenerateSummaryJob: #{e.message}")
+        end
+      end
+
+      render json: { success: true, post_id: @post.id, entry_id: @entry.id, url: post_path(@post) }
+    else
+      render json: { success: false, error: @entry.errors.full_messages.join(", ") }, status: :unprocessable_entity
     end
   end
 
@@ -170,6 +240,35 @@ class PostsController < ApplicationController
       format.json { render json: @videos }
       format.html { render layout: false }
     end
+  end
+
+  # 既存の投稿を検索（アクションプランがあるもののみ）
+  def search_posts
+    query = params[:q].to_s.strip
+
+    if query.length >= 2
+      # アクションプランが1つ以上ある投稿のみ検索
+      @posts = Post.joins(:post_entries)
+                   .where("youtube_title ILIKE :q OR youtube_channel_name ILIKE :q", q: "%#{query}%")
+                   .distinct
+                   .order(created_at: :desc)
+                   .limit(10)
+
+      results = @posts.map do |post|
+        {
+          id: post.id,
+          title: post.youtube_title,
+          channel_name: post.youtube_channel_name,
+          thumbnail_url: post.youtube_thumbnail_url(size: :mqdefault),
+          url: post_path(post),
+          entry_count: post.post_entries.count
+        }
+      end
+    else
+      results = []
+    end
+
+    render json: results
   end
 
   # AI学習ガイドを生成
@@ -237,6 +336,24 @@ class PostsController < ApplicationController
     end
   end
 
+  # アクションプランをYouTubeタイトル風に変換
+  def convert_to_youtube_title
+    action_plan = params[:action_plan].to_s.strip
+
+    if action_plan.blank?
+      render json: { success: false, error: "アクションプランが必要です" }, status: :unprocessable_entity
+      return
+    end
+
+    result = GeminiService.convert_to_youtube_title(action_plan)
+
+    if result[:success]
+      render json: { success: true, title: result[:title] }
+    else
+      render json: { success: false, error: result[:error] }, status: :unprocessable_entity
+    end
+  end
+
   # YouTubeコメントを取得・保存（ブックマーク用）
   def discover_comments
     # 既に保存済みコメントがある場合はそれを返す
@@ -288,6 +405,75 @@ class PostsController < ApplicationController
 
   def post_params
     params.require(:post).permit(:youtube_url)
+  end
+
+  # サムネイルデータを処理
+  # デフォルト: nil（YouTubeサムネイルを使用）
+  # カスタム画像: S3にアップロードしてキーを保存
+  def process_thumbnail(thumbnail_data)
+    return nil if thumbnail_data.blank?
+
+    # ActionController::Parametersまたはハッシュを処理
+    data = if thumbnail_data.is_a?(String)
+      JSON.parse(thumbnail_data)
+    elsif thumbnail_data.respond_to?(:to_unsafe_h)
+      thumbnail_data.to_unsafe_h
+    else
+      thumbnail_data.to_h
+    end
+
+    key = data["key"]
+    return nil if key.blank? || key == "default"
+
+    custom_image = data["customImage"]
+    return nil unless key == "custom" && custom_image.present?
+
+    # カスタム画像をS3にアップロード
+    upload_custom_thumbnail(custom_image)
+  rescue JSON::ParserError => e
+    Rails.logger.warn("[process_thumbnail] JSON parse error: #{e.message}")
+    nil
+  rescue StandardError => e
+    Rails.logger.error("[process_thumbnail] Error: #{e.message}")
+    nil
+  end
+
+  # カスタムサムネイル画像をS3にアップロード
+  # S3キーを返す（署名付きURLは表示時に生成）
+  def upload_custom_thumbnail(base64_data)
+    return nil if base64_data.blank?
+
+    # Base64データからファイルを生成
+    matches = base64_data.match(/\Adata:(.*?);base64,(.*)\z/m)
+    return nil unless matches
+
+    content_type = matches[1]
+    decoded_data = Base64.decode64(matches[2])
+
+    # ファイル拡張子を決定
+    extension = case content_type
+    when "image/jpeg" then "jpg"
+    when "image/png" then "png"
+    when "image/webp" then "webp"
+    else "jpg"
+    end
+
+    # S3にアップロード（ユーザーIDごとにフォルダ分け）
+    filename = "user_thumbnails/#{current_user.id}/#{SecureRandom.uuid}.#{extension}"
+
+    s3_client = Aws::S3::Client.new
+    s3_client.put_object(
+      bucket: ENV["AWS_BUCKET"],
+      key: filename,
+      body: decoded_data,
+      content_type: content_type
+    )
+
+    # S3キーを返す（署名付きURLは表示時に生成）
+    filename
+  rescue StandardError => e
+    Rails.logger.error("Failed to upload custom thumbnail: #{e.message}")
+    nil
   end
 
   # YouTubeコメントを保存

@@ -52,34 +52,18 @@
 
     <%# チェックボックス（iOS風の丸） %>
     <div style="flex-shrink: 0; padding-top: 2px;">
-      <% if user_signed_in? && entry.user == current_user %>
-        <% if entry.achieved? %>
-          <%# 達成済み → クリックで未達成に戻す %>
-          <%= button_to achieve_post_post_entry_path(entry.post, entry),
-                method: :patch,
-                class: "block",
-                form: { data: { turbo_confirm: "「#{truncate(entry.content, length: 20)}」を未達成に戻しますか？", turbo_frame: "_top" } } do %>
-            <div style="width: 22px; height: 22px; border-radius: 50%; background: #000000; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease;"
-                 onmouseover="this.style.opacity='0.7';"
-                 onmouseout="this.style.opacity='1';">
-              <svg style="width: 12px; height: 12px; color: white;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-              </svg>
-            </div>
-          <% end %>
-        <% else %>
-          <%# 未達成 → クリックで達成に %>
-          <%= button_to achieve_post_post_entry_path(entry.post, entry),
-                method: :patch,
-                class: "block",
-                form: { data: { turbo_confirm: "「#{truncate(entry.content, length: 20)}」を達成しますか？", turbo_frame: "_top" } } do %>
-            <div style="width: 22px; height: 22px; border-radius: 50%; <%= checkbox_style %> cursor: pointer; transition: all 0.2s ease;"
-                 onmouseover="this.style.backgroundColor='rgba(0,122,255,0.1)';"
-                 onmouseout="this.style.backgroundColor='transparent';"></div>
-          <% end %>
+      <% if user_signed_in? && entry.user == current_user && !entry.achieved? %>
+        <%# 自分の未達成 → クリックで達成に %>
+        <%= button_to achieve_post_post_entry_path(entry.post, entry),
+              method: :patch,
+              class: "block",
+              form: { data: { turbo_confirm: "「#{truncate(entry.content, length: 20)}」を達成しますか？", turbo_frame: "_top" } } do %>
+          <div style="width: 22px; height: 22px; border-radius: 50%; <%= checkbox_style %> cursor: pointer; transition: all 0.2s ease;"
+               onmouseover="this.style.backgroundColor='rgba(0,122,255,0.1)';"
+               onmouseout="this.style.backgroundColor='transparent';"></div>
         <% end %>
       <% elsif entry.achieved? %>
-        <%# 他ユーザーの達成済み（クリック不可） %>
+        <%# 達成済み（クリック不可） %>
         <div style="width: 22px; height: 22px; border-radius: 50%; background: #000000; display: flex; align-items: center; justify-content: center;">
           <svg style="width: 12px; height: 12px; color: white;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
@@ -98,16 +82,9 @@
         <%= entry.content %>
       </p>
 
-      <%# サブ情報（バッジ型残り日数 + ユーザー + 炎） %>
-      <div style="display: flex; align-items: center; gap: 12px; margin-top: 6px; flex-wrap: wrap;">
-        <%# 残り日数バッジ（未達成のみ表示） %>
-        <% unless entry.achieved? %>
-          <span style="display: inline-flex; align-items: center; padding: 2px 10px; background: <%= badge_bg %>; border-radius: 10px; font-size: 12px; font-weight: 500; color: <%= badge_text %>;">
-            <%= badge_label %>
-          </span>
-        <% end %>
-
-        <%# 投稿者 %>
+      <%# サブ情報（ユーザー + バッジ型残り日数 + 炎） %>
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 6px;">
+        <%# 投稿者（左側） %>
         <div style="display: flex; align-items: center; gap: 6px;">
           <% if entry.display_avatar.present? %>
             <%= image_tag entry.display_avatar.url, style: "width: 16px; height: 16px; border-radius: 50%; object-fit: cover;" %>
@@ -119,26 +96,34 @@
           <span style="font-size: 13px; color: #8e8e93;"><%= entry.display_user_name %></span>
         </div>
 
-        <%# 炎ボタン %>
-        <%= render "entry_flames/flame_button", post_entry: entry %>
+        <%# 期限 + 炎（右側） %>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <%# 残り日数バッジ（未達成のみ表示） %>
+          <% unless entry.achieved? %>
+            <span style="display: inline-flex; align-items: center; padding: 2px 10px; background: <%= badge_bg %>; border-radius: 10px; font-size: 12px; font-weight: 500; color: <%= badge_text %>;">
+              <%= badge_label %>
+            </span>
+          <% end %>
+
+          <%# 炎ボタン %>
+          <%= render "entry_flames/flame_button", post_entry: entry %>
+        </div>
       </div>
     </div>
 
   </div>
 
-  <%# 削除ボタン（絶対位置 - 自分のエントリのみ、ホバー時表示） %>
+  <%# ゴミ箱ボタン（右上・自分のエントリのみ） %>
   <% if user_signed_in? && entry.user == current_user %>
-    <div class="opacity-0 group-hover:opacity-100 transition-opacity" style="position: absolute; top: 14px; right: 16px;">
+    <div style="position: absolute; top: 14px; right: 16px;">
       <%= button_to post_post_entry_path(entry.post, entry),
             method: :delete,
             form: { data: { turbo_confirm: "削除しますか？", turbo_frame: "_top" } },
-            style: "width: 28px; height: 28px; border-radius: 50%; background: #f2f2f7; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background-color 0.15s;",
-            title: "削除",
-            onmouseover: "this.style.backgroundColor='#ffebea'",
-            onmouseout: "this.style.backgroundColor='#f2f2f7'" do %>
-        <svg style="width: 14px; height: 14px; color: #000000;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
+            style: "display: flex; align-items: center; justify-content: center; padding: 0; background: transparent; border: none; cursor: pointer;",
+            title: "削除" do %>
+        <svg style="width: 16px; height: 16px; color: #c7c7cc;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
         </svg>
       <% end %>
     </div>

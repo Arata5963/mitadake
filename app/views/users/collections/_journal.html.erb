@@ -1,0 +1,195 @@
+<%# 日記/ジャーナル風コレクション %>
+<%# ノートに動画を貼り付けて、メモを書いたようなデザイン %>
+<% post = entry.post %>
+
+<article class="journal-entry">
+  <%# 日付ヘッダー %>
+  <header class="journal-entry__header">
+    <time class="journal-entry__date">
+      <span class="journal-entry__month"><%= entry.achieved_at.strftime("%-m") %>月</span>
+      <span class="journal-entry__day"><%= entry.achieved_at.strftime("%-d") %></span>
+      <span class="journal-entry__year"><%= entry.achieved_at.strftime("%Y") %></span>
+    </time>
+    <div class="journal-entry__weather">
+      <svg class="journal-entry__check" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+      </svg>
+    </div>
+  </header>
+
+  <%# 動画サムネイル（テープで貼ったような） %>
+  <div class="journal-entry__photo">
+    <div class="journal-entry__tape journal-entry__tape--top"></div>
+    <div class="journal-entry__image">
+      <%= image_tag "https://i.ytimg.com/vi/#{post.youtube_video_id}/mqdefault.jpg",
+            alt: post.youtube_title,
+            loading: "lazy" %>
+    </div>
+    <div class="journal-entry__tape journal-entry__tape--bottom"></div>
+  </div>
+
+  <%# 動画タイトル（小さく） %>
+  <p class="journal-entry__video-title">
+    📺 <%= truncate(post.youtube_title, length: 40) %>
+  </p>
+
+  <%# アクションプラン（手書き風メモ） %>
+  <div class="journal-entry__content">
+    <p class="journal-entry__text"><%= entry.content %></p>
+  </div>
+
+  <%# 達成マーク %>
+  <div class="journal-entry__stamp">達成!</div>
+</article>
+
+<style>
+  .journal-entry {
+    position: relative;
+    background: linear-gradient(180deg, #fffef8 0%, #faf8f0 100%);
+    border-radius: 4px;
+    padding: 16px;
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.08),
+      0 4px 12px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    /* 罫線 */
+    background-image:
+      linear-gradient(rgba(59, 130, 246, 0.08) 1px, transparent 1px);
+    background-size: 100% 24px;
+    background-position: 0 48px;
+  }
+
+  /* 日付ヘッダー */
+  .journal-entry__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+  }
+
+  .journal-entry__date {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+  }
+
+  .journal-entry__month {
+    font-size: 11px;
+    color: #6b7280;
+  }
+
+  .journal-entry__day {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1f2937;
+    line-height: 1;
+  }
+
+  .journal-entry__year {
+    font-size: 10px;
+    color: #9ca3af;
+  }
+
+  .journal-entry__weather {
+    color: #10b981;
+  }
+
+  .journal-entry__check {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* 動画サムネイル */
+  .journal-entry__photo {
+    position: relative;
+    margin: 0 auto 12px;
+    max-width: 90%;
+  }
+
+  .journal-entry__image {
+    aspect-ratio: 16/9;
+    overflow: hidden;
+    border-radius: 2px;
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.1),
+      0 1px 2px rgba(0, 0, 0, 0.06);
+  }
+
+  .journal-entry__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* テープ */
+  .journal-entry__tape {
+    position: absolute;
+    width: 40px;
+    height: 16px;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 235, 180, 0.9) 0%,
+      rgba(255, 225, 150, 0.85) 100%
+    );
+    z-index: 2;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  .journal-entry__tape--top {
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-2deg);
+  }
+
+  .journal-entry__tape--bottom {
+    bottom: -6px;
+    right: 10%;
+    transform: rotate(3deg);
+  }
+
+  /* 動画タイトル */
+  .journal-entry__video-title {
+    font-size: 9px;
+    color: #6b7280;
+    margin: 0 0 10px 0;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* アクションプラン */
+  .journal-entry__content {
+    min-height: 48px;
+  }
+
+  .journal-entry__text {
+    font-family: "Klee One", "Zen Kurenaido", "Yomogi", sans-serif;
+    font-size: 13px;
+    color: #374151;
+    line-height: 24px; /* 罫線に合わせる */
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* 達成スタンプ */
+  .journal-entry__stamp {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #dc2626;
+    border: 2px solid #dc2626;
+    border-radius: 4px;
+    padding: 2px 6px;
+    transform: rotate(-8deg);
+    opacity: 0.7;
+  }
+</style>

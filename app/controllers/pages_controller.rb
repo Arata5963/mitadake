@@ -16,4 +16,8 @@ class PagesController < ApplicationController
   def achieved_videos_design
     render "users/designs/achieved_videos_comparison", layout: "application"
   end
+
+  def new_post_design
+    render "posts/designs/new_post_comparison", layout: "application"
+  end
 end

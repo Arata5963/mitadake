@@ -5,7 +5,7 @@
 <% current_action = user.current_action_plan %>
 <% current_video = user.current_video %>
 
-<div class="max-w-2xl mx-auto px-4 py-6">
+<div style="max-width: 1000px; margin: 0 auto; padding: 16px 20px 24px;">
   <%# プロフィール %>
   <div class="flex items-center gap-3 mb-6">
     <% if user.avatar.present? %>
@@ -41,119 +41,67 @@
   </div>
 
   <% if current_video && current_action %>
-    <%# ヒーロービデオセクション（投稿一覧と同じスタイル） %>
-    <section class="mb-6" data-controller="hero-video" data-hero-video-video-id-value="<%= current_video.youtube_video_id %>">
-      <%# セクションヘッダー %>
-      <div class="mb-4">
-        <h2 class="text-lg font-bold text-gray-900">挑戦中の動画</h2>
-      </div>
-      <%# 動画コンテナ %>
-      <div class="group relative rounded-2xl overflow-hidden bg-black cursor-pointer" style="aspect-ratio: 16/9;">
-        <%# YouTube埋め込み（自動再生・ミュート・ループ） %>
-        <iframe
-          id="hero-player-<%= current_video.youtube_video_id %>"
-          data-hero-video-target="iframe"
-          src="https://www.youtube.com/embed/<%= current_video.youtube_video_id %>?autoplay=1&mute=1&loop=1&playlist=<%= current_video.youtube_video_id %>&controls=0&playsinline=1&rel=0&modestbranding=1&showinfo=0&enablejsapi=1"
-          class="absolute inset-0 w-full h-full pointer-events-none"
-          frameborder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowfullscreen>
-        </iframe>
-
-        <%# ホバーオーバーレイ（再生/一時停止ボタンのみ） %>
-        <div class="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-             data-action="click->hero-video#toggle">
-          <div class="absolute inset-0 bg-black/30"></div>
-          <button type="button" class="relative z-10 w-16 h-16 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-transform hover:scale-110 shadow-lg">
-            <svg data-hero-video-target="playButton" class="w-7 h-7 text-black ml-1 hidden" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M8 5v14l11-7z"/>
-            </svg>
-            <svg data-hero-video-target="pauseButton" class="w-7 h-7 text-black" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <%# 動画情報（常に下に表示） %>
-      <%= link_to post_path(current_video), class: "block mt-3 group/info" do %>
-        <h2 class="text-gray-900 text-base sm:text-lg font-bold leading-tight line-clamp-2 group-hover/info:text-gray-600 transition-colors">
-          <%= current_video.youtube_title %>
-        </h2>
-        <% if current_video.youtube_channel_name.present? %>
-          <div class="flex items-center gap-2 mt-1.5">
-            <% if current_video.youtube_channel_thumbnail_url.present? %>
-              <%= image_tag current_video.youtube_channel_thumbnail_url, class: "w-5 h-5 rounded-full", alt: current_video.youtube_channel_name %>
-            <% end %>
-            <span class="text-gray-500 text-sm"><%= current_video.youtube_channel_name %></span>
-          </div>
-        <% end %>
-      <% end %>
-    </section>
-
-    <%# アクションプランカード（投稿詳細と同じデザイン） %>
     <%
-      # 残り日数に応じたスタイルを計算
+      custom_thumbnail = current_action.signed_thumbnail_url
+      youtube_thumbnail = "https://i.ytimg.com/vi/#{current_video.youtube_video_id}/mqdefault.jpg"
+      display_thumbnail = custom_thumbnail.presence || youtube_thumbnail
+
       days = current_action.days_remaining
       status = current_action.deadline_status
 
       case status
       when :expired
-        badge_bg = '#f3f4f6'
         badge_text = '#6b7280'
         badge_label = '期限切れ'
-        checkbox_style = 'border: 2px solid #c7c7cc;'
       when :today
-        badge_bg = '#fef2f2'
         badge_text = '#dc2626'
         badge_label = '今日まで'
-        checkbox_style = 'border: 2px solid #000000;'
       when :urgent
-        badge_bg = '#fef2f2'
         badge_text = '#dc2626'
         badge_label = '残り1日'
-        checkbox_style = 'border: 2px solid #000000;'
       when :warning
-        badge_bg = '#fffbeb'
         badge_text = '#d97706'
         badge_label = "残り#{days}日"
-        checkbox_style = 'border: 2px solid #000000;'
       else
-        badge_bg = '#f0fdf4'
         badge_text = '#16a34a'
         badge_label = "残り#{days}日"
-        checkbox_style = 'border: 2px solid #000000;'
       end
     %>
-    <article style="position: relative; padding: 14px 16px; background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
-      <div style="display: flex; align-items: flex-start; gap: 14px;">
-        <% if is_own_page %>
-          <%# チェックボックス（iOS風の丸）- 自分のページのみ %>
-          <div style="flex-shrink: 0; padding-top: 2px;">
-            <%= button_to achieve_post_post_entry_path(current_video, current_action),
-                  method: :patch,
-                  class: "block",
-                  form: { data: { turbo_confirm: "達成しますか？", turbo_frame: "_top" } } do %>
-              <div style="width: 22px; height: 22px; border-radius: 50%; <%= checkbox_style %> cursor: pointer; transition: all 0.2s ease;"
-                   onmouseover="this.style.backgroundColor='rgba(0,122,255,0.1)';"
-                   onmouseout="this.style.backgroundColor='transparent';"></div>
-            <% end %>
-          </div>
-        <% end %>
-        <%# コンテンツ %>
-        <div style="flex: 1; min-width: 0;">
-          <p style="font-size: 17px; line-height: 1.4; margin: 0; font-weight: 400; color: #000;">
-            <%= current_action.content %>
-          </p>
-          <%# バッジ型残り日数 %>
-          <div style="margin-top: 6px;">
-            <span style="display: inline-flex; align-items: center; padding: 2px 10px; background: <%= badge_bg %>; border-radius: 10px; font-size: 12px; font-weight: 500; color: <%= badge_text %>;">
-              <%= badge_label %>
-            </span>
+
+    <%# ステップバッジデザイン %>
+    <section class="mb-6">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+        <span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: #111; color: #fff; font-size: 12px; font-weight: 700;">1</span>
+        <span style="font-size: 14px; font-weight: 600; color: #111;">きっかけの動画</span>
+      </div>
+      <div data-controller="hero-video" data-hero-video-video-id-value="<%= current_video.youtube_video_id %>" style="margin-bottom: 24px;">
+        <div class="group relative rounded-xl overflow-hidden bg-black cursor-pointer" style="aspect-ratio: 16/9;">
+          <iframe id="hero-player-<%= current_video.youtube_video_id %>" data-hero-video-target="iframe" src="https://www.youtube.com/embed/<%= current_video.youtube_video_id %>?autoplay=1&mute=1&loop=1&playlist=<%= current_video.youtube_video_id %>&controls=0&playsinline=1&rel=0&modestbranding=1&showinfo=0&enablejsapi=1" class="absolute inset-0 w-full h-full pointer-events-none" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          <div class="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300" data-action="click->hero-video#toggle">
+            <div class="absolute inset-0 bg-black/30"></div>
+            <button type="button" class="relative z-10 w-14 h-14 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-lg">
+              <svg data-hero-video-target="playButton" class="w-6 h-6 text-black ml-1 hidden" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              <svg data-hero-video-target="pauseButton" class="w-6 h-6 text-black" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+            </button>
           </div>
         </div>
+        <%= link_to post_path(current_video), class: "block mt-3" do %>
+          <p class="text-base font-bold text-gray-900 line-clamp-2 leading-snug"><%= current_video.youtube_title %></p>
+          <div class="flex items-center gap-2 mt-1.5">
+            <% if current_video.youtube_channel_thumbnail_url.present? %>
+              <%= image_tag current_video.youtube_channel_thumbnail_url, class: "w-5 h-5 rounded-full", alt: current_video.youtube_channel_name %>
+            <% end %>
+            <span class="text-sm text-gray-500"><%= current_video.youtube_channel_name %></span>
+          </div>
+        <% end %>
       </div>
-    </article>
+
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+        <span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: #111; color: #fff; font-size: 12px; font-weight: 700;">2</span>
+        <span style="font-size: 14px; font-weight: 600; color: #111;">私のアクション</span>
+      </div>
+      <%= render 'users/designs/action_plan_card', current_video: current_video, current_action: current_action, display_thumbnail: display_thumbnail, badge_text: badge_text, badge_label: badge_label, user: user, is_own_page: is_own_page %>
+    </section>
   <% else %>
     <%# Empty State %>
     <% if is_own_page %>
@@ -170,83 +118,12 @@
     <% end %>
   <% end %>
 
-  <%# 達成した動画セクション（横スクロール） %>
-  <% achieved_entries = user.post_entries.achieved.includes(:post).select("DISTINCT ON (post_id) post_entries.*").order("post_id, achieved_at DESC").limit(10) %>
+  <%# 達成コレクション（デザイン切り替え対応） %>
+  <% achieved_entries = user.post_entries.achieved.includes(:post).order(achieved_at: :desc) %>
   <% if achieved_entries.present? %>
-    <section class="mt-6">
-      <%# セクションヘッダー %>
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-lg font-bold text-gray-900">達成した動画</h2>
-        <%= link_to (is_own_page ? bookshelf_path : user_bookshelf_path(user)), class: "text-sm text-gray-500 hover:text-gray-700" do %>
-          全てを表示 →
-        <% end %>
-      </div>
-
-      <%# 横スクロールコンテナ %>
-      <div class="relative overflow-hidden" data-controller="horizontal-scroll">
-        <%# 左スクロールボタン %>
-        <button type="button"
-                data-horizontal-scroll-target="leftBtn"
-                data-action="click->horizontal-scroll#scrollLeft"
-                class="hidden absolute z-10 w-8 h-8 bg-white rounded-full shadow-lg items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200"
-                style="left: 4px; top: 50px; transform: translateY(-50%);">
-          <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-          </svg>
-        </button>
-
-        <%# 動画リスト %>
-        <div data-horizontal-scroll-target="container"
-             data-action="scroll->horizontal-scroll#onScroll"
-             class="flex gap-3 overflow-x-auto scrollbar-hide pb-2 pr-8"
-             style="scroll-behavior: smooth; -ms-overflow-style: none; scrollbar-width: none;">
-
-          <% achieved_entries.each do |entry| %>
-            <article class="flex-shrink-0 group" style="width: 200px; min-width: 200px; max-width: 200px;">
-              <%= link_to post_path(entry.post), class: "block" do %>
-                <div class="relative rounded-lg overflow-hidden bg-gray-100" style="width: 200px; height: 112px;">
-                  <%= image_tag "https://i.ytimg.com/vi/#{entry.post.youtube_video_id}/mqdefault.jpg",
-                        class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-200",
-                        alt: entry.post.youtube_title,
-                        loading: "lazy" %>
-                </div>
-              <% end %>
-              <div class="pt-2">
-                <%= link_to post_path(entry.post), class: "block" do %>
-                  <h4 class="text-sm font-medium text-gray-900 group-hover:text-gray-700 transition-colors line-clamp-2">
-                    <%= entry.post.youtube_title %>
-                  </h4>
-                <% end %>
-                <% if entry.post.youtube_channel_name.present? %>
-                  <div class="flex items-center gap-1 mt-1">
-                    <% if entry.post.youtube_channel_thumbnail_url.present? %>
-                      <%= image_tag entry.post.youtube_channel_thumbnail_url, class: "w-4 h-4 rounded-full flex-shrink-0", loading: "lazy" %>
-                    <% end %>
-                    <p class="text-xs text-gray-500 truncate"><%= entry.post.youtube_channel_name %></p>
-                  </div>
-                <% end %>
-              </div>
-            </article>
-          <% end %>
-        </div>
-
-        <%# 右スクロールボタン %>
-        <button type="button"
-                data-horizontal-scroll-target="rightBtn"
-                data-action="click->horizontal-scroll#scrollRight"
-                class="flex absolute z-10 w-8 h-8 bg-white rounded-full shadow-lg items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200 cursor-pointer"
-                style="right: 4px; top: 50px; transform: translateY(-50%);">
-          <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-          </svg>
-        </button>
-      </div>
-    </section>
+    <%= render 'users/collections/collection_section',
+          achieved_entries: achieved_entries,
+          user: user,
+          is_own_page: is_own_page %>
   <% end %>
 </div>
-
-<style>
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-</style>

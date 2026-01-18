@@ -5,11 +5,24 @@ class PostEntry < ApplicationRecord
   belongs_to :user
   has_many :entry_flames, dependent: :destroy
 
+  # 期限当日通知用
+  acts_as_notifiable :users,
+    targets: ->(entry, _key) { [entry.user] },
+    notifier: :user,
+    email_allowed: false,
+    notifiable_path: :post_path_for_notification
+
+  # 通知用パス
+  def post_path_for_notification
+    Rails.application.routes.url_helpers.post_path(post, from: "notification")
+  end
+
   # コールバック
   before_validation :set_auto_deadline, on: :create
 
   # バリデーション
   validates :content, presence: true
+  validates :user_id, uniqueness: { scope: :post_id, message: "この動画には既にアクションプランを投稿しています" }
   validate :one_incomplete_action_per_user, on: :create
 
   # スコープ
@@ -26,9 +39,13 @@ class PostEntry < ApplicationRecord
   # 達成をトグル
   def achieve!
     if achieved?
+      # 達成を取り消す場合
       update!(achieved_at: nil)
     else
+      # 達成する場合
       update!(achieved_at: Time.current)
+      # サムネイル生成ジョブを起動（バックグラウンドで実行）
+      ThumbnailGenerationJob.perform_later(id)
     end
   end
 
@@ -73,6 +90,40 @@ class PostEntry < ApplicationRecord
   def flamed_by?(user)
     return false if user.nil?
     entry_flames.exists?(user_id: user.id)
+  end
+
+  # サムネイルURLを取得（署名付きURL）
+  # カスタム画像がある場合: S3署名付きURLを返す
+  # ない場合: nil（YouTubeサムネイルを使用）
+  def signed_thumbnail_url
+    return nil if thumbnail_url.blank?
+
+    # S3キーを取得（フルURLの場合はキーを抽出）
+    s3_key = extract_s3_key(thumbnail_url)
+    return nil if s3_key.blank?
+
+    # 署名付きURLを生成
+    s3 = Aws::S3::Resource.new(
+      region: ENV["AWS_REGION"],
+      access_key_id: ENV["AWS_ACCESS_KEY_ID"],
+      secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"]
+    )
+    obj = s3.bucket(ENV["AWS_BUCKET"]).object(s3_key)
+    obj.presigned_url(:get, expires_in: 600)
+  rescue Aws::S3::Errors::ServiceError
+    nil
+  end
+
+  # S3キーを抽出（フルURLの場合も対応）
+  def extract_s3_key(url)
+    return url unless url.start_with?("http://", "https://")
+
+    # S3 URLからキーを抽出
+    # 例: https://bucket.s3.region.amazonaws.com/path/to/file.png -> path/to/file.png
+    uri = URI.parse(url)
+    uri.path[1..] # 先頭の "/" を除去
+  rescue URI::InvalidURIError
+    nil
   end
 
   private

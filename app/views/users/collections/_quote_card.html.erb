@@ -1,0 +1,156 @@
+<%# 名言カード風コレクション %>
+<%# 動画を背景に、アクションプランが格言のように浮かび上がる %>
+<% post = entry.post %>
+
+<article class="quote-card">
+  <%# 背景画像（動画サムネイル） %>
+  <div class="quote-card__background">
+    <%= image_tag "https://i.ytimg.com/vi/#{post.youtube_video_id}/maxresdefault.jpg",
+          alt: "",
+          loading: "lazy",
+          onerror: "this.src='https://i.ytimg.com/vi/#{post.youtube_video_id}/hqdefault.jpg'" %>
+    <div class="quote-card__overlay"></div>
+  </div>
+
+  <%# コンテンツ %>
+  <div class="quote-card__content">
+    <%# 引用符 %>
+    <div class="quote-card__mark">"</div>
+
+    <%# アクションプラン（名言として） %>
+    <blockquote class="quote-card__text">
+      <%= entry.content %>
+    </blockquote>
+
+    <%# フッター %>
+    <footer class="quote-card__footer">
+      <div class="quote-card__source">
+        <span class="quote-card__video-title"><%= truncate(post.youtube_title, length: 35) %></span>
+      </div>
+      <div class="quote-card__achieved">
+        <span class="quote-card__achieved-label">達成</span>
+        <time class="quote-card__achieved-date"><%= entry.achieved_at.strftime("%Y.%-m.%-d") %></time>
+      </div>
+    </footer>
+  </div>
+</article>
+
+<style>
+  .quote-card {
+    position: relative;
+    aspect-ratio: 4/5;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -2px rgba(0, 0, 0, 0.1),
+      0 0 0 1px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .quote-card:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 20px 25px -5px rgba(0, 0, 0, 0.1),
+      0 8px 10px -6px rgba(0, 0, 0, 0.1),
+      0 0 0 1px rgba(0, 0, 0, 0.05);
+  }
+
+  /* 背景 */
+  .quote-card__background {
+    position: absolute;
+    inset: 0;
+  }
+
+  .quote-card__background img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.4) saturate(1.1);
+  }
+
+  .quote-card__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.1) 0%,
+      rgba(0, 0, 0, 0.3) 50%,
+      rgba(0, 0, 0, 0.7) 100%
+    );
+  }
+
+  /* コンテンツ */
+  .quote-card__content {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px 16px;
+    z-index: 1;
+  }
+
+  /* 引用符 */
+  .quote-card__mark {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 48px;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.3);
+    margin-bottom: -8px;
+    margin-left: -4px;
+  }
+
+  /* 名言テキスト */
+  .quote-card__text {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.7;
+    color: #ffffff;
+    margin: 0;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* フッター */
+  .quote-card__footer {
+    margin-top: auto;
+    padding-top: 16px;
+  }
+
+  .quote-card__source {
+    margin-bottom: 8px;
+  }
+
+  .quote-card__video-title {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.6);
+    display: block;
+    line-height: 1.4;
+  }
+
+  .quote-card__achieved {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .quote-card__achieved-label {
+    font-size: 9px;
+    font-weight: 600;
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.15);
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .quote-card__achieved-date {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 0.5px;
+  }
+</style>

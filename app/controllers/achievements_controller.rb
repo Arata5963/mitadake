@@ -22,7 +22,7 @@ class AchievementsController < ApplicationController
     ActiveRecord::Base.transaction do
       # Mark all unachieved action entries as achieved
       unachieved_entries.each do |entry|
-        entry.update!(achieved_at: Time.current)
+        entry.achieve!  # これでサムネイル生成ジョブも起動される
       end
 
       # Create Achievement record for statistics

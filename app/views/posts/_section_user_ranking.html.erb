@@ -1,66 +1,90 @@
 <%# app/views/posts/_section_user_ranking.html.erb %>
-<%# ユーザー達成数ランキングセクション（全期間） %>
+<%# ユーザー達成数ランキングセクション（横スクロール） %>
 
 <section class="mb-8">
-  <div class="mb-4">
+  <%# セクションヘッダー %>
+  <div class="flex items-center justify-between mb-4">
     <h2 class="text-lg font-bold text-gray-900">達成数ランキング</h2>
   </div>
 
-  <%# ランキングリスト %>
-  <div id="user-ranking-list">
-    <div class="space-y-2">
-      <% if users.any? %>
+  <% if users.any? %>
+    <%# 横スクロールコンテナ %>
+    <div class="relative overflow-hidden" data-controller="horizontal-scroll">
+      <%# 左スクロールボタン %>
+      <button type="button"
+              data-horizontal-scroll-target="leftBtn"
+              data-action="click->horizontal-scroll#scrollLeft"
+              class="hidden absolute z-10 w-10 h-10 bg-white rounded-full shadow-lg items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200"
+              style="left: 8px; top: 40px; transform: translateY(-50%);">
+        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </button>
+
+      <%# ユーザーリスト %>
+      <div data-horizontal-scroll-target="container"
+           data-action="scroll->horizontal-scroll#onScroll"
+           class="flex gap-4 overflow-x-auto scrollbar-hide pb-2 pr-12"
+           style="scroll-behavior: smooth; -ms-overflow-style: none; scrollbar-width: none;">
         <% users.each_with_index do |user, index| %>
           <% rank = index + 1 %>
-          <div class="flex items-center gap-3 bg-gray-50 rounded-lg p-3 [-webkit-tap-highlight-color:transparent]">
-            <%# ランキング番号 %>
-            <div class="flex-shrink-0 w-6 text-center">
-              <span class="text-lg font-bold <%= rank <= 3 ? 'text-gray-900' : 'text-gray-400' %>">
+          <div class="flex-shrink-0 flex items-start gap-1" style="width: 100px; min-width: 100px;">
+            <%# 大きなランキング番号 %>
+            <div class="flex-shrink-0 w-6 flex items-center justify-center pt-6">
+              <span class="text-2xl font-black <%= rank <= 3 ? 'text-gray-900' : 'text-gray-300' %>">
                 <%= rank %>
               </span>
             </div>
-
-            <%# ユーザーアイコン %>
-            <%= link_to user_profile_path(user), class: "flex-shrink-0 w-10 h-10 rounded-full overflow-hidden bg-gray-200 hover:opacity-80 transition-opacity [-webkit-tap-highlight-color:transparent]", data: { turbo_frame: "_top" } do %>
-              <% if user.avatar.present? %>
-                <%= image_tag user.avatar.url,
-                      alt: user.name,
-                      class: "w-full h-full object-cover",
-                      loading: "lazy" %>
-              <% else %>
-                <div class="w-full h-full flex items-center justify-center bg-gray-300 text-gray-600 font-bold text-sm">
-                  <%= user.name&.first&.upcase || '?' %>
-                </div>
-              <% end %>
-            <% end %>
-
-            <%# ユーザー情報 %>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2">
-                <%= link_to user_profile_path(user), class: "text-sm font-medium text-gray-900 truncate hover:underline [-webkit-tap-highlight-color:transparent]", data: { turbo_frame: "_top" } do %>
-                  <%= user.name %>
-                <% end %>
-                <span class="text-xs font-medium text-gray-500"><%= user.achieved_count %>達成</span>
-              </div>
-              <% if user.favorite_quote.present? %>
-                <% if user.favorite_quote_url.present? %>
-                  <%= link_to user.favorite_quote_url, target: "_blank", rel: "noopener noreferrer", class: "block text-sm text-gray-600 line-clamp-2 mt-1 hover:text-gray-900 transition-colors [-webkit-tap-highlight-color:transparent]" do %>
-                    「<%= user.favorite_quote %>」
-                  <% end %>
+            <%# ユーザーカード %>
+            <%= link_to user_profile_path(user),
+               class: "flex-1 flex flex-col items-center group [-webkit-tap-highlight-color:transparent]",
+               data: { turbo_frame: "_top" } do %>
+              <%# アバター %>
+              <div class="w-16 h-16 rounded-full overflow-hidden bg-gray-100 ring-2 ring-transparent group-hover:ring-gray-300 transition-all mb-2">
+                <% if user.avatar.present? %>
+                  <%= image_tag user.avatar.url,
+                        alt: user.name,
+                        class: "w-full h-full object-cover",
+                        loading: "lazy" %>
                 <% else %>
-                  <p class="text-sm text-gray-600 line-clamp-2 mt-1">
-                    「<%= user.favorite_quote %>」
-                  </p>
+                  <div class="w-full h-full flex items-center justify-center bg-gray-200">
+                    <span class="text-xl font-bold text-gray-400"><%= user.name&.first&.upcase || '?' %></span>
+                  </div>
                 <% end %>
-              <% end %>
-            </div>
+              </div>
+              <%# ユーザー名 %>
+              <span class="text-xs text-gray-700 text-center max-w-[70px] truncate group-hover:text-gray-900 transition-colors">
+                <%= user.name %>
+              </span>
+              <%# 達成数 %>
+              <span class="text-[10px] text-gray-400">
+                <%= user.achieved_count %>達成
+              </span>
+            <% end %>
           </div>
         <% end %>
-      <% else %>
-        <div class="text-center py-8 text-gray-500 text-sm">
-          まだ達成者はいません
-        </div>
-      <% end %>
+      </div>
+
+      <%# 右スクロールボタン %>
+      <button type="button"
+              data-horizontal-scroll-target="rightBtn"
+              data-action="click->horizontal-scroll#scrollRight"
+              class="flex absolute z-10 w-10 h-10 bg-white rounded-full shadow-lg items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200 cursor-pointer"
+              style="right: 8px; top: 40px; transform: translateY(-50%);">
+        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </button>
     </div>
-  </div>
+  <% else %>
+    <div class="text-center py-8 text-gray-500 text-sm">
+      まだ達成者はいません
+    </div>
+  <% end %>
 </section>
+
+<style>
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+</style>

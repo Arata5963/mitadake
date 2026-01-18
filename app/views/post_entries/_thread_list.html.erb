@@ -1,0 +1,64 @@
+<%# app/views/post_entries/_thread_list.html.erb %>
+<%# スレッド形式のアクションプラン一覧 - ユーザーごとにグループ化 %>
+
+<%
+  entries = post.post_entries.recent.includes(:user)
+
+  # 自分の投稿とその他を分離
+  if user_signed_in?
+    my_entries = entries.select { |e| e.user_id == current_user.id }
+    other_entries = entries.reject { |e| e.user_id == current_user.id }
+  else
+    my_entries = []
+    other_entries = entries.to_a
+  end
+
+  # その他の投稿をユーザーごとにグループ化（投稿順を維持）
+  other_grouped = other_entries.group_by(&:user_id)
+  # ユーザーの最初の投稿順でソート
+  other_user_order = other_entries.map(&:user_id).uniq
+%>
+
+<%# ===== 自分のアクションプラン ===== %>
+<% if my_entries.present? %>
+  <div class="mb-4">
+    <div class="text-xs font-medium text-gray-500 mb-2 px-1">あなたのアクションプラン</div>
+    <div class="bg-[#f2f2f7] rounded-xl overflow-hidden" style="padding: 8px;">
+      <%= render partial: 'post_entries/thread_group', locals: {
+        entries: my_entries,
+        user: current_user,
+        is_own: true
+      } %>
+    </div>
+  </div>
+<% end %>
+
+<%# ===== みんなのアクションプラン ===== %>
+<% if other_grouped.present? %>
+  <div>
+    <div class="text-xs font-medium text-gray-500 mb-2 px-1">みんなのアクションプラン</div>
+    <div class="bg-[#f2f2f7] rounded-xl overflow-hidden" style="padding: 8px;">
+      <% other_user_order.each_with_index do |user_id, index| %>
+        <% user_entries = other_grouped[user_id] %>
+        <% entry_user = user_entries.first.user %>
+        <%= render partial: 'post_entries/thread_group', locals: {
+          entries: user_entries,
+          user: entry_user,
+          is_own: false
+        } %>
+        <% if index < other_user_order.length - 1 %>
+          <div style="height: 8px;"></div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+<%# ===== 投稿がない場合 ===== %>
+<% if my_entries.empty? && other_grouped.empty? %>
+  <div class="text-center py-8 px-4 bg-gray-50 rounded-xl">
+    <div class="text-4xl mb-3 opacity-50">💭</div>
+    <p class="text-sm text-gray-500">まだアクションプランがありません</p>
+    <p class="text-xs text-gray-400 mt-1">最初のアクションプランを投稿してみましょう！</p>
+  </div>
+<% end %>

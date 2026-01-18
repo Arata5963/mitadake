@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_14_053819) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_18_010133) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -127,9 +127,11 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_14_053819) do
     t.text "recommendation_point"
     t.bigint "user_id"
     t.boolean "anonymous", default: false, null: false
+    t.string "thumbnail_url"
     t.index ["post_id", "created_at"], name: "index_post_entries_on_post_id_and_created_at"
     t.index ["post_id"], name: "index_post_entries_on_post_id"
     t.index ["user_id", "post_id"], name: "idx_post_entries_user_post"
+    t.index ["user_id", "post_id"], name: "index_post_entries_on_user_and_post_unique", unique: true
     t.index ["user_id"], name: "index_post_entries_on_user_id"
     t.check_constraint "satisfaction_rating IS NULL OR satisfaction_rating >= 1 AND satisfaction_rating <= 5", name: "satisfaction_rating_range"
   end

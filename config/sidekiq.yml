@@ -22,3 +22,8 @@
       class: CleanupExpiredEntriesJob
       queue: default
       description: "期限切れの未達成エントリーを削除"
+    deadline_notification_job:
+      cron: "0 9 * * *"           # 毎日AM9:00に実行
+      class: DeadlineNotificationJob
+      queue: default
+      description: "期限当日のアクションプランを通知"

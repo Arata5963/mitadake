@@ -33,7 +33,8 @@ gem "sidekiq-scheduler", "~> 5.0"  # 定期ジョブスケジューラ
 
 # ===== 画像アップロード機能 =====
 gem "carrierwave"                  # ファイルアップロード管理
-gem "fog-aws"                      # AWS S3との連携
+gem "fog-aws"                      # AWS S3との連携（CarrierWave用）
+gem "aws-sdk-s3"                   # AWS S3直接アクセス（AI画像アップロード用）
 gem "mini_magick"                  # 画像リサイズ・変換処理
 gem "kaminari", "~> 1.2"           # ページネーション機能
 gem "ransack", "~> 4.0"            # 検索機能

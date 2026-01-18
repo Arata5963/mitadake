@@ -13,6 +13,7 @@ Rails.application.routes.draw do
     get "design/countdown", to: "pages#countdown_design"
     get "design/action-plan", to: "pages#action_plan_design"
     get "design/achieved-videos", to: "pages#achieved_videos_design"
+    get "design/new-post", to: "pages#new_post_design"
   end
 
   get "up" => "rails/health#show", as: :rails_health_check
@@ -38,11 +39,14 @@ Rails.application.routes.draw do
     post :mark_all_as_read, on: :collection
   end
 
-  resources :posts, except: [ :new, :create ] do
+  resources :posts, except: [ :create ] do
     collection do
       get :autocomplete
       get :youtube_search
+      get :search_posts
       post :find_or_create
+      post :create_with_action
+      post :convert_to_youtube_title
       get :trending
       get :channels
       get :recent
@@ -56,7 +60,10 @@ Rails.application.routes.draw do
     resources :achievements, only: [ :create, :destroy ]
     resources :cheers, only: [ :create, :destroy ]
     resources :post_entries, only: [ :create, :edit, :update, :destroy ] do
-      patch :achieve, on: :member
+      member do
+        patch :achieve
+        post :toggle_flame
+      end
       resources :entry_flames, only: [ :create, :destroy ]
     end
   end

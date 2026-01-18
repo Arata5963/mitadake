@@ -1,0 +1,116 @@
+<%# app/views/post_entries/_entry_card_simple.html.erb %>
+<%# シンプルなアクションプランカード（ユーザー情報・炎なし） %>
+
+<%
+  # 残り日数に応じたスタイルを計算
+  status = entry.deadline_status
+
+  case status
+  when :achieved
+    badge_bg = '#f3f4f6'
+    badge_text = '#6b7280'
+    badge_label = '達成'
+    text_style = 'text-decoration: line-through; color: #8e8e93;'
+    checkbox_style = 'background: #000000;'
+  when :expired
+    badge_bg = '#f3f4f6'
+    badge_text = '#6b7280'
+    badge_label = '期限切れ'
+    text_style = 'text-decoration: line-through; color: #9ca3af;'
+    checkbox_style = 'border: 2px solid #c7c7cc;'
+  when :today
+    badge_bg = '#fef2f2'
+    badge_text = '#dc2626'
+    badge_label = '今日まで'
+    text_style = 'color: #000;'
+    checkbox_style = 'border: 2px solid #000000;'
+  when :urgent
+    badge_bg = '#fef2f2'
+    badge_text = '#dc2626'
+    badge_label = '残り1日'
+    text_style = 'color: #000;'
+    checkbox_style = 'border: 2px solid #000000;'
+  when :warning
+    days = entry.days_remaining
+    badge_bg = '#fffbeb'
+    badge_text = '#d97706'
+    badge_label = "残り#{days}日"
+    text_style = 'color: #000;'
+    checkbox_style = 'border: 2px solid #000000;'
+  else
+    days = entry.days_remaining
+    badge_bg = '#f0fdf4'
+    badge_text = '#16a34a'
+    badge_label = "残り#{days}日"
+    text_style = 'color: #000;'
+    checkbox_style = 'border: 2px solid #000000;'
+  end
+%>
+
+<%= turbo_frame_tag dom_id(entry) do %>
+<article class="group" style="position: relative; padding: 12px 14px; background: white; border-radius: 10px; margin-bottom: 6px;">
+  <div style="display: flex; align-items: flex-start; gap: 12px;">
+
+    <%# チェックボックス %>
+    <div style="flex-shrink: 0; padding-top: 2px;">
+      <% if user_signed_in? && entry.user == current_user && !entry.achieved? %>
+        <%= button_to achieve_post_post_entry_path(entry.post, entry),
+              method: :patch,
+              class: "block",
+              form: { data: { turbo_confirm: "「#{truncate(entry.content, length: 20)}」を達成しますか？", turbo_frame: "_top" } } do %>
+          <div style="width: 20px; height: 20px; border-radius: 50%; <%= checkbox_style %> cursor: pointer; transition: all 0.2s ease;"
+               onmouseover="this.style.backgroundColor='rgba(0,122,255,0.1)';"
+               onmouseout="this.style.backgroundColor='transparent';"></div>
+        <% end %>
+      <% elsif entry.achieved? %>
+        <div style="width: 20px; height: 20px; border-radius: 50%; background: #000000; display: flex; align-items: center; justify-content: center;">
+          <svg style="width: 11px; height: 11px; color: white;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+          </svg>
+        </div>
+      <% else %>
+        <div style="width: 20px; height: 20px; border-radius: 50%; <%= checkbox_style %>"></div>
+      <% end %>
+    </div>
+
+    <%# コンテンツ %>
+    <div style="flex: 1; min-width: 0;">
+      <p style="font-size: 15px; line-height: 1.4; margin: 0; font-weight: 400; <%= text_style %>">
+        <%= entry.content %>
+      </p>
+
+      <%# 期限バッジ + 炎ボタン %>
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 6px;">
+        <%# 期限バッジ（未達成のみ） %>
+        <% unless entry.achieved? %>
+          <span style="display: inline-flex; align-items: center; padding: 2px 8px; background: <%= badge_bg %>; border-radius: 8px; font-size: 11px; font-weight: 500; color: <%= badge_text %>;">
+            <%= badge_label %>
+          </span>
+        <% else %>
+          <span></span>
+        <% end %>
+
+        <%# 炎ボタン %>
+        <%= render "entry_flames/flame_button", post_entry: entry %>
+      </div>
+    </div>
+
+    <%# ゴミ箱ボタン（自分のエントリのみ） %>
+    <% if user_signed_in? && entry.user == current_user %>
+      <div style="flex-shrink: 0; position: absolute; top: 12px; right: 14px;">
+        <%= button_to post_post_entry_path(entry.post, entry),
+              method: :delete,
+              form: { data: { turbo_confirm: "削除しますか？", turbo_frame: "_top" } },
+              style: "display: flex; align-items: center; justify-content: center; padding: 0; background: transparent; border: none; cursor: pointer;",
+              title: "削除" do %>
+          <svg style="width: 14px; height: 14px; color: #c7c7cc;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+        <% end %>
+      </div>
+    <% end %>
+
+  </div>
+</article>
+<% end %>

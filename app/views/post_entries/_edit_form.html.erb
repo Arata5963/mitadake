@@ -1,5 +1,7 @@
 <%# app/views/post_entries/_edit_form.html.erb %>
 <%# インライン編集フォーム %>
+<% from_mypage = params[:from] == 'mypage' %>
+<% cancel_path = from_mypage ? mypage_path : post_path(entry.post) %>
 
 <%= turbo_frame_tag dom_id(entry) do %>
 <div style="display: flex; gap: 8px; padding: 10px 8px; align-items: flex-start;">
@@ -23,7 +25,7 @@
 
   <%# 編集フォーム %>
   <div style="flex: 1; min-width: 0;">
-    <%= form_with model: [entry.post, entry], style: "background: #f9fafb; border-radius: 14px; padding: 12px; border: 2px solid #6b7280;" do |f| %>
+    <%= form_with model: [entry.post, entry], url: post_post_entry_path(entry.post, entry, from: params[:from]), style: "background: #f9fafb; border-radius: 14px; padding: 12px; border: 2px solid #6b7280;" do |f| %>
 
       <%# 内容 %>
       <%= f.text_area :content,
@@ -44,9 +46,8 @@
         </div>
 
         <div style="display: flex; gap: 8px;">
-          <%= link_to "キャンセル", post_path(entry.post),
-              style: "padding: 6px 14px; font-size: 13px; font-weight: 500; color: #6b7280; background: white; border: 1px solid #d1d5db; border-radius: 8px; text-decoration: none;",
-              data: { turbo_frame: dom_id(entry) } %>
+          <%= link_to "キャンセル", cancel_path,
+              style: "padding: 6px 14px; font-size: 13px; font-weight: 500; color: #6b7280; background: white; border: 1px solid #d1d5db; border-radius: 8px; text-decoration: none;" %>
           <%= f.submit "保存",
               style: "padding: 6px 14px; font-size: 13px; font-weight: 500; color: white; background: #374151; border: none; border-radius: 8px; cursor: pointer;" %>
         </div>

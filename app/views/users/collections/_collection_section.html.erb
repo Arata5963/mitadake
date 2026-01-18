@@ -1,0 +1,131 @@
+<%# 達成コレクションセクション（デザイン切り替え対応） %>
+<%# 動画とアクションプランの両方を見せる高品質デザイン %>
+<%
+  designs = [
+    { key: 'youtube', name: 'YouTube風', icon: '▶️', description: '自分の動画として表示' },
+    { key: 'quote_card', name: '名言カード', icon: '💬', description: '動画を背景に、学びが浮かぶ' },
+    { key: 'journal', name: 'ジャーナル', icon: '📔', description: 'ノートに記録した思い出' },
+    { key: 'certificate', name: '証明書', icon: '📜', description: '達成の公式な証' },
+    { key: 'sticky', name: '付箋メモ', icon: '📝', description: '動画に貼った学びのメモ' },
+    { key: 'recipe', name: 'レシピ', icon: '🍳', description: '行動のレシピコレクション' },
+  ]
+  current_design = params[:design].presence || 'youtube'
+  current_design = 'youtube' unless designs.map { |d| d[:key] }.include?(current_design)
+  current_design_info = designs.find { |d| d[:key] == current_design }
+%>
+
+<style>
+  .collection-grid-youtube {
+    display: grid !important;
+    gap: 1rem !important;
+    grid-template-columns: 1fr !important;
+  }
+  @media (min-width: 768px) {
+    .collection-grid-youtube {
+      grid-template-columns: repeat(3, 1fr) !important;
+    }
+  }
+</style>
+
+<section class="mt-8" data-controller="collection-design">
+  <%# セクションヘッダー %>
+  <div class="flex items-center gap-2 mb-4">
+    <h2 class="text-lg font-bold text-gray-900">達成したアクション</h2>
+    <span class="text-sm text-gray-400"><%= achieved_entries.size %>枚</span>
+  </div>
+
+  <%# コレクショングリッド（デザインによってレイアウトが変わる） %>
+  <%
+    case current_design
+    when 'youtube'
+      grid_class = 'collection-grid-youtube'
+      per_page = 9  # PC: 3×3, スマホ: 1×6
+    when 'quote_card'
+      grid_class = 'grid grid-cols-2 sm:grid-cols-3 gap-4'
+      per_page = 6
+    when 'journal'
+      grid_class = 'grid grid-cols-1 sm:grid-cols-2 gap-4'
+      per_page = 4
+    when 'certificate'
+      grid_class = 'grid grid-cols-1 sm:grid-cols-2 gap-4'
+      per_page = 4
+    when 'sticky'
+      grid_class = 'grid grid-cols-2 sm:grid-cols-3 gap-3'
+      per_page = 6
+    when 'recipe'
+      grid_class = 'grid grid-cols-1 sm:grid-cols-2 gap-4'
+      per_page = 4
+    else
+      grid_class = 'grid grid-cols-1 sm:grid-cols-2 gap-4'
+      per_page = 6
+    end
+
+    # ページネーション
+    current_page = (params[:page] || 1).to_i
+    total_count = achieved_entries.size
+    total_pages = (total_count.to_f / per_page).ceil
+    current_page = [[current_page, 1].max, total_pages].min
+    current_page = 1 if total_pages == 0
+
+    paginated_entries = achieved_entries.offset((current_page - 1) * per_page).limit(per_page)
+  %>
+
+  <%# グリッド表示 %>
+  <div class="<%= grid_class %>">
+    <% paginated_entries.each do |entry| %>
+      <%= render "users/collections/#{current_design}", entry: entry %>
+    <% end %>
+  </div>
+
+  <%# ページネーション（Kaminariと同じデザイン） %>
+  <% if total_pages > 1 %>
+    <nav class="mt-6 flex justify-center items-center gap-2" aria-label="ページネーション">
+      <%# 前へボタン %>
+      <% if current_page > 1 %>
+        <%= link_to url_for(page: current_page - 1, design: current_design),
+              class: "h-10 px-4 flex items-center justify-center border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg transition-colors" do %>
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+          前へ
+        <% end %>
+      <% end %>
+
+      <%# ページ番号 %>
+      <%
+        # 表示するページ番号の範囲を計算
+        if total_pages <= 5
+          page_range = (1..total_pages)
+        elsif current_page <= 3
+          page_range = (1..[5, total_pages].min)
+        elsif current_page >= total_pages - 2
+          page_range = ([total_pages - 4, 1].max..total_pages)
+        else
+          page_range = ((current_page - 2)..(current_page + 2))
+        end
+      %>
+
+      <% page_range.each do |page_num| %>
+        <% if page_num == current_page %>
+          <span class="w-10 h-10 flex items-center justify-center bg-gray-900 text-white text-sm font-medium rounded-lg">
+            <%= page_num %>
+          </span>
+        <% else %>
+          <%= link_to page_num, url_for(page: page_num, design: current_design),
+                class: "w-10 h-10 flex items-center justify-center border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg transition-colors" %>
+        <% end %>
+      <% end %>
+
+      <%# 次へボタン %>
+      <% if current_page < total_pages %>
+        <%= link_to url_for(page: current_page + 1, design: current_design),
+              class: "h-10 px-4 flex items-center justify-center border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg transition-colors" do %>
+          次へ
+          <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        <% end %>
+      <% end %>
+    </nav>
+  <% end %>
+</section>

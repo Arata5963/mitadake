@@ -1,0 +1,59 @@
+<%# app/views/users/designs/_action_plan_card.html.erb %>
+<%# アクションプランカード（共通パーシャル） %>
+
+<article style="max-width: 320px;">
+  <div style="position: relative; background: #f3f4f6; aspect-ratio: 16/9; border-radius: 8px; overflow: hidden;">
+    <%= image_tag display_thumbnail,
+          alt: current_action.content,
+          style: "width: 100%; height: 100%; object-fit: cover;",
+          loading: "lazy" %>
+    <% if is_own_page %>
+      <%= button_to achieve_post_post_entry_path(current_video, current_action),
+            method: :patch,
+            style: "position: absolute; top: 8px; left: 8px;",
+            form: { data: { turbo_confirm: "達成しますか？", turbo_frame: "_top" } } do %>
+        <div style="width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.9); cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.2);">
+          <div style="width: 16px; height: 16px; border-radius: 50%; border: 2px solid #999;"></div>
+        </div>
+      <% end %>
+      <div style="position: absolute; top: 8px; right: 8px; display: flex; gap: 4px;">
+        <%= link_to edit_post_post_entry_path(current_video, current_action, from: 'mypage'),
+              style: "width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.2);" do %>
+          <svg style="width: 14px; height: 14px; color: #666;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+          </svg>
+        <% end %>
+        <%= button_to post_post_entry_path(current_video, current_action),
+              method: :delete,
+              style: "width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.2); border: none; cursor: pointer;",
+              form: { data: { turbo_confirm: "このアクションプランを削除しますか？" } } do %>
+          <svg style="width: 14px; height: 14px; color: #666;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+  <div style="padding-top: 8px;">
+    <p style="font-size: 14px; font-weight: 500; color: #333; margin: 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+      <%= current_action.content %>
+    </p>
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px;">
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <% if user.avatar.present? %>
+          <%= image_tag user.avatar.url, style: "width: 24px; height: 24px; border-radius: 50%; object-fit: cover;" %>
+        <% else %>
+          <div style="width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #8b5cf6);"></div>
+        <% end %>
+        <span style="font-size: 12px; color: #888;"><%= user.name.presence || "名無しさん" %></span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 11px; color: <%= badge_text %>;">
+          <%= badge_label %>
+        </span>
+<%# ハートいいねボタン（turbo_stream対応パーシャル使用） %>
+        <%= render 'entry_flames/flame_button', post_entry: current_action %>
+      </div>
+    </div>
+  </div>
+</article>

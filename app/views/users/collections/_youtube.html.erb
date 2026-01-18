@@ -1,0 +1,38 @@
+<%# 達成コレクション - グリッドレイアウト用 %>
+<% post = entry.post %>
+<% user = entry.user %>
+<%# サムネイル: カスタム画像があれば使用、なければYouTubeサムネイル %>
+<% custom_thumbnail = entry.signed_thumbnail_url %>
+<% youtube_thumbnail = "https://i.ytimg.com/vi/#{post.youtube_video_id}/mqdefault.jpg" %>
+<% display_thumbnail = custom_thumbnail.presence || youtube_thumbnail %>
+
+<article class="group">
+  <%= link_to post_path(post), class: "block" do %>
+    <div class="rounded-lg overflow-hidden bg-gray-100 aspect-video relative">
+      <%= image_tag display_thumbnail,
+            alt: entry.content,
+            class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-200",
+            loading: "lazy" %>
+    </div>
+  <% end %>
+  <div class="pt-2">
+    <%= link_to post_path(post), class: "block" do %>
+      <h3 class="text-sm font-medium text-gray-900 group-hover:text-gray-700 transition-colors line-clamp-2">
+        <%= entry.content %>
+      </h3>
+    <% end %>
+    <div class="flex items-center justify-between mt-2">
+      <div class="flex items-center gap-1.5 min-w-0">
+        <% if user.avatar.present? %>
+          <%= image_tag user.avatar.url, class: "w-6 h-6 rounded-full object-cover flex-shrink-0", loading: "lazy" %>
+        <% else %>
+          <div class="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+            <span class="text-[10px] font-bold text-white"><%= user.name.to_s.first || "?" %></span>
+          </div>
+        <% end %>
+        <p class="text-xs text-gray-500 truncate"><%= user.name.presence || "名無しさん" %></p>
+      </div>
+      <%= render 'entry_flames/flame_button', post_entry: entry %>
+    </div>
+  </div>
+</article>

@@ -1,7 +1,9 @@
 # Sidekiq設定ファイル
 
 # ワーカースレッド数
-:concurrency: 5
+# 本番環境（Render Free 512MB）ではメモリ不足を防ぐため1に制限
+# SIDEKIQ_CONCURRENCY環境変数で制御可能（未設定時は2）
+:concurrency: <%= ENV.fetch("SIDEKIQ_CONCURRENCY", 2).to_i %>
 
 # ジョブキュー優先順位（上から高い順）
 :queues:

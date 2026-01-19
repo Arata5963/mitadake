@@ -14,5 +14,13 @@ development:
 test:
   <<: *default
 
+# 本番環境（Render Free 512MB）ではメモリ不足を防ぐためスレッド数を1に制限
 production:
-  <<: *default
+  dispatchers:
+    - polling_interval: 1
+      batch_size: 500
+  workers:
+    - queues: "*"
+      threads: <%= ENV.fetch("SOLID_QUEUE_THREADS", 1) %>
+      processes: <%= ENV.fetch("JOB_CONCURRENCY", 1) %>
+      polling_interval: 0.1

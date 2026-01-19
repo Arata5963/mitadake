@@ -113,14 +113,6 @@ class PostsController < ApplicationController
     @post = Post.find_or_create_by_video(youtube_url: youtube_url)
 
     if @post
-      # 新規作成時はAI要約を自動生成（ジョブキュー未設定でもエラーにしない）
-      if is_new_post && @post.ai_summary.blank?
-        begin
-          GenerateSummaryJob.perform_later(@post.id)
-        rescue StandardError => e
-          Rails.logger.warn("Failed to enqueue GenerateSummaryJob: #{e.message}")
-        end
-      end
       render json: { success: true, post_id: @post.id, url: post_path(@post) }
     else
       render json: { success: false, error: "動画の情報を取得できませんでした" }, status: :unprocessable_entity
@@ -177,15 +169,6 @@ class PostsController < ApplicationController
     )
 
     if @entry.save
-      # 新規作成時はAI要約を自動生成
-      if is_new_post && @post.ai_summary.blank?
-        begin
-          GenerateSummaryJob.perform_later(@post.id)
-        rescue StandardError => e
-          Rails.logger.warn("Failed to enqueue GenerateSummaryJob: #{e.message}")
-        end
-      end
-
       render json: { success: true, post_id: @post.id, entry_id: @entry.id, url: post_path(@post) }
     else
       render json: { success: false, error: @entry.errors.full_messages.join(", ") }, status: :unprocessable_entity

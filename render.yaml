@@ -24,3 +24,5 @@ services:
         value: production
       - key: BUNDLE_WITHOUT
         value: "development:test"
+      - key: RAILS_MAX_THREADS
+        value: "2"

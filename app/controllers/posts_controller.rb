@@ -156,16 +156,15 @@ class PostsController < ApplicationController
       return
     end
 
-    # サムネイル処理
-    thumbnail_data = params[:thumbnail]
-    thumbnail_url = process_thumbnail(thumbnail_data) if thumbnail_data.present?
+    # サムネイル処理（メモリ不足対策のため一時的に無効化）
+    # thumbnail_data = params[:thumbnail]
+    # thumbnail_url = process_thumbnail(thumbnail_data) if thumbnail_data.present?
 
     # アクションプランを作成（期限は7日後）
     @entry = @post.post_entries.new(
       user: current_user,
       content: action_plan,
-      deadline: 7.days.from_now.to_date,
-      thumbnail_url: thumbnail_url
+      deadline: 7.days.from_now.to_date
     )
 
     if @entry.save

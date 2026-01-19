@@ -24,18 +24,10 @@ Rails.application.routes.draw do
 
   root "posts#index"
 
-  get :home, to: "home#index"
-
   get :mypage, to: "users#show"
   get :edit_profile, to: "users#edit"
   patch :mypage, to: "users#update"
   get "users/:id", to: "users#show", as: :user_profile
-
-  get :bookshelf, to: "bookshelves#show"
-  get "users/:id/bookshelf", to: "bookshelves#show", as: :user_bookshelf
-
-  # 統計・分析
-  get :stats, to: "stats#show"
 
   resources :posts, except: [ :create ] do
     collection do
@@ -46,31 +38,19 @@ Rails.application.routes.draw do
       post :create_with_action
       post :convert_to_youtube_title
       post :suggest_action_plans
-      get :trending
-      get :channels
       get :recent
     end
     member do
       post :summarize
-      get :youtube_comments
-      post :discover_comments
     end
-    resources :achievements, only: [ :create, :destroy ]
-    resources :cheers, only: [ :create, :destroy ]
     resources :post_entries, only: [ :create, :edit, :update, :destroy ] do
       member do
         patch :achieve
-        post :toggle_flame
+        post :toggle_like
         get :show_achievement
         patch :update_reflection
       end
-      resources :entry_flames, only: [ :create, :destroy ]
     end
-  end
-
-  # YouTubeコメントブックマーク
-  resources :youtube_comments, only: [] do
-    resource :bookmark, controller: :comment_bookmarks, only: [:create, :destroy]
   end
 
   get :terms, to: "pages#terms"

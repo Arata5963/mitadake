@@ -60,12 +60,12 @@
                   <%= entry.content %>
                 </p>
                 <div class="flex items-center gap-2">
-                  <% if entry.display_avatar.present? %>
-                    <img src="<%= entry.display_avatar %>" alt="" class="w-6 h-6 rounded-full object-cover">
+                  <% if entry.user&.avatar.present? %>
+                    <img src="<%= entry.user.avatar.url %>" alt="" class="w-6 h-6 rounded-full object-cover">
                   <% else %>
                     <div class="w-6 h-6 rounded-full" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);"></div>
                   <% end %>
-                  <span class="text-xs text-gray-500"><%= entry.display_user_name %></span>
+                  <span class="text-xs text-gray-500"><%= entry.user&.name %></span>
                 </div>
               </div>
             </article>
@@ -254,12 +254,12 @@
                   <%= entry.content %>
                 </p>
                 <div class="flex items-center gap-2">
-                  <% if entry.display_avatar.present? %>
-                    <img src="<%= entry.display_avatar %>" alt="" class="w-6 h-6 rounded-full object-cover">
+                  <% if entry.user&.avatar.present? %>
+                    <img src="<%= entry.user.avatar.url %>" alt="" class="w-6 h-6 rounded-full object-cover">
                   <% else %>
                     <div class="w-6 h-6 rounded-full" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);"></div>
                   <% end %>
-                  <span class="text-xs text-gray-500"><%= entry.display_user_name %></span>
+                  <span class="text-xs text-gray-500"><%= entry.user&.name %></span>
                 </div>
               </div>
             </article>

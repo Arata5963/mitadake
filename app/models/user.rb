@@ -5,11 +5,7 @@ class User < ApplicationRecord
 
   has_many :posts, dependent: :destroy
   has_many :achievements, dependent: :destroy
-  has_many :cheers, dependent: :destroy
-  has_many :entry_flames, dependent: :destroy
-  has_many :favorite_videos, -> { order(:position) }, dependent: :destroy
-  has_many :comment_bookmarks, dependent: :destroy
-  has_many :bookmarked_comments, through: :comment_bookmarks, source: :youtube_comment
+  has_many :entry_likes, dependent: :destroy
   has_many :post_entries, dependent: :destroy
 
   # 達成数ランキング（TOP N ユーザー）

@@ -25,16 +25,6 @@ FactoryBot.define do
       end
     end
 
-    trait :with_comments do
-      transient do
-        comments_count { 3 }
-      end
-
-      after(:create) do |post, evaluator|
-        create_list(:comment, evaluator.comments_count, post: post)
-      end
-    end
-
     trait :with_entries do
       transient do
         entry_user { nil }

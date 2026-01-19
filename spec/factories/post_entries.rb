@@ -5,10 +5,9 @@ FactoryBot.define do
     association :user
     content { Faker::Lorem.sentence(word_count: 8) }
     deadline { Date.current + 7.days }
-    anonymous { false }
 
-    trait :anonymous do
-      anonymous { true }
+    trait :action do
+      # Default is already action type (entry_type: 0)
     end
 
     trait :achieved do

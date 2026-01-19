@@ -5,13 +5,12 @@ class PostEntriesController < ApplicationController
 
   before_action :authenticate_user!, except: [ :show_achievement ]
   before_action :set_post
-  before_action :set_entry, only: [ :edit, :update, :destroy, :achieve, :toggle_flame, :show_achievement, :update_reflection ]
+  before_action :set_entry, only: [ :edit, :update, :destroy, :achieve, :toggle_like, :show_achievement, :update_reflection ]
   before_action :check_entry_owner, only: [ :edit, :update, :destroy, :achieve, :update_reflection ]
 
   def create
     @entry = @post.post_entries.build(entry_params)
     @entry.user = current_user
-    @entry.anonymous = params[:post_entry][:anonymous] == "1"
 
     if @entry.save
       redirect_to @post, notice: "アクションプランを投稿しました"
@@ -132,6 +131,22 @@ class PostEntriesController < ApplicationController
       rescue StandardError => e
         render json: { success: false, error: e.message }, status: :unprocessable_entity
       end
+
+      # Turbo Stream: フラッシュメッセージ付きで達成
+      format.turbo_stream do
+        if @entry.achieved?
+          @entry.update!(achieved_at: nil, reflection: nil, result_image: nil)
+          flash.now[:notice] = "未達成に戻しました"
+        else
+          @entry.achieve_with_reflection!(
+            reflection_text: params[:reflection],
+            result_image_s3_key: params[:result_image_s3_key]
+          )
+          flash.now[:notice] = "達成おめでとうございます！🎉"
+        end
+      rescue StandardError => e
+        flash.now[:alert] = e.message
+      end
     end
   end
 
@@ -150,8 +165,8 @@ class PostEntriesController < ApplicationController
         url: post_path(@entry.post)
       },
       user: {
-        name: @entry.display_user_name,
-        avatar_url: @entry.display_avatar&.url
+        name: @entry.user&.name,
+        avatar_url: @entry.user&.avatar&.url
       },
       can_edit: user_signed_in? && @entry.user == current_user
     }
@@ -165,16 +180,25 @@ class PostEntriesController < ApplicationController
     render json: { success: false, error: e.message }, status: :unprocessable_entity
   end
 
-  def toggle_flame
-    existing_flame = @entry.entry_flames.find_by(user: current_user)
+  def toggle_like
+    existing_like = @entry.entry_likes.find_by(user: current_user)
 
-    if existing_flame
-      existing_flame.destroy
+    if existing_like
+      existing_like.destroy
     else
-      @entry.entry_flames.create(user: current_user)
+      @entry.entry_likes.create(user: current_user)
     end
 
-    redirect_back fallback_location: post_path(@post)
+    respond_to do |format|
+      format.html { redirect_back fallback_location: post_path(@post) }
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          "like_button_#{@entry.id}",
+          partial: "post_entries/like_button",
+          locals: { post_entry: @entry }
+        )
+      end
+    end
   end
 
   private

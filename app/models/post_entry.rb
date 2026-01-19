@@ -142,12 +142,14 @@ class PostEntry < ApplicationRecord
   end
 
   # 感想・画像付きで達成
-  def achieve_with_reflection!(reflection_text: nil, result_image_data: nil)
+  # 署名付きURL方式: S3キーを直接受け取る
+  def achieve_with_reflection!(reflection_text: nil, result_image_s3_key: nil)
     transaction do
       self.reflection = reflection_text if reflection_text.present?
 
-      if result_image_data.present?
-        self.result_image = process_result_image(result_image_data)
+      # S3キーを直接保存（Base64処理不要）
+      if result_image_s3_key.present?
+        self.result_image = result_image_s3_key
       end
 
       self.achieved_at = Time.current

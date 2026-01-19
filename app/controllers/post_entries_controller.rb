@@ -116,9 +116,10 @@ class PostEntriesController < ApplicationController
           render json: { success: true, achieved: false }
         else
           # 未達成→達成にする（感想・画像付き）
+          # 署名付きURL方式: S3キーを直接受け取る
           @entry.achieve_with_reflection!(
             reflection_text: params[:reflection],
-            result_image_data: params[:result_image_data]
+            result_image_s3_key: params[:result_image_s3_key]
           )
           render json: {
             success: true,

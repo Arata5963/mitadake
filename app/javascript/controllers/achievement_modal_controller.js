@@ -29,7 +29,8 @@ export default class extends Controller {
     document.body.style.overflow = "hidden"
     this.boundHandleKeydown = this.handleKeydown.bind(this)
     document.addEventListener("keydown", this.boundHandleKeydown)
-    this.selectedImage = null
+    this.selectedFile = null      // Fileオブジェクトを保持
+    this.uploadedS3Key = null     // アップロード後のS3キー
   }
 
   disconnect() {
@@ -64,7 +65,7 @@ export default class extends Controller {
     }
   }
 
-  // 画像選択
+  // 画像選択（署名付きURL方式：Base64変換しない）
   handleFileSelect(event) {
     const file = event.target.files[0]
     if (!file) return
@@ -74,12 +75,13 @@ export default class extends Controller {
       return
     }
 
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      this.selectedImage = e.target.result
-      this.showImagePreview(e.target.result)
-    }
-    reader.readAsDataURL(file)
+    // ファイルを保持（Base64変換しない）
+    this.selectedFile = file
+    this.uploadedS3Key = null  // 新しいファイルが選択されたらリセット
+
+    // プレビュー表示（ローカルURL使用）
+    const previewUrl = URL.createObjectURL(file)
+    this.showImagePreview(previewUrl)
   }
 
   showImagePreview(dataUrl) {
@@ -102,7 +104,8 @@ export default class extends Controller {
     event.preventDefault()
     event.stopPropagation()
 
-    this.selectedImage = null
+    this.selectedFile = null
+    this.uploadedS3Key = null
 
     // 画像を非表示
     if (this.hasImagePreviewTarget) {
@@ -121,6 +124,47 @@ export default class extends Controller {
     if (this.hasImageInputTarget) {
       this.imageInputTarget.value = ""
     }
+  }
+
+  // S3に直接アップロード（署名付きURL方式）
+  async uploadToS3() {
+    if (!this.selectedFile) return null
+    if (this.uploadedS3Key) return this.uploadedS3Key  // 既にアップロード済み
+
+    // 1. 署名付きURLを取得
+    const presignResponse = await fetch('/api/presigned_urls', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': this.csrfToken()
+      },
+      body: JSON.stringify({
+        filename: this.selectedFile.name,
+        content_type: this.selectedFile.type
+      })
+    })
+
+    if (!presignResponse.ok) {
+      throw new Error('署名付きURLの取得に失敗しました')
+    }
+
+    const { upload_url, s3_key } = await presignResponse.json()
+
+    // 2. S3に直接PUT
+    const uploadResponse = await fetch(upload_url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': this.selectedFile.type
+      },
+      body: this.selectedFile
+    })
+
+    if (!uploadResponse.ok) {
+      throw new Error('S3へのアップロードに失敗しました')
+    }
+
+    this.uploadedS3Key = s3_key
+    return s3_key
   }
 
   // 達成送信
@@ -143,6 +187,13 @@ export default class extends Controller {
     this.showLoading()
 
     try {
+      // 1. 画像がある場合はS3に直接アップロード
+      let s3Key = null
+      if (this.selectedFile) {
+        s3Key = await this.uploadToS3()
+      }
+
+      // 2. 達成を記録（S3キーを送信）
       const response = await fetch(this.achieveUrlValue, {
         method: "PATCH",
         headers: {
@@ -152,7 +203,7 @@ export default class extends Controller {
         },
         body: JSON.stringify({
           reflection: reflection,
-          result_image_data: this.selectedImage
+          result_image_s3_key: s3Key
         })
       })
 
@@ -167,7 +218,7 @@ export default class extends Controller {
       }
     } catch (error) {
       console.error("Achievement error:", error)
-      alert("達成処理に失敗しました")
+      alert(error.message || "達成処理に失敗しました")
       this.hideLoading()
     }
   }

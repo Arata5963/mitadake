@@ -75,4 +75,9 @@ Rails.application.routes.draw do
 
   get :terms, to: "pages#terms"
   get :privacy, to: "pages#privacy"
+
+  # API
+  namespace :api do
+    resources :presigned_urls, only: [:create]
+  end
 end

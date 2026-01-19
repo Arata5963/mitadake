@@ -28,8 +28,9 @@ export default class extends Controller {
     this.timeout = null
     this.selectedIndex = -1
     this.selectedVideo = null
-    // サムネイル（画像アップロード必須）
-    this.selectedThumbnail = { key: 'custom', emoji: null, color: null, customImage: null }
+    // サムネイル（署名付きURL方式）
+    this.selectedFile = null      // Fileオブジェクトを保持
+    this.uploadedS3Key = null     // アップロード後のS3キー
 
     // クリック外で結果を閉じる
     this.handleClickOutside = this.handleClickOutside.bind(this)
@@ -528,7 +529,7 @@ export default class extends Controller {
   updateSubmitButton() {
     const hasVideo = !!this.selectedVideo
     const hasActionPlan = this.actionPlanInputTarget.value.trim().length > 0
-    const hasImage = !!this.selectedThumbnail.customImage  // 画像必須
+    const hasImage = !!this.selectedFile || !!this.uploadedS3Key  // 画像必須
     const canSubmit = hasVideo && hasActionPlan && hasImage
 
     this.submitButtonTarget.disabled = !canSubmit
@@ -555,10 +556,19 @@ export default class extends Controller {
     this.submitButtonTarget.disabled = true
     this.submitButtonTarget.innerHTML = `
       <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-      投稿中...
+      画像アップロード中...
     `
 
     try {
+      // 1. 画像をS3に直接アップロード
+      const s3Key = await this.uploadToS3()
+
+      this.submitButtonTarget.innerHTML = `
+        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+        投稿中...
+      `
+
+      // 2. 投稿を作成（S3キーを送信）
       const response = await fetch(this.createUrlValue, {
         method: "POST",
         headers: {
@@ -569,7 +579,7 @@ export default class extends Controller {
         body: JSON.stringify({
           youtube_url: this.selectedVideo.url,
           action_plan: this.actionPlanInputTarget.value.trim(),
-          thumbnail: this.selectedThumbnail
+          thumbnail_s3_key: s3Key
         })
       })
 
@@ -590,10 +600,51 @@ export default class extends Controller {
       }
     } catch (error) {
       console.error("Submit error:", error)
-      alert("投稿に失敗しました")
+      alert(error.message || "投稿に失敗しました")
       this.submitButtonTarget.disabled = false
       this.submitButtonTarget.innerHTML = originalText
     }
+  }
+
+  // S3に直接アップロード（署名付きURL方式）
+  async uploadToS3() {
+    if (!this.selectedFile) return null
+    if (this.uploadedS3Key) return this.uploadedS3Key  // 既にアップロード済み
+
+    // 1. 署名付きURLを取得
+    const presignResponse = await fetch('/api/presigned_urls', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
+      },
+      body: JSON.stringify({
+        filename: this.selectedFile.name,
+        content_type: this.selectedFile.type
+      })
+    })
+
+    if (!presignResponse.ok) {
+      throw new Error('署名付きURLの取得に失敗しました')
+    }
+
+    const { upload_url, s3_key } = await presignResponse.json()
+
+    // 2. S3に直接PUT
+    const uploadResponse = await fetch(upload_url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': this.selectedFile.type
+      },
+      body: this.selectedFile
+    })
+
+    if (!uploadResponse.ok) {
+      throw new Error('S3へのアップロードに失敗しました')
+    }
+
+    this.uploadedS3Key = s3_key
+    return s3_key
   }
 
   // URLからビデオIDを抽出
@@ -629,7 +680,7 @@ export default class extends Controller {
     }
   }
 
-  // 画像選択
+  // 画像選択（署名付きURL方式：Base64変換しない）
   handleFileSelect(event) {
     const file = event.target.files[0]
     if (!file) return
@@ -640,33 +691,28 @@ export default class extends Controller {
       return
     }
 
-    // 画像をBase64に変換
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      this.selectedThumbnail = {
-        key: 'custom',
-        emoji: null,
-        color: null,
-        customImage: e.target.result
-      }
+    // ファイルを保持（Base64変換しない）
+    this.selectedFile = file
+    this.uploadedS3Key = null  // 新しいファイルが選択されたらリセット
 
-      // プレースホルダーを非表示、画像を表示
-      if (this.hasUploadPlaceholderTarget) {
-        this.uploadPlaceholderTarget.style.display = 'none'
-      }
-      if (this.hasPreviewImageTarget) {
-        this.previewImageTarget.style.display = 'block'
-        this.previewImageTarget.src = e.target.result
-      }
-      // ×ボタンを表示
-      if (this.hasClearImageButtonTarget) {
-        this.clearImageButtonTarget.style.display = 'flex'
-      }
+    // プレビュー表示（ローカルURL使用）
+    const previewUrl = URL.createObjectURL(file)
 
-      // 投稿ボタンの状態を更新
-      this.updateSubmitButton()
+    // プレースホルダーを非表示、画像を表示
+    if (this.hasUploadPlaceholderTarget) {
+      this.uploadPlaceholderTarget.style.display = 'none'
     }
-    reader.readAsDataURL(file)
+    if (this.hasPreviewImageTarget) {
+      this.previewImageTarget.style.display = 'block'
+      this.previewImageTarget.src = previewUrl
+    }
+    // ×ボタンを表示
+    if (this.hasClearImageButtonTarget) {
+      this.clearImageButtonTarget.style.display = 'flex'
+    }
+
+    // 投稿ボタンの状態を更新
+    this.updateSubmitButton()
   }
 
   // 画像をクリア
@@ -674,7 +720,8 @@ export default class extends Controller {
     event.preventDefault()
     event.stopPropagation()
 
-    this.selectedThumbnail = { key: 'custom', emoji: null, color: null, customImage: null }
+    this.selectedFile = null
+    this.uploadedS3Key = null
 
     // 画像を非表示、プレースホルダーを表示
     if (this.hasPreviewImageTarget) {

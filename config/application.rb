@@ -4,7 +4,7 @@ require "rails/all"
 
 Bundler.require(*Rails.groups)
 
-module Mvp
+module Mitadake
   class Application < Rails::Application
     config.load_defaults 7.2
 

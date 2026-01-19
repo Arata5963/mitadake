@@ -182,40 +182,4 @@ class PostEntry < ApplicationRecord
     end
   end
 
-  # 達成記録画像をS3にアップロード
-  def process_result_image(base64_data)
-    return nil if base64_data.blank?
-
-    # Base64データをパース
-    matches = base64_data.match(/\Adata:(.*?);base64,(.*)\z/m)
-    return nil unless matches
-
-    content_type = matches[1]
-    decoded_data = Base64.decode64(matches[2])
-
-    # ファイル拡張子を決定
-    extension = case content_type
-    when "image/jpeg" then "jpg"
-    when "image/png" then "png"
-    when "image/webp" then "webp"
-    else "jpg"
-    end
-
-    # S3にアップロード（ユーザーごとにフォルダ分け）
-    filename = "result_images/#{user_id}/#{SecureRandom.uuid}.#{extension}"
-
-    s3_client = Aws::S3::Client.new
-    s3_client.put_object(
-      bucket: ENV["AWS_BUCKET"],
-      key: filename,
-      body: decoded_data,
-      content_type: content_type
-    )
-
-    # S3キーを返す
-    filename
-  rescue StandardError => e
-    Rails.logger.error("Failed to upload result image: #{e.message}")
-    nil
-  end
 end

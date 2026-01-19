@@ -26,18 +26,20 @@ class PostEntriesController < ApplicationController
   def update
     Rails.logger.info "[Update] Entry #{@entry.id} - params: #{params[:post_entry].keys}"
 
-    # サムネイル画像の処理
-    thumbnail_data = params[:post_entry][:thumbnail_data]
-    Rails.logger.info "[Update] thumbnail_data present: #{thumbnail_data.present?}, value: #{thumbnail_data.to_s[0..50]}..."
+    # サムネイル画像の処理（署名付きURL方式：S3キーを直接受け取る）
+    thumbnail_s3_key = params[:post_entry][:thumbnail_s3_key]
+    Rails.logger.info "[Update] thumbnail_s3_key: #{thumbnail_s3_key.to_s[0..50]}..."
 
-    if thumbnail_data == "CLEAR"
+    if thumbnail_s3_key == "CLEAR"
       # 画像をクリア
       Rails.logger.info "[Update] Clearing thumbnail"
       @entry.thumbnail_url = nil
       @entry.save
-    elsif thumbnail_data.present?
-      Rails.logger.info "[Update] Processing new thumbnail"
-      process_thumbnail_data(thumbnail_data)
+    elsif thumbnail_s3_key.present?
+      # S3キーを直接保存（Base64処理不要）
+      Rails.logger.info "[Update] Setting thumbnail S3 key"
+      @entry.thumbnail_url = thumbnail_s3_key
+      @entry.save
     else
       Rails.logger.info "[Update] No thumbnail data provided"
     end
@@ -193,53 +195,6 @@ class PostEntriesController < ApplicationController
 
   def entry_params
     params.require(:post_entry).permit(:content, :deadline)
-  end
-
-  def process_thumbnail_data(data)
-    return unless data.present? && data.start_with?("data:image")
-
-    Rails.logger.info "[Thumbnail] Processing thumbnail data (length: #{data.length})"
-
-    begin
-      # Base64データをパース
-      matches = data.match(/\Adata:(.*?);base64,(.*)\z/m)
-      return unless matches
-
-      content_type = matches[1]
-      decoded_data = Base64.decode64(matches[2])
-
-      Rails.logger.info "[Thumbnail] Decoded data size: #{decoded_data.bytesize} bytes"
-
-      # ファイル拡張子を決定
-      extension = case content_type
-      when "image/jpeg" then "jpg"
-      when "image/png" then "png"
-      when "image/webp" then "webp"
-      else "jpg"
-      end
-
-      # S3にアップロード
-      filename = "thumbnails/#{@entry.user_id}/#{SecureRandom.uuid}.#{extension}"
-
-      s3_client = Aws::S3::Client.new
-      s3_client.put_object(
-        bucket: ENV["AWS_BUCKET"],
-        key: filename,
-        body: decoded_data,
-        content_type: content_type
-      )
-
-      # thumbnail_urlカラムに保存
-      @entry.thumbnail_url = filename
-      if @entry.save
-        Rails.logger.info "[Thumbnail] Successfully saved thumbnail for entry #{@entry.id}: #{filename}"
-      else
-        Rails.logger.error "[Thumbnail] Failed to save: #{@entry.errors.full_messages.join(', ')}"
-      end
-    rescue StandardError => e
-      Rails.logger.error "[Thumbnail] Upload error: #{e.message}"
-      Rails.logger.error e.backtrace.first(5).join("\n")
-    end
   end
 
   def extract_design_from_referer

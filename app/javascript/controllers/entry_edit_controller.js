@@ -29,7 +29,8 @@ export default class extends Controller {
 
     this.timeout = null
     this.selectedIndex = -1
-    this.thumbnailData = null
+    this.selectedFile = null       // Fileオブジェクトを保持
+    this.uploadedS3Key = null      // アップロード後のS3キー
     this.thumbnailCleared = false
     this.videoChanged = false
 
@@ -337,7 +338,7 @@ export default class extends Controller {
     }
   }
 
-  // 画像選択
+  // 画像選択（署名付きURL方式：Base64変換しない）
   handleFileSelect(event) {
     console.log("[entry-edit] handleFileSelect called")
     const file = event.target.files[0]
@@ -354,27 +355,27 @@ export default class extends Controller {
       return
     }
 
-    // 画像をBase64に変換
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      this.thumbnailData = e.target.result
-      this.thumbnailCleared = false
-      console.log("[entry-edit] thumbnailData set, length:", this.thumbnailData.length)
+    // ファイルを保持（Base64変換しない）
+    this.selectedFile = file
+    this.uploadedS3Key = null  // 新しいファイルが選択されたらリセット
+    this.thumbnailCleared = false
+    console.log("[entry-edit] selectedFile set:", file.name)
 
-      // プレースホルダーを非表示、画像を表示
-      if (this.hasUploadPlaceholderTarget) {
-        this.uploadPlaceholderTarget.style.display = 'none'
-      }
-      if (this.hasPreviewImageTarget) {
-        this.previewImageTarget.style.display = 'block'
-        this.previewImageTarget.src = e.target.result
-      }
-      // ×ボタンを表示
-      if (this.hasClearImageButtonTarget) {
-        this.clearImageButtonTarget.style.display = 'flex'
-      }
+    // プレビュー表示（ローカルURL使用）
+    const previewUrl = URL.createObjectURL(file)
+
+    // プレースホルダーを非表示、画像を表示
+    if (this.hasUploadPlaceholderTarget) {
+      this.uploadPlaceholderTarget.style.display = 'none'
     }
-    reader.readAsDataURL(file)
+    if (this.hasPreviewImageTarget) {
+      this.previewImageTarget.style.display = 'block'
+      this.previewImageTarget.src = previewUrl
+    }
+    // ×ボタンを表示
+    if (this.hasClearImageButtonTarget) {
+      this.clearImageButtonTarget.style.display = 'flex'
+    }
   }
 
   // 画像をクリア
@@ -382,7 +383,8 @@ export default class extends Controller {
     event.preventDefault()
     event.stopPropagation()
 
-    this.thumbnailData = null
+    this.selectedFile = null
+    this.uploadedS3Key = null
     this.thumbnailCleared = true
 
     // 画像を非表示、プレースホルダーを表示
@@ -403,12 +405,53 @@ export default class extends Controller {
     }
   }
 
+  // S3に直接アップロード（署名付きURL方式）
+  async uploadToS3() {
+    if (!this.selectedFile) return null
+    if (this.uploadedS3Key) return this.uploadedS3Key  // 既にアップロード済み
+
+    // 1. 署名付きURLを取得
+    const presignResponse = await fetch('/api/presigned_urls', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
+      },
+      body: JSON.stringify({
+        filename: this.selectedFile.name,
+        content_type: this.selectedFile.type
+      })
+    })
+
+    if (!presignResponse.ok) {
+      throw new Error('署名付きURLの取得に失敗しました')
+    }
+
+    const { upload_url, s3_key } = await presignResponse.json()
+
+    // 2. S3に直接PUT
+    const uploadResponse = await fetch(upload_url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': this.selectedFile.type
+      },
+      body: this.selectedFile
+    })
+
+    if (!uploadResponse.ok) {
+      throw new Error('S3へのアップロードに失敗しました')
+    }
+
+    this.uploadedS3Key = s3_key
+    return s3_key
+  }
+
   // フォーム送信
   async submitForm() {
     const content = this.actionPlanInputTarget.value.trim()
 
     console.log("[entry-edit] submitForm called")
-    console.log("[entry-edit] thumbnailData:", this.thumbnailData ? `set (${this.thumbnailData.length} chars)` : "null")
+    console.log("[entry-edit] selectedFile:", this.selectedFile ? this.selectedFile.name : "null")
     console.log("[entry-edit] thumbnailCleared:", this.thumbnailCleared)
 
     if (!this.selectedVideo) {
@@ -425,11 +468,20 @@ export default class extends Controller {
     this.submitButtonTarget.disabled = true
     this.submitButtonTarget.textContent = '保存中...'
 
-    const thumbnailToSend = this.thumbnailCleared ? "CLEAR" : this.thumbnailData
-    console.log("[entry-edit] Sending thumbnail_data:", thumbnailToSend ? `${thumbnailToSend.substring(0, 50)}...` : "null")
-
     try {
-      // JSONでPATCHリクエスト
+      // 1. 画像がある場合はS3に直接アップロード
+      let s3Key = null
+      if (this.selectedFile) {
+        this.submitButtonTarget.textContent = '画像アップロード中...'
+        s3Key = await this.uploadToS3()
+      }
+
+      // 2. サーバーに更新リクエスト
+      this.submitButtonTarget.textContent = '保存中...'
+
+      // thumbnail_s3_key: 新しい画像のS3キー、または "CLEAR" でクリア
+      const thumbnailValue = this.thumbnailCleared ? "CLEAR" : s3Key
+
       const response = await fetch(this.updateUrlValue, {
         method: "PATCH",
         headers: {
@@ -440,7 +492,7 @@ export default class extends Controller {
         body: JSON.stringify({
           post_entry: {
             content: content,
-            thumbnail_data: thumbnailToSend,
+            thumbnail_s3_key: thumbnailValue,
             new_video_url: this.videoChanged ? this.selectedVideo.url : null
           }
         })
@@ -463,7 +515,7 @@ export default class extends Controller {
       }
     } catch (error) {
       console.error("Update error:", error)
-      alert("更新に失敗しました")
+      alert(error.message || "更新に失敗しました")
       this.submitButtonTarget.disabled = false
       this.submitButtonTarget.textContent = '保存'
     }

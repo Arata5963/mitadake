@@ -171,7 +171,7 @@ export default class extends Controller {
               </svg>
             </button>
 
-            <div class="h-40 bg-gray-100">
+            <div class="aspect-video bg-gray-100 rounded-t-2xl overflow-hidden">
               <img src="${thumbnailUrl}"
                    alt=""
                    class="w-full h-full object-cover">

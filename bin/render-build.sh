@@ -22,4 +22,8 @@ bundle exec rails assets:precompile
 echo "Running database migrations..."
 bundle exec rails db:migrate
 
+# 一時的: テストデータ削除（デプロイ後に削除すること）
+echo "Clearing test data..."
+bundle exec rails data:clear_all
+
 echo "Build completed successfully!"

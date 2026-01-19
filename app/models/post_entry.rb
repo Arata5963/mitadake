@@ -3,7 +3,7 @@
 class PostEntry < ApplicationRecord
   belongs_to :post
   belongs_to :user
-  has_many :entry_flames, dependent: :destroy
+  has_many :entry_likes, dependent: :destroy
 
   # コールバック
   before_validation :set_auto_deadline, on: :create
@@ -60,25 +60,10 @@ class PostEntry < ApplicationRecord
     end
   end
 
-  # 匿名表示かどうか
-  def display_anonymous?
-    anonymous?
-  end
-
-  # 表示用ユーザー名（匿名なら「匿名」を返す）
-  def display_user_name
-    anonymous? ? "匿名" : user&.name
-  end
-
-  # 表示用アバター（匿名ならnilを返す）
-  def display_avatar
-    anonymous? ? nil : user&.avatar
-  end
-
-  # 炎マーク済みかどうか
-  def flamed_by?(user)
+  # いいね済みかどうか
+  def liked_by?(user)
     return false if user.nil?
-    entry_flames.exists?(user_id: user.id)
+    entry_likes.exists?(user_id: user.id)
   end
 
   # サムネイルURLを取得（署名付きURL）

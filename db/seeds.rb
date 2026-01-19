@@ -7,19 +7,15 @@ puts "Seeding database..."
 puts "Clearing existing data..."
 
 tables_to_clear = %w[
-  entry_flames
-  comment_bookmarks
+  entry_likes
   post_comparisons
   recommendation_clicks
-  youtube_comments
   notifications
   subscriptions
   comments
-  cheers
   achievements
   post_entries
   posts
-  favorite_videos
   users
 ]
 
@@ -293,17 +289,6 @@ main_user_achieved.each do |plan|
   entry.save!(validate: false)
 end
 
-# ===== 応援（Cheer）を作成 =====
-puts "Creating cheers..."
-
-posts.first(10).each do |post|
-  # 各投稿に0〜5個の応援をランダムに追加
-  cheering_users = all_users.sample(rand(0..5))
-  cheering_users.each do |user|
-    Cheer.create!(user: user, post: post) rescue nil
-  end
-end
-
 # ===== ユーザーの引用設定 =====
 puts "Setting user favorite quotes..."
 
@@ -340,5 +325,4 @@ puts "  Posts: #{Post.count}"
 puts "  Action Plans (total): #{PostEntry.count}"
 puts "  Action Plans (achieved): #{PostEntry.achieved.count}"
 puts "  Action Plans (pending): #{PostEntry.not_achieved.count}"
-puts "  Cheers: #{Cheer.count}"
 puts ""

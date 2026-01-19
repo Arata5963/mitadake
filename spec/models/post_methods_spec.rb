@@ -52,32 +52,12 @@ RSpec.describe Post, type: :model do
       }.to change(Achievement, :count).by(-1)
     end
 
-    it '投稿を削除するとコメントも削除される' do
-      create(:comment, user: user, post: post)
+    it '投稿を削除するとアクションプランも削除される' do
+      create(:post_entry, user: user, post: post, deadline: 1.week.from_now)
 
       expect {
         post.destroy
-      }.to change(Comment, :count).by(-1)
-    end
-
-    it '投稿を削除すると応援も削除される' do
-      create(:cheer, user: user, post: post)
-
-      expect {
-        post.destroy
-      }.to change(Cheer, :count).by(-1)
-    end
-
-    it '投稿を削除すると全ての関連データが削除される' do
-      create(:achievement, user: user, post: post, achieved_at: Date.current)
-      create(:comment, user: user, post: post)
-      create(:cheer, user: user, post: post)
-
-      expect {
-        post.destroy
-      }.to change {
-        [ Achievement.count, Comment.count, Cheer.count ]
-      }.from([ 1, 1, 1 ]).to([ 0, 0, 0 ])
+      }.to change(PostEntry, :count).by(-1)
     end
   end
 end

@@ -1,7 +1,7 @@
 # app/controllers/posts_controller.rb
 class PostsController < ApplicationController
-  before_action :authenticate_user!, except: [ :index, :show, :autocomplete, :youtube_search, :find_or_create, :youtube_comments, :discover_comments, :trending, :channels, :recent, :convert_to_youtube_title, :suggest_action_plans ]
-  before_action :set_post, only: [ :show, :edit, :update, :destroy, :summarize, :youtube_comments, :discover_comments ]
+  before_action :authenticate_user!, except: [ :index, :show, :autocomplete, :youtube_search, :find_or_create, :recent, :convert_to_youtube_title, :suggest_action_plans ]
+  before_action :set_post, only: [ :show, :edit, :update, :destroy, :summarize ]
   before_action :check_has_entries, only: [ :edit, :update, :destroy ]
 
   def index
@@ -29,7 +29,7 @@ class PostsController < ApplicationController
     end
 
     @q = Post.ransack(params[:q])
-    base_scope = @q.result(distinct: true).includes(:achievements, :cheers, :post_entries)
+    base_scope = @q.result(distinct: true).includes(:achievements, :post_entries)
 
     # ===== ユーザー絞り込み =====
     if params[:user_id].present?
@@ -75,17 +75,6 @@ class PostsController < ApplicationController
       end
     end
   end
-
-  # 急上昇一覧ページ
-  def trending
-    @posts = Post.trending(limit: nil).page(params[:page]).per(20)
-  end
-
-  # チャンネル一覧ページ
-  def channels
-    @channels = Post.popular_channels(limit: 100)
-  end
-
 
   # 最近の投稿一覧ページ
   def recent
@@ -284,17 +273,6 @@ class PostsController < ApplicationController
     end
   end
 
-  # YouTubeコメントを取得
-  def youtube_comments
-    @comments = YoutubeService.fetch_top_comments(@post.youtube_video_id, max_results: 20)
-
-    respond_to do |format|
-      format.json { render json: { success: true, comments: @comments } }
-      format.turbo_stream
-      format.html { render layout: false }
-    end
-  end
-
   # AIアクションプラン提案を生成（Post作成不要）
   def suggest_action_plans
     video_id = params[:video_id].to_s.strip
@@ -350,41 +328,6 @@ class PostsController < ApplicationController
     end
   end
 
-  # YouTubeコメントを取得・保存（ブックマーク用）
-  def discover_comments
-    # 既に保存済みコメントがある場合はそれを返す
-    existing_comments = @post.youtube_comments.by_like_count
-    if existing_comments.any?
-      @youtube_comments = existing_comments
-      respond_to do |format|
-        format.json { render json: { success: true, comments: format_youtube_comments(@youtube_comments), cached: true } }
-        format.turbo_stream
-        format.html { render layout: false }
-      end
-      return
-    end
-
-    # YouTubeからコメントを取得
-    raw_comments = YoutubeService.fetch_top_comments(@post.youtube_video_id, max_results: 50)
-
-    if raw_comments.blank?
-      respond_to do |format|
-        format.json { render json: { success: false, error: "コメントを取得できませんでした" }, status: :unprocessable_entity }
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("youtube-comments-container", partial: "posts/no_comments") }
-      end
-      return
-    end
-
-    # コメントを保存
-    save_comments(raw_comments)
-    @youtube_comments = @post.youtube_comments.reload.by_like_count
-
-    respond_to do |format|
-      format.json { render json: { success: true, comments: format_youtube_comments(@youtube_comments) } }
-      format.turbo_stream
-    end
-  end
-
   private
 
   def set_post
@@ -401,36 +344,5 @@ class PostsController < ApplicationController
 
   def post_params
     params.require(:post).permit(:youtube_url)
-  end
-
-  # YouTubeコメントを保存
-  def save_comments(comments)
-    comments.each do |comment|
-      @post.youtube_comments.find_or_create_by(youtube_comment_id: comment[:comment_id]) do |yc|
-        yc.author_name = comment[:author]
-        yc.author_image_url = comment[:author_image]
-        yc.author_channel_url = comment[:author_channel_url]
-        yc.content = comment[:text]
-        yc.like_count = comment[:like_count] || 0
-        yc.youtube_published_at = comment[:published_at]
-      end
-    end
-  end
-
-  # YoutubeCommentをJSON形式にフォーマット
-  def format_youtube_comments(comments)
-    comments.map do |comment|
-      {
-        id: comment.id,
-        comment_id: comment.youtube_comment_id,
-        author: comment.author_name,
-        author_image: comment.author_image_url,
-        author_channel_url: comment.author_channel_url,
-        text: comment.content,
-        like_count: comment.like_count,
-        youtube_url: comment.youtube_url,
-        bookmarked: user_signed_in? ? comment.bookmarked_by?(current_user) : false
-      }
-    end
   end
 end

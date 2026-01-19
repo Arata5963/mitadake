@@ -43,8 +43,7 @@
 
       <% if @posts.blank? %>
         <div class="py-16 text-center">
-          <span class="text-5xl block mb-4">📺</span>
-          <p class="text-gray-700 font-medium mb-2">まだアウトプットがありません</p>
+          <p class="text-gray-700 font-medium mb-2">まだアクションプランがありません</p>
         </div>
       <% else %>
         <div data-controller="load-more">
@@ -121,15 +120,14 @@
       <%# 空状態 %>
       <% if @popular_channels.blank? && @user_ranking.blank? && @ranking_posts.blank? && @recent_posts.blank? %>
         <div class="py-16 text-center">
-          <span class="text-5xl block mb-4">📺</span>
-          <p class="text-gray-700 font-medium mb-2">まだアウトプットがありません</p>
-          <p class="text-sm text-gray-500 mb-6">YouTube動画を見たら記録してみましょう</p>
+          <p class="text-gray-700 font-medium mb-2">まだアクションプランがありません</p>
+          <p class="text-sm text-gray-500 mb-6">動画を見て行動に変えてみましょう</p>
           <% if user_signed_in? %>
             <%= link_to new_post_path, class: "inline-flex items-center gap-2 px-6 py-2.5 bg-gray-900 text-white rounded-full font-medium hover:bg-gray-700 transition-colors" do %>
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
               </svg>
-              最初のアウトプットを記録
+              最初のアクションプランを作成
             <% end %>
           <% else %>
             <%= link_to new_user_session_path, class: "inline-flex items-center gap-2 px-6 py-2.5 bg-gray-900 text-white rounded-full font-medium hover:bg-gray-700 transition-colors" do %>

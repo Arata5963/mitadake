@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_19_022249) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_19_100003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -25,26 +25,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_19_022249) do
     t.index ["user_id"], name: "index_achievements_on_user_id"
   end
 
-  create_table "cheers", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "post_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["post_id"], name: "index_cheers_on_post_id"
-    t.index ["user_id", "post_id"], name: "index_cheers_on_user_id_and_post_id", unique: true
-    t.index ["user_id"], name: "index_cheers_on_user_id"
-  end
-
-  create_table "comment_bookmarks", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "youtube_comment_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["user_id", "youtube_comment_id"], name: "index_comment_bookmarks_on_user_id_and_youtube_comment_id", unique: true
-    t.index ["user_id"], name: "index_comment_bookmarks_on_user_id"
-    t.index ["youtube_comment_id"], name: "index_comment_bookmarks_on_youtube_comment_id"
-  end
-
   create_table "comments", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "post_id", null: false
@@ -56,26 +36,14 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_19_022249) do
     t.index ["user_id"], name: "index_comments_on_user_id"
   end
 
-  create_table "entry_flames", force: :cascade do |t|
+  create_table "entry_likes", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "post_entry_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["post_entry_id"], name: "index_entry_flames_on_post_entry_id"
-    t.index ["user_id", "post_entry_id"], name: "index_entry_flames_on_user_id_and_post_entry_id", unique: true
-    t.index ["user_id"], name: "index_entry_flames_on_user_id"
-  end
-
-  create_table "favorite_videos", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.string "youtube_url", null: false
-    t.string "youtube_title"
-    t.string "youtube_channel_name"
-    t.integer "position", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["user_id", "position"], name: "index_favorite_videos_on_user_id_and_position", unique: true
-    t.index ["user_id"], name: "index_favorite_videos_on_user_id"
+    t.index ["post_entry_id"], name: "index_entry_likes_on_post_entry_id"
+    t.index ["user_id", "post_entry_id"], name: "index_entry_likes_on_user_id_and_post_entry_id", unique: true
+    t.index ["user_id"], name: "index_entry_likes_on_user_id"
   end
 
   create_table "notifications", force: :cascade do |t|
@@ -126,7 +94,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_19_022249) do
     t.text "target_audience"
     t.text "recommendation_point"
     t.bigint "user_id"
-    t.boolean "anonymous", default: false, null: false
     t.string "thumbnail_url"
     t.text "reflection"
     t.string "result_image"
@@ -321,35 +288,12 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_19_022249) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
-  create_table "youtube_comments", force: :cascade do |t|
-    t.bigint "post_id", null: false
-    t.string "youtube_comment_id", null: false
-    t.string "author_name"
-    t.string "author_image_url"
-    t.string "author_channel_url"
-    t.text "content"
-    t.integer "like_count", default: 0
-    t.string "category"
-    t.datetime "youtube_published_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["category"], name: "index_youtube_comments_on_category"
-    t.index ["post_id", "category"], name: "index_youtube_comments_on_post_id_and_category"
-    t.index ["post_id"], name: "index_youtube_comments_on_post_id"
-    t.index ["youtube_comment_id"], name: "index_youtube_comments_on_youtube_comment_id", unique: true
-  end
-
   add_foreign_key "achievements", "posts"
   add_foreign_key "achievements", "users"
-  add_foreign_key "cheers", "posts"
-  add_foreign_key "cheers", "users"
-  add_foreign_key "comment_bookmarks", "users"
-  add_foreign_key "comment_bookmarks", "youtube_comments"
   add_foreign_key "comments", "posts"
   add_foreign_key "comments", "users"
-  add_foreign_key "entry_flames", "post_entries"
-  add_foreign_key "entry_flames", "users"
-  add_foreign_key "favorite_videos", "users"
+  add_foreign_key "entry_likes", "post_entries"
+  add_foreign_key "entry_likes", "users"
   add_foreign_key "post_comparisons", "posts", column: "source_post_id"
   add_foreign_key "post_comparisons", "posts", column: "target_post_id"
   add_foreign_key "post_entries", "posts"
@@ -363,5 +307,4 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_19_022249) do
   add_foreign_key "solid_queue_ready_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
-  add_foreign_key "youtube_comments", "posts"
 end

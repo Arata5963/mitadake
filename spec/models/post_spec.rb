@@ -15,27 +15,7 @@ RSpec.describe Post, type: :model do
   describe "associations" do
     it { should belong_to(:user).optional }
     it { should have_many(:achievements) }
-    it { should have_many(:cheers) }
     it { should have_many(:post_entries) }
-  end
-
-  describe "#cheered_by?" do
-    let(:user) { create(:user) }
-    let(:post) { create(:post) }
-
-    context "応援している場合" do
-      before { create(:cheer, post: post, user: user) }
-
-      it "true を返す" do
-        expect(post.cheered_by?(user)).to be true
-      end
-    end
-
-    context "応援していない場合" do
-      it "false を返す" do
-        expect(post.cheered_by?(user)).to be false
-      end
-    end
   end
 
   describe ".recent" do

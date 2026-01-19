@@ -188,8 +188,7 @@ RSpec.describe User, type: :model do
     before do
       post = create(:post, user: user)
       create(:achievement, user: user, post: post, achieved_at: Date.current)
-      create(:comment, user: user, post: post)
-      create(:cheer, user: user, post: post)
+      create(:post_entry, user: user, post: post, deadline: 1.week.from_now)
     end
 
     it 'ユーザー削除時に関連する全てのレコードが削除される' do
@@ -198,8 +197,7 @@ RSpec.describe User, type: :model do
       }.to change { User.count }.by(-1)
         .and change { Post.count }.by(-1)
         .and change { Achievement.count }.by(-1)
-        .and change { Comment.count }.by(-1)
-        .and change { Cheer.count }.by(-1)
+        .and change { PostEntry.count }.by(-1)
     end
   end
 end

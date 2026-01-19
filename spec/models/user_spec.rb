@@ -103,9 +103,8 @@ RSpec.describe User, type: :model do
   describe "associations" do
     it { should have_many(:posts).dependent(:destroy) }
     it { should have_many(:achievements).dependent(:destroy) }
-    it { should have_many(:comments).dependent(:destroy) }
-    it { should have_many(:cheers).dependent(:destroy) }
-    it { should have_many(:favorite_videos).dependent(:destroy) }
+    it { should have_many(:post_entries).dependent(:destroy) }
+    it { should have_many(:entry_likes).dependent(:destroy) }
   end
 
   describe "dependent destroy (実データ確認)" do
@@ -113,19 +112,15 @@ RSpec.describe User, type: :model do
       user = create(:user)
       post = create(:post, user: user)
       create(:achievement, user: user, post: post, achieved_at: Date.current)
-      create(:comment, user: user, post: post)
-      create(:cheer, user: user, post: post)
 
       expect {
         user.destroy
       }.to change {
         [
           Post.where(user_id: user.id).count,
-          Achievement.where(user_id: user.id).count,
-          Comment.where(user_id: user.id).count,
-          Cheer.where(user_id: user.id).count
+          Achievement.where(user_id: user.id).count
         ]
-      }.from([ 1, 1, 1, 1 ]).to([ 0, 0, 0, 0 ])
+      }.from([ 1, 1 ]).to([ 0, 0 ])
     end
   end
   describe '.from_omniauth' do

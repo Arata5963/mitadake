@@ -13,60 +13,29 @@ class UsersController < ApplicationController
         return
       end
 
-      # 達成カレンダー用データ（月表示）
-      today = Date.current
-      @calendar_year = today.year
-      @calendar_month = today.month
-
-      # 今月の達成データ（サムネイル付き）
-      @achievement_data = Achievement.monthly_calendar_data_with_thumbnails(
-        @user.id,
-        @calendar_year,
-        @calendar_month
-      )
-
       # 統計
       @total_achievements = @user.achievements.count
-      @current_month_achievements = Achievement.current_month_count(@user.id)
 
       # 他のユーザーの投稿一覧（そのユーザーがエントリーを持つPost）
       user_post_ids = PostEntry.where(user: @user).select(:post_id).distinct
       @user_posts = Post.where(id: user_post_ids)
-                        .includes(:post_entries, :cheers)
+                        .includes(:post_entries)
                         .recent
-
-      # すきな動画
-      @favorite_videos = @user.favorite_videos
     else
       # ログイン必須
       authenticate_user!
       @user = current_user
       @is_own_page = true
 
-      # 達成カレンダー用データ（月表示）
-      today = Date.current
-      @calendar_year = today.year
-      @calendar_month = today.month
-
-      # 今月の達成データ（サムネイル付き）
-      @achievement_data = Achievement.monthly_calendar_data_with_thumbnails(
-        @user.id,
-        @calendar_year,
-        @calendar_month
-      )
-
       # 統計
       @total_achievements = @user.achievements.count
-      @current_month_achievements = Achievement.current_month_count(@user.id)
+      today = Date.current
 
       # ユーザーの投稿一覧（自分がエントリーを持つPost）
       user_post_ids = PostEntry.where(user: @user).select(:post_id).distinct
       @user_posts = Post.where(id: user_post_ids)
-                        .includes(:post_entries, :cheers)
+                        .includes(:post_entries)
                         .recent
-
-      # すきな動画
-      @favorite_videos = @user.favorite_videos
 
       # ===== タスクタブ用データ（PostEntry単位） =====
       action_entries = PostEntry.where(user: @user)
@@ -109,65 +78,22 @@ class UsersController < ApplicationController
 
   def edit
     @user = current_user
-    build_favorite_videos
   end
 
   def update
     @user = current_user
 
-    success = false
-    ActiveRecord::Base.transaction do
-      if @user.update(user_params)
-        save_favorite_videos
-        success = true
-      else
-        raise ActiveRecord::Rollback
-      end
-    end
-
-    if success
+    if @user.update(user_params)
       redirect_to mypage_path, notice: "プロフィールを更新しました"
     else
-      build_favorite_videos
       render :edit, status: :unprocessable_entity
     end
-  rescue ActiveRecord::RecordInvalid
-    build_favorite_videos
-    render :edit, status: :unprocessable_entity
   end
 
   private
 
   def user_params
     params.require(:user).permit(:name, :avatar, :avatar_cache, :favorite_quote, :favorite_quote_url)
-  end
-
-  def build_favorite_videos
-    @favorite_videos = (1..3).map do |position|
-      @user.favorite_videos.find_by(position: position) ||
-        @user.favorite_videos.build(position: position)
-    end
-  end
-
-  def save_favorite_videos
-    return unless params[:favorite_videos].present?
-
-    params[:favorite_videos].each do |position, video_params|
-      position = position.to_i
-      url = video_params[:youtube_url].presence
-
-      existing = @user.favorite_videos.find_by(position: position)
-
-      if url.present?
-        if existing
-          existing.update!(youtube_url: url)
-        else
-          @user.favorite_videos.create!(youtube_url: url, position: position)
-        end
-      elsif existing
-        existing.destroy!
-      end
-    end
   end
 
   def calculate_streak(user)

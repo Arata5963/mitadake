@@ -193,12 +193,12 @@ export default class extends Controller {
         s3Key = await this.uploadToS3()
       }
 
-      // 2. 達成を記録（S3キーを送信）
+      // 2. 達成を記録（Turbo Streamで送信）
       const response = await fetch(this.achieveUrlValue, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json",
+          "Accept": "text/vnd.turbo-stream.html",
           "X-CSRF-Token": this.csrfToken()
         },
         body: JSON.stringify({
@@ -207,12 +207,14 @@ export default class extends Controller {
         })
       })
 
-      const data = await response.json()
-
-      if (data.success) {
+      if (response.ok) {
+        // Turbo Streamレスポンスを処理
+        const html = await response.text()
+        Turbo.renderStreamMessage(html)
         this.close()
         window.location.reload()
       } else {
+        const data = await response.json()
         alert(data.error || "達成処理に失敗しました")
         this.hideLoading()
       }
@@ -312,4 +314,5 @@ export default class extends Controller {
   csrfToken() {
     return document.querySelector('meta[name="csrf-token"]')?.content
   }
+
 }

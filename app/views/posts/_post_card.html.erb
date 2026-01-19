@@ -17,13 +17,9 @@
     <%# 右側: コンテンツ（flex-colで縦配置） %>
     <div class="flex-1 min-w-0 flex flex-col">
 
-      <%# 上部: 参加者数 + いいね（固定位置） %>
-      <div class="flex items-center justify-between gap-2">
+      <%# 上部: 参加者数 %>
+      <div class="flex items-center gap-2">
         <span class="text-sm text-gray-400"><%= post.entry_users.count %> users</span>
-        <%# 応援ボタン %>
-        <div id="cheer_button_<%= post.id %>" class="flex-shrink-0">
-          <%= render 'cheers/cheer_button_minimal', post: post %>
-        </div>
       </div>
 
       <%# 中央: アクションプラン（2行分の高さを固定確保） %>

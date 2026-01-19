@@ -2,9 +2,7 @@
 class Post < ApplicationRecord
   belongs_to :user, optional: true
   has_many :achievements, dependent: :destroy
-  has_many :cheers, dependent: :destroy
   has_many :post_entries, dependent: :destroy
-  has_many :youtube_comments, dependent: :destroy
 
   scope :recent, -> { order(created_at: :desc) }
   scope :with_entries, -> {
@@ -51,10 +49,6 @@ class Post < ApplicationRecord
 
   def self.ransackable_associations(_auth_object = nil)
     %w[user achievements]
-  end
-
-  def cheered_by?(user)
-    cheers.exists?(user_id: user.id)
   end
 
   # エントリー関連ヘルパー

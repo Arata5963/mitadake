@@ -73,7 +73,6 @@ ja:
       post: "投稿"
       achievement: "達成記録"
       comment: "コメント"
-      cheer: "応援"
     
     # 属性名の日本語表示設定
     attributes:
@@ -97,10 +96,7 @@ ja:
         content: "コメント内容"
         user: "投稿者"
         post: "投稿"
-      cheer:
-        user: "ユーザー"
-        post: "投稿"
-        
+
     # エラーメッセージの詳細設定
     errors:
       models:
@@ -137,11 +133,7 @@ ja:
               blank: "コメントを入力してください"
               too_short: "コメントは%{count}文字以上で入力してください"
               too_long: "コメントは%{count}文字以内で入力してください"
-        cheer:
-          attributes:
-            user_id:
-              taken: "既に応援済みです"
-              
+
   # Enum翻訳
   enums:
     post:
@@ -207,23 +199,14 @@ ja:
       success: "コメントを削除しました"
       confirm: "本当に削除しますか？"
 
-  # CheersController関連のメッセージ
-  cheers:
-    not_found: "応援が見つかりません"
+  # EntryLikesController関連のメッセージ
+  entry_likes:
+    not_found: "いいねが見つかりません"
     create:
-      success: "応援しました"
-      already_cheered: "既に応援済みです"
+      success: "いいねしました"
+      already_liked: "既にいいね済みです"
     destroy:
-      success: "応援を取り消しました"
-
-  # EntryFlamesController関連のメッセージ
-  entry_flames:
-    not_found: "応援が見つかりません"
-    create:
-      success: "応援しました"
-      already_flamed: "既に応援済みです"
-    destroy:
-      success: "応援を取り消しました"
+      success: "いいねを取り消しました"
 
   # PostEntriesController関連のメッセージ
   post_entries:
@@ -234,7 +217,5 @@ ja:
     title: "通知"
     marked_all_as_read: "すべての通知を既読にしました"
     empty: "通知はありません"
-    cheer:
-      text: "%{notifier_name}さんがあなたの投稿を応援しました"
     comment:
       text: "%{notifier_name}さんがあなたの投稿にコメントしました"

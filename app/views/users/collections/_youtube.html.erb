@@ -35,7 +35,7 @@
         <% end %>
         <span style="font-size: 12px; color: #888;"><%= user.name.presence || "名無しさん" %></span>
       <% end %>
-      <%= render 'entry_flames/flame_button', post_entry: entry %>
+      <%= render 'post_entries/like_button', post_entry: entry %>
     </div>
   </div>
 </article>

@@ -3,31 +3,42 @@ require 'rails_helper'
 RSpec.describe YoutubeService, type: :service, youtube_api: true do
   describe '.fetch_video_info' do
     let(:video_id) { 'dQw4w9WgXcQ' }
+    let(:channel_id) { 'UCtest123' }
     let(:youtube_url) { "https://www.youtube.com/watch?v=#{video_id}" }
 
     before do
       # YouTube APIサービスをモック
-      youtube_service = instance_double(Google::Apis::YoutubeV3::YouTubeService)
-      allow(Rails.application.config).to receive(:youtube_service).and_return(youtube_service)
+      @youtube_service = instance_double(Google::Apis::YoutubeV3::YouTubeService)
+      allow(Rails.application.config).to receive(:youtube_service).and_return(@youtube_service)
 
-      # APIレスポンスをモック
+      # 動画APIレスポンスをモック
       video_snippet = double(
         title: 'Test Video Title',
-        channel_title: 'Test Channel'
+        channel_title: 'Test Channel',
+        channel_id: channel_id
       )
       video_item = double(snippet: video_snippet)
-      response = double(items: [ video_item ])
-      allow(youtube_service).to receive(:list_videos).with('snippet', id: video_id).and_return(response)
+      video_response = double(items: [video_item])
+      allow(@youtube_service).to receive(:list_videos).with('snippet', id: video_id).and_return(video_response)
+
+      # チャンネルAPIレスポンスをモック
+      channel_thumbnail = double(url: 'https://example.com/channel_thumbnail.jpg')
+      channel_thumbnails = double(default: channel_thumbnail, medium: nil)
+      channel_snippet = double(thumbnails: channel_thumbnails)
+      channel_item = double(snippet: channel_snippet)
+      channel_response = double(items: [channel_item])
+      allow(@youtube_service).to receive(:list_channels).with('snippet', id: channel_id).and_return(channel_response)
     end
 
     context '有効なYouTube URLの場合' do
       it '動画情報を返す' do
         result = described_class.fetch_video_info(youtube_url)
 
-        expect(result).to eq({
+        expect(result).to include(
           title: 'Test Video Title',
-          channel_name: 'Test Channel'
-        })
+          channel_name: 'Test Channel',
+          channel_id: channel_id
+        )
       end
     end
 
@@ -37,10 +48,10 @@ RSpec.describe YoutubeService, type: :service, youtube_api: true do
       it '動画情報を返す' do
         result = described_class.fetch_video_info(short_url)
 
-        expect(result).to eq({
+        expect(result).to include(
           title: 'Test Video Title',
           channel_name: 'Test Channel'
-        })
+        )
       end
     end
 
@@ -50,10 +61,10 @@ RSpec.describe YoutubeService, type: :service, youtube_api: true do
       it '動画情報を返す' do
         result = described_class.fetch_video_info(short_url_with_params)
 
-        expect(result).to eq({
+        expect(result).to include(
           title: 'Test Video Title',
           channel_name: 'Test Channel'
-        })
+        )
       end
     end
 
@@ -179,10 +190,10 @@ RSpec.describe YoutubeService, type: :service, youtube_api: true do
       it '動画情報を返す' do
         result = described_class.fetch_video_info(url_with_params)
 
-        expect(result).to eq({
+        expect(result).to include(
           title: 'Test Video Title',
           channel_name: 'Test Channel'
-        })
+        )
       end
     end
 

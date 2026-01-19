@@ -150,22 +150,16 @@
             <%# アクションプラン（吹き出し簡易版） %>
             <div class="flex-1 min-w-0 flex items-start gap-2">
               <%# アバター %>
-              <% if entry.display_anonymous? %>
-                <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center">
-                  <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                  </svg>
-                </div>
-              <% elsif entry.display_avatar.present? %>
-                <%= image_tag entry.display_avatar.url, class: "flex-shrink-0 w-8 h-8 rounded-lg object-cover" %>
+              <% if entry.user&.avatar.present? %>
+                <%= image_tag entry.user.avatar.url, class: "flex-shrink-0 w-8 h-8 rounded-lg object-cover" %>
               <% else %>
                 <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs">
-                  <%= entry.display_user_name&.first&.upcase || '?' %>
+                  <%= entry.user&.name&.first&.upcase || '?' %>
                 </div>
               <% end %>
 
               <div class="flex-1 min-w-0">
-                <p class="text-xs text-gray-500 mb-0.5"><%= entry.display_user_name %></p>
+                <p class="text-xs text-gray-500 mb-0.5"><%= entry.user&.name %></p>
                 <p class="text-sm text-gray-800 line-clamp-2"><%= entry.content %></p>
               </div>
             </div>
@@ -209,20 +203,14 @@
             <% entries.each do |entry| %>
               <div class="flex-shrink-0 w-64 bg-white rounded-xl border border-gray-200 p-3">
                 <div class="flex items-center gap-2 mb-2">
-                  <% if entry.display_anonymous? %>
-                    <div class="w-7 h-7 rounded-full bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center">
-                      <svg class="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                      </svg>
-                    </div>
-                  <% elsif entry.display_avatar.present? %>
-                    <%= image_tag entry.display_avatar.url, class: "w-7 h-7 rounded-full object-cover" %>
+                  <% if entry.user&.avatar.present? %>
+                    <%= image_tag entry.user.avatar.url, class: "w-7 h-7 rounded-full object-cover" %>
                   <% else %>
                     <div class="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-[10px]">
-                      <%= entry.display_user_name&.first&.upcase || '?' %>
+                      <%= entry.user&.name&.first&.upcase || '?' %>
                     </div>
                   <% end %>
-                  <span class="text-xs font-medium text-gray-700"><%= entry.display_user_name %></span>
+                  <span class="text-xs font-medium text-gray-700"><%= entry.user&.name %></span>
                 </div>
                 <p class="text-sm text-gray-600 line-clamp-3"><%= entry.content %></p>
               </div>

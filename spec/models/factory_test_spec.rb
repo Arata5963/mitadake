@@ -40,20 +40,13 @@ RSpec.describe "Factory の動作確認", type: :model do
     end
   end
 
-  describe "Comment Factory" do
-    it "基本的な Comment を作成できる" do
-      comment = create(:comment)
-      expect(comment).to be_persisted
-      expect(comment.content).to be_present
-    end
-  end
-
-  describe "Cheer Factory" do
-    it "基本的な Cheer を作成できる" do
-      cheer = create(:cheer)
-      expect(cheer).to be_persisted
-      expect(cheer.user).to be_present
-      expect(cheer.post).to be_present
+  describe "PostEntry Factory" do
+    it "基本的な PostEntry を作成できる" do
+      entry = create(:post_entry, deadline: 1.week.from_now)
+      expect(entry).to be_persisted
+      expect(entry.content).to be_present
+      expect(entry.user).to be_present
+      expect(entry.post).to be_present
     end
   end
 end

@@ -62,14 +62,13 @@
 
     <% elsif @filter_channel.present? %>
       <%# ===== チャンネルフィルター時: グリッド表示 ===== %>
-      <div class="flex items-center gap-4 mb-6">
-        <%= link_to posts_path, class: "text-gray-400 hover:text-gray-600 transition-colors" do %>
+      <div class="flex items-center mb-6">
+        <%= link_to posts_path, class: "flex items-center gap-2 text-gray-900 hover:text-gray-600 transition-colors" do %>
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
           </svg>
+          <span class="text-xl font-bold"><%= @filter_channel %></span>
         <% end %>
-        <h1 class="text-xl font-bold text-gray-900"><%= @filter_channel %></h1>
-        <span class="text-sm text-gray-500"><%= @posts.total_count %>件の投稿</span>
       </div>
 
       <% if @posts.blank? %>
@@ -96,7 +95,7 @@
 
       <%# フィーチャー動画（TOP5からランダム自動再生） %>
       <% if @featured_post.present? %>
-        <%= render 'posts/section_hero_video', post: @featured_post, rank: @featured_post_rank %>
+        <%= render 'posts/section_hero_video', post: @featured_post %>
       <% end %>
 
       <%# セクション1: 人気のチャンネル %>
@@ -104,12 +103,12 @@
         <%= render 'posts/section_channels', channels: @popular_channels %>
       <% end %>
 
-      <%# セクション2: アクション数ランキング %>
+      <%# セクション2: 人気の動画 %>
       <% if @ranking_posts.present? %>
         <%= render 'posts/section_ranking', posts: @ranking_posts, design: 'D' %>
       <% end %>
 
-      <%# セクション3: 達成数ランキング %>
+      <%# セクション3: アクティブユーザー %>
       <% if @user_ranking.present? %>
         <%= render 'posts/section_user_ranking', users: @user_ranking %>
       <% end %>

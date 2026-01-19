@@ -45,27 +45,6 @@
       custom_thumbnail = current_action.signed_thumbnail_url
       youtube_thumbnail = "https://i.ytimg.com/vi/#{current_video.youtube_video_id}/mqdefault.jpg"
       display_thumbnail = custom_thumbnail.presence || youtube_thumbnail
-
-      days = current_action.days_remaining
-      status = current_action.deadline_status
-
-      case status
-      when :expired
-        badge_text = '#6b7280'
-        badge_label = '期限切れ'
-      when :today
-        badge_text = '#dc2626'
-        badge_label = '今日まで'
-      when :urgent
-        badge_text = '#dc2626'
-        badge_label = '残り1日'
-      when :warning
-        badge_text = '#d97706'
-        badge_label = "残り#{days}日"
-      else
-        badge_text = '#16a34a'
-        badge_label = "残り#{days}日"
-      end
     %>
 
     <%# ステップバッジデザイン %>
@@ -100,7 +79,7 @@
         <span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: #111; color: #fff; font-size: 12px; font-weight: 700;">2</span>
         <span style="font-size: 14px; font-weight: 600; color: #111;">私のアクション</span>
       </div>
-      <%= render 'users/designs/action_plan_card', current_video: current_video, current_action: current_action, display_thumbnail: display_thumbnail, badge_text: badge_text, badge_label: badge_label, user: user, is_own_page: is_own_page %>
+      <%= render 'users/designs/action_plan_card', current_video: current_video, current_action: current_action, display_thumbnail: display_thumbnail, user: user, is_own_page: is_own_page %>
     </section>
   <% else %>
     <%# Empty State %>

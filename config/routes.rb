@@ -14,6 +14,10 @@ Rails.application.routes.draw do
     get "design/action-plan", to: "pages#action_plan_design"
     get "design/achieved-videos", to: "pages#achieved_videos_design"
     get "design/new-post", to: "pages#new_post_design"
+    get "design/landing", to: "pages#landing_design"
+    get "design/landing-a", to: "pages#landing_a_design"
+    get "design/landing-b", to: "pages#landing_b_design"
+    get "design/landing-c", to: "pages#landing_c_design"
   end
 
   get "up" => "rails/health#show", as: :rails_health_check
@@ -33,12 +37,6 @@ Rails.application.routes.draw do
   # 統計・分析
   get :stats, to: "stats#show"
 
-  # 通知
-  resources :notifications, only: [ :index ] do
-    post :mark_as_read, on: :member
-    post :mark_all_as_read, on: :collection
-  end
-
   resources :posts, except: [ :create ] do
     collection do
       get :autocomplete
@@ -47,6 +45,7 @@ Rails.application.routes.draw do
       post :find_or_create
       post :create_with_action
       post :convert_to_youtube_title
+      post :suggest_action_plans
       get :trending
       get :channels
       get :recent
@@ -55,7 +54,6 @@ Rails.application.routes.draw do
       post :summarize
       get :youtube_comments
       post :discover_comments
-      post :suggest_action_plans
     end
     resources :achievements, only: [ :create, :destroy ]
     resources :cheers, only: [ :create, :destroy ]
@@ -63,6 +61,8 @@ Rails.application.routes.draw do
       member do
         patch :achieve
         post :toggle_flame
+        get :show_achievement
+        patch :update_reflection
       end
       resources :entry_flames, only: [ :create, :destroy ]
     end

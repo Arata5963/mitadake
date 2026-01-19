@@ -1,0 +1,146 @@
+<%# app/views/pages/designs/landing_comparison.html.erb %>
+<%# ランディングページデザイン比較 %>
+
+<div class="min-h-screen bg-gray-100 pt-0">
+  <%# ナビゲーションバー %>
+  <div class="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 py-4">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h1 class="text-lg font-bold text-gray-900">LP デザイン比較</h1>
+        <div class="flex flex-wrap gap-2">
+          <%= link_to "A: ミニマル", design_landing_a_path, class: "px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors", target: "_blank" %>
+          <%= link_to "B: ビジュアル", design_landing_b_path, class: "px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors", target: "_blank" %>
+          <%= link_to "C: ストーリー", design_landing_c_path, class: "px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors", target: "_blank" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# デザイン説明 %>
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="grid md:grid-cols-3 gap-6 mb-8">
+      <%# デザインA %>
+      <div class="bg-white rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 bg-gray-900 rounded-xl flex items-center justify-center">
+            <span class="text-white font-bold">A</span>
+          </div>
+          <h2 class="text-lg font-bold text-gray-900">ミニマル</h2>
+        </div>
+        <p class="text-gray-600 text-sm mb-4">
+          Apple風の洗練されたデザイン。余白を活かし、大胆なタイポグラフィで訴求。フルスクリーンのヒーローセクションが特徴。
+        </p>
+        <ul class="text-xs text-gray-500 space-y-1">
+          <li>・余白を重視したレイアウト</li>
+          <li>・大きな文字で強いメッセージ</li>
+          <li>・シンプルでクリーンな印象</li>
+        </ul>
+        <%= link_to design_landing_a_path, class: "mt-4 block w-full text-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors", target: "_blank" do %>
+          新しいタブで開く →
+        <% end %>
+      </div>
+
+      <%# デザインB %>
+      <div class="bg-white rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
+            <span class="text-white font-bold">B</span>
+          </div>
+          <h2 class="text-lg font-bold text-gray-900">ビジュアル</h2>
+        </div>
+        <p class="text-gray-600 text-sm mb-4">
+          グラデーションとカードを活用したグラフィカルなデザイン。フローティングカードでアプリのイメージを伝える。
+        </p>
+        <ul class="text-xs text-gray-500 space-y-1">
+          <li>・カードベースのレイアウト</li>
+          <li>・カラフルなグラデーション</li>
+          <li>・視覚的にわかりやすい</li>
+        </ul>
+        <%= link_to design_landing_b_path, class: "mt-4 block w-full text-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors", target: "_blank" do %>
+          新しいタブで開く →
+        <% end %>
+      </div>
+
+      <%# デザインC %>
+      <div class="bg-white rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center">
+            <span class="text-white font-bold">C</span>
+          </div>
+          <h2 class="text-lg font-bold text-gray-900">ストーリー</h2>
+        </div>
+        <p class="text-gray-600 text-sm mb-4">
+          Before/After形式でユーザーの課題と解決策を物語風に伝えるデザイン。感情に訴えかける構成。
+        </p>
+        <ul class="text-xs text-gray-500 space-y-1">
+          <li>・問題提起→解決の流れ</li>
+          <li>・感情に訴えるナラティブ</li>
+          <li>・タイムライン形式の説明</li>
+        </ul>
+        <%= link_to design_landing_c_path, class: "mt-4 block w-full text-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors", target: "_blank" do %>
+          新しいタブで開く →
+        <% end %>
+      </div>
+    </div>
+
+    <%# 共通要素の説明 %>
+    <div class="bg-white rounded-2xl p-6 shadow-sm">
+      <h3 class="text-lg font-bold text-gray-900 mb-4">3つのデザイン共通点</h3>
+      <div class="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="p-4 bg-gray-50 rounded-xl">
+          <p class="font-medium text-gray-900 text-sm">スクロールアニメーション</p>
+          <p class="text-xs text-gray-500 mt-1">要素が画面に入ったときにフェードイン</p>
+        </div>
+        <div class="p-4 bg-gray-50 rounded-xl">
+          <p class="font-medium text-gray-900 text-sm">モバイルファースト</p>
+          <p class="text-xs text-gray-500 mt-1">スマホでも綺麗に見えるレスポンシブ</p>
+        </div>
+        <div class="p-4 bg-gray-50 rounded-xl">
+          <p class="font-medium text-gray-900 text-sm">行動ランキング</p>
+          <p class="text-xs text-gray-500 mt-1">実際のデータを表示</p>
+        </div>
+        <div class="p-4 bg-gray-50 rounded-xl">
+          <p class="font-medium text-gray-900 text-sm">CTA配置</p>
+          <p class="text-xs text-gray-500 mt-1">ファーストビューと最後にCTA</p>
+        </div>
+      </div>
+    </div>
+
+    <%# プレビュー iframe %>
+    <div class="mt-8 space-y-8">
+      <h3 class="text-lg font-bold text-gray-900">プレビュー（スクロールして確認）</h3>
+
+      <div class="grid lg:grid-cols-3 gap-6">
+        <%# デザインA プレビュー %>
+        <div class="bg-white rounded-2xl overflow-hidden shadow-sm">
+          <div class="p-3 bg-gray-900 text-white text-sm font-medium text-center">
+            A: ミニマル
+          </div>
+          <div class="h-[500px] overflow-y-auto">
+            <iframe src="<%= design_landing_a_path %>" class="w-full h-[2000px] border-0 transform scale-[0.5] origin-top-left" style="width: 200%; height: 4000px;"></iframe>
+          </div>
+        </div>
+
+        <%# デザインB プレビュー %>
+        <div class="bg-white rounded-2xl overflow-hidden shadow-sm">
+          <div class="p-3 bg-blue-600 text-white text-sm font-medium text-center">
+            B: ビジュアル
+          </div>
+          <div class="h-[500px] overflow-y-auto">
+            <iframe src="<%= design_landing_b_path %>" class="w-full h-[2000px] border-0 transform scale-[0.5] origin-top-left" style="width: 200%; height: 4000px;"></iframe>
+          </div>
+        </div>
+
+        <%# デザインC プレビュー %>
+        <div class="bg-white rounded-2xl overflow-hidden shadow-sm">
+          <div class="p-3 bg-purple-600 text-white text-sm font-medium text-center">
+            C: ストーリー
+          </div>
+          <div class="h-[500px] overflow-y-auto">
+            <iframe src="<%= design_landing_c_path %>" class="w-full h-[2000px] border-0 transform scale-[0.5] origin-top-left" style="width: 200%; height: 4000px;"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

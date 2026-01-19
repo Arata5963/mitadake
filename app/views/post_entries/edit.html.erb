@@ -111,7 +111,7 @@
           <div style="position: relative;">
             <label data-entry-edit-target="previewCard" style="position: relative; display: block; border-radius: 8px; overflow: hidden; background: #f3f4f6; aspect-ratio: 16/9; cursor: pointer; transition: all 0.2s;">
               <%# アップロード前の状態 %>
-              <div data-entry-edit-target="uploadPlaceholder" style="<%= has_custom_thumbnail ? 'display: none;' : '' %> position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed #ccc; border-radius: 8px; transition: all 0.2s;"
+              <div data-entry-edit-target="uploadPlaceholder" style="position: absolute; inset: 0; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed #ccc; border-radius: 8px; transition: all 0.2s; display: <%= has_custom_thumbnail ? 'none' : 'flex' %>;"
                    onmouseover="this.style.borderColor='#333'; this.style.background='rgba(0,0,0,0.02)';"
                    onmouseout="this.style.borderColor='#ccc'; this.style.background='transparent';">
                 <svg style="width: 32px; height: 32px; color: #999; margin-bottom: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -121,7 +121,7 @@
                 <span style="font-size: 11px; color: #999; margin-top: 4px;">JPG, PNG（最大5MB）</span>
               </div>
               <%# アップロード後の画像 %>
-              <img data-entry-edit-target="previewImage" src="<%= current_thumbnail %>" alt="" style="<%= has_custom_thumbnail ? '' : 'display: none;' %> width: 100%; height: 100%; object-fit: cover;">
+              <img data-entry-edit-target="previewImage" src="<%= current_thumbnail %>" alt="" style="width: 100%; height: 100%; object-fit: cover; display: <%= has_custom_thumbnail ? 'block' : 'none' %>;">
               <%# ファイル入力（非表示） %>
               <input type="file"
                      accept="image/jpeg,image/png,image/webp"

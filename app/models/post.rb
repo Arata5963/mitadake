@@ -7,10 +7,26 @@ class Post < ApplicationRecord
   has_many :youtube_comments, dependent: :destroy
 
   scope :recent, -> { order(created_at: :desc) }
+  scope :with_entries, -> {
+    joins(:post_entries).distinct
+  }
   scope :without_entries, -> {
     left_joins(:post_entries)
       .group("posts.id")
       .having("COUNT(post_entries.id) = 0")
+  }
+  # 達成済みエントリーがある投稿
+  scope :with_achieved_entries, -> {
+    joins(:post_entries)
+      .where.not(post_entries: { achieved_at: nil })
+      .distinct
+  }
+  # 未達成エントリーのみの投稿（達成済みが1つもない）
+  scope :with_pending_entries_only, -> {
+    joins(:post_entries)
+      .where(post_entries: { achieved_at: nil })
+      .where.not(id: with_achieved_entries.select(:id))
+      .distinct
   }
   scope :stale_empty, -> {
     without_entries.where("posts.created_at < ?", 24.hours.ago)

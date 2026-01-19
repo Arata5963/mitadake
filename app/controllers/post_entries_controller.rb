@@ -3,10 +3,10 @@
 class PostEntriesController < ApplicationController
   include ActionView::RecordIdentifier
 
-  before_action :authenticate_user!
+  before_action :authenticate_user!, except: [ :show_achievement ]
   before_action :set_post
-  before_action :set_entry, only: [ :edit, :update, :destroy, :achieve, :toggle_flame ]
-  before_action :check_entry_owner, only: [ :edit, :update, :destroy, :achieve ]
+  before_action :set_entry, only: [ :edit, :update, :destroy, :achieve, :toggle_flame, :show_achievement, :update_reflection ]
+  before_action :check_entry_owner, only: [ :edit, :update, :destroy, :achieve, :update_reflection ]
 
   def create
     @entry = @post.post_entries.build(entry_params)
@@ -24,14 +24,22 @@ class PostEntriesController < ApplicationController
   end
 
   def update
+    Rails.logger.info "[Update] Entry #{@entry.id} - params: #{params[:post_entry].keys}"
+
     # サムネイル画像の処理
     thumbnail_data = params[:post_entry][:thumbnail_data]
+    Rails.logger.info "[Update] thumbnail_data present: #{thumbnail_data.present?}, value: #{thumbnail_data.to_s[0..50]}..."
+
     if thumbnail_data == "CLEAR"
       # 画像をクリア
-      @entry.remove_thumbnail!
+      Rails.logger.info "[Update] Clearing thumbnail"
+      @entry.thumbnail_url = nil
       @entry.save
     elsif thumbnail_data.present?
+      Rails.logger.info "[Update] Processing new thumbnail"
       process_thumbnail_data(thumbnail_data)
+    else
+      Rails.logger.info "[Update] No thumbnail data provided"
     end
 
     # 動画変更の処理
@@ -83,20 +91,75 @@ class PostEntriesController < ApplicationController
   end
 
   def achieve
-    if @entry.achieve!
-      notice_message = @entry.achieved? ? "達成おめでとうございます！" : "未達成に戻しました"
+    respond_to do |format|
+      # HTML: 従来のトグル動作
+      format.html do
+        if @entry.achieve!
+          notice_message = @entry.achieved? ? "達成おめでとうございます！" : "未達成に戻しました"
 
-      # デザインパラメータを保持してリダイレクト
-      if params[:redirect_to] == "mypage" || request.referer&.include?("mypage")
-        redirect_to mypage_path, notice: notice_message
-      else
-        # リファラーからdesignパラメータを取得
-        design = extract_design_from_referer
-        redirect_to post_path(@post, design: design), notice: notice_message
+          if params[:redirect_to] == "mypage" || request.referer&.include?("mypage")
+            redirect_to mypage_path, notice: notice_message
+          else
+            design = extract_design_from_referer
+            redirect_to post_path(@post, design: design), notice: notice_message
+          end
+        else
+          redirect_to @post, alert: "達成処理に失敗しました"
+        end
       end
-    else
-      redirect_to @post, alert: "達成処理に失敗しました"
+
+      # JSON: モーダルからの達成（感想・画像付き）
+      format.json do
+        if @entry.achieved?
+          # 既に達成済み→未達成に戻す
+          @entry.update!(achieved_at: nil, reflection: nil, result_image: nil)
+          render json: { success: true, achieved: false }
+        else
+          # 未達成→達成にする（感想・画像付き）
+          @entry.achieve_with_reflection!(
+            reflection_text: params[:reflection],
+            result_image_data: params[:result_image_data]
+          )
+          render json: {
+            success: true,
+            achieved: true,
+            entry: entry_json(@entry)
+          }
+        end
+      rescue StandardError => e
+        render json: { success: false, error: e.message }, status: :unprocessable_entity
+      end
     end
+  end
+
+  # 達成記録表示用データ取得
+  def show_achievement
+    render json: {
+      id: @entry.id,
+      content: @entry.content,
+      reflection: @entry.reflection,
+      achieved_at: @entry.achieved_at&.strftime("%Y年%m月%d日"),
+      result_image_url: @entry.signed_result_image_url,
+      fallback_thumbnail_url: @entry.signed_thumbnail_url || youtube_thumbnail_url(@entry.post),
+      post: {
+        id: @entry.post.id,
+        title: @entry.post.youtube_title,
+        url: post_path(@entry.post)
+      },
+      user: {
+        name: @entry.display_user_name,
+        avatar_url: @entry.display_avatar&.url
+      },
+      can_edit: user_signed_in? && @entry.user == current_user
+    }
+  end
+
+  # 感想編集
+  def update_reflection
+    @entry.update_reflection!(reflection_text: params[:reflection])
+    render json: { success: true, reflection: @entry.reflection }
+  rescue StandardError => e
+    render json: { success: false, error: e.message }, status: :unprocessable_entity
   end
 
   def toggle_flame
@@ -134,26 +197,47 @@ class PostEntriesController < ApplicationController
   def process_thumbnail_data(data)
     return unless data.present? && data.start_with?("data:image")
 
-    # Base64データをデコードしてアップロード
+    Rails.logger.info "[Thumbnail] Processing thumbnail data (length: #{data.length})"
+
     begin
-      content_type = data.match(/data:(.*?);/)[1]
-      extension = content_type.split("/").last
-      decoded_data = Base64.decode64(data.split(",").last)
+      # Base64データをパース
+      matches = data.match(/\Adata:(.*?);base64,(.*)\z/m)
+      return unless matches
 
-      # 一時ファイルを作成
-      temp_file = Tempfile.new([ "thumbnail", ".#{extension}" ])
-      temp_file.binmode
-      temp_file.write(decoded_data)
-      temp_file.rewind
+      content_type = matches[1]
+      decoded_data = Base64.decode64(matches[2])
 
-      # CarrierWaveでアップロード
-      @entry.thumbnail = temp_file
-      @entry.save
+      Rails.logger.info "[Thumbnail] Decoded data size: #{decoded_data.bytesize} bytes"
 
-      temp_file.close
-      temp_file.unlink
+      # ファイル拡張子を決定
+      extension = case content_type
+      when "image/jpeg" then "jpg"
+      when "image/png" then "png"
+      when "image/webp" then "webp"
+      else "jpg"
+      end
+
+      # S3にアップロード
+      filename = "thumbnails/#{@entry.user_id}/#{SecureRandom.uuid}.#{extension}"
+
+      s3_client = Aws::S3::Client.new
+      s3_client.put_object(
+        bucket: ENV["AWS_BUCKET"],
+        key: filename,
+        body: decoded_data,
+        content_type: content_type
+      )
+
+      # thumbnail_urlカラムに保存
+      @entry.thumbnail_url = filename
+      if @entry.save
+        Rails.logger.info "[Thumbnail] Successfully saved thumbnail for entry #{@entry.id}: #{filename}"
+      else
+        Rails.logger.error "[Thumbnail] Failed to save: #{@entry.errors.full_messages.join(', ')}"
+      end
     rescue StandardError => e
-      Rails.logger.error "Thumbnail upload error: #{e.message}"
+      Rails.logger.error "[Thumbnail] Upload error: #{e.message}"
+      Rails.logger.error e.backtrace.first(5).join("\n")
     end
   end
 
@@ -175,5 +259,20 @@ class PostEntriesController < ApplicationController
     end
   rescue StandardError => e
     Rails.logger.error "Video change error: #{e.message}"
+  end
+
+  def entry_json(entry)
+    {
+      id: entry.id,
+      content: entry.content,
+      reflection: entry.reflection,
+      achieved_at: entry.achieved_at&.strftime("%Y年%m月%d日"),
+      result_image_url: entry.signed_result_image_url,
+      display_thumbnail_url: entry.display_result_thumbnail_url
+    }
+  end
+
+  def youtube_thumbnail_url(post)
+    "https://i.ytimg.com/vi/#{post.youtube_video_id}/mqdefault.jpg"
   end
 end

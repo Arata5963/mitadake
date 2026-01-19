@@ -1,10 +1,33 @@
 # app/controllers/posts_controller.rb
 class PostsController < ApplicationController
-  before_action :authenticate_user!, except: [ :index, :show, :autocomplete, :youtube_search, :find_or_create, :youtube_comments, :discover_comments, :trending, :channels, :recent, :convert_to_youtube_title ]
-  before_action :set_post, only: [ :show, :edit, :update, :destroy, :summarize, :youtube_comments, :discover_comments, :suggest_action_plans ]
+  before_action :authenticate_user!, except: [ :index, :show, :autocomplete, :youtube_search, :find_or_create, :youtube_comments, :discover_comments, :trending, :channels, :recent, :convert_to_youtube_title, :suggest_action_plans ]
+  before_action :set_post, only: [ :show, :edit, :update, :destroy, :summarize, :youtube_comments, :discover_comments ]
   before_action :check_has_entries, only: [ :edit, :update, :destroy ]
 
   def index
+    # 未ログインユーザーにはランディングページを表示
+    unless user_signed_in?
+      @ranking_posts = Post.by_action_count(limit: 5)
+      # 達成済みアクションプラン（カスタムサムネイルがあるもの優先）
+      @achieved_entries = PostEntry.achieved
+                                   .includes(:user, :post)
+                                   .where.not(thumbnail_url: [nil, ""])
+                                   .order(achieved_at: :desc)
+                                   .limit(6)
+      # カスタムサムネイルが足りない場合は通常の達成済みも追加
+      if @achieved_entries.count < 6
+        remaining = 6 - @achieved_entries.count
+        additional = PostEntry.achieved
+                              .includes(:user, :post)
+                              .where(thumbnail_url: [nil, ""])
+                              .order(achieved_at: :desc)
+                              .limit(remaining)
+        @achieved_entries = @achieved_entries.to_a + additional.to_a
+      end
+      render "pages/landing", layout: "landing"
+      return
+    end
+
     @q = Post.ransack(params[:q])
     base_scope = @q.result(distinct: true).includes(:achievements, :cheers, :post_entries)
 
@@ -27,29 +50,18 @@ class PostsController < ApplicationController
 
     else
       # ===== セクション表示用データ =====
-      # フィーチャー動画（アクション数TOP5からランダム）
-      top5_posts = Post.by_action_count(limit: 5).to_a
-      if top5_posts.present?
-        selected_index = rand(top5_posts.size)
-        @featured_post = top5_posts[selected_index]
-        @featured_post_rank = selected_index + 1
-      end
+      # フィーチャー動画（全投稿から完全ランダム）
+      posts_with_entries_ids = Post.with_entries.pluck(:id)
+      @featured_post = Post.find(posts_with_entries_ids.sample) if posts_with_entries_ids.present?
 
-      @popular_channels = Post.popular_channels(limit: 20)
-      @ranking_posts = Post.by_action_count(limit: 30)
+      @popular_channels = Post.popular_channels(limit: 10)
+      @ranking_posts = Post.by_action_count(limit: 10)
 
-      # ユーザー達成数ランキング（全期間）
-      @user_ranking = User.by_achieved_count(limit: 5)
+      # ユーザーアクション数ランキング（全期間）
+      @user_ranking = User.by_achieved_count(limit: 10)
 
-      # 最近の投稿（ランキングと重複してもOK）
-      @recent_posts = Post.recent.includes(:post_entries).limit(20)
-
-      # みんなのアクションプラン（未達成・期限切れ除外・期限が近い順）
-      @active_plans = PostEntry.not_achieved
-                               .where("deadline >= ?", Date.current)
-                               .includes(:user, :post)
-                               .order(deadline: :asc)
-                               .limit(10)
+      # 最近の投稿（アクションプランがある投稿のみ）
+      @recent_posts = Post.with_entries.recent.includes(:post_entries).limit(20)
     end
 
     respond_to do |format|
@@ -77,7 +89,7 @@ class PostsController < ApplicationController
 
   # 最近の投稿一覧ページ
   def recent
-    @posts = Post.recent.page(params[:page]).per(20)
+    @posts = Post.with_entries.recent.page(params[:page]).per(20)
   end
 
   def show
@@ -301,37 +313,39 @@ class PostsController < ApplicationController
     end
   end
 
-  # AIアクションプラン提案を生成
+  # AIアクションプラン提案を生成（Post作成不要）
   def suggest_action_plans
-    # 既にDB保存済みの提案があれば返す
-    if @post.suggested_action_plans.present?
+    video_id = params[:video_id].to_s.strip
+    title = params[:title].to_s.strip
+
+    if video_id.blank?
+      render json: { success: false, error: "動画IDが必要です" }, status: :unprocessable_entity
+      return
+    end
+
+    # 既存のPostがあれば、キャッシュされた提案を返す
+    existing_post = Post.find_by(youtube_video_id: video_id)
+    if existing_post&.suggested_action_plans.present?
       respond_to do |format|
-        format.json { render json: { success: true, action_plans: @post.suggested_action_plans, cached: true } }
+        format.json { render json: { success: true, action_plans: existing_post.suggested_action_plans, cached: true } }
       end
       return
     end
 
     # 新規生成
     result = GeminiService.suggest_action_plans(
-      video_id: @post.youtube_video_id,
-      title: @post.youtube_title,
+      video_id: video_id,
+      title: title,
       description: nil
     )
 
     respond_to do |format|
       if result[:success]
-        # DBに保存
-        @post.update(suggested_action_plans: result[:action_plans])
+        # 既存Postがあれば提案をキャッシュ保存（なければ保存しない）
+        existing_post&.update(suggested_action_plans: result[:action_plans])
         format.json { render json: { success: true, action_plans: result[:action_plans] } }
-        format.turbo_stream do
-          @action_plans = result[:action_plans]
-        end
       else
         format.json { render json: { success: false, error: result[:error] }, status: :unprocessable_entity }
-        format.turbo_stream do
-          @error = result[:error]
-          render :suggest_action_plans_error
-        end
       end
     end
   end

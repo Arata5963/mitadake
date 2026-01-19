@@ -5,16 +5,21 @@ class PostsController < ApplicationController
   before_action :check_has_entries, only: [ :edit, :update, :destroy ]
 
   def index
-    # 未ログインユーザーにはランディングページを表示
+    # 未ログインユーザーの処理
     unless user_signed_in?
+      # 本番環境ではログインページにリダイレクト（ランディングページ未完成のため）
+      if Rails.env.production?
+        redirect_to new_user_session_path
+        return
+      end
+
+      # 開発環境ではランディングページを表示
       @ranking_posts = Post.by_action_count(limit: 5)
-      # 達成済みアクションプラン（カスタムサムネイルがあるもの優先）
       @achieved_entries = PostEntry.achieved
                                    .includes(:user, :post)
                                    .where.not(thumbnail_url: [nil, ""])
                                    .order(achieved_at: :desc)
                                    .limit(6)
-      # カスタムサムネイルが足りない場合は通常の達成済みも追加
       if @achieved_entries.count < 6
         remaining = 6 - @achieved_entries.count
         additional = PostEntry.achieved

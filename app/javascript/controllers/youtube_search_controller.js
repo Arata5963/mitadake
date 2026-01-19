@@ -58,7 +58,7 @@ export default class extends Controller {
   }
 
   // URL入力時にプレビュー表示
-  showPreviewForUrl(url) {
+  showPreviewForUrl(url, fetchInfo = true) {
     const videoId = this.extractVideoId(url)
     if (!videoId) {
       this.hidePreview()
@@ -75,6 +75,41 @@ export default class extends Controller {
       if (this.hasChannelTarget) this.channelTarget.textContent = ""
 
       this.selectedVideoUrl = url
+
+      // 動画情報を取得
+      if (fetchInfo && this.urlValue) {
+        this.fetchVideoInfoForUrl(videoId)
+      }
+    }
+  }
+
+  // URLから動画情報を取得
+  async fetchVideoInfoForUrl(videoId) {
+    try {
+      // video IDで検索して動画情報を取得
+      const response = await fetch(`${this.urlValue}?q=${encodeURIComponent(videoId)}`, {
+        headers: { "Accept": "application/json" }
+      })
+
+      if (!response.ok) throw new Error("Fetch failed")
+
+      const videos = await response.json()
+      if (videos.length > 0) {
+        const video = videos[0]
+        if (this.hasTitleTarget) {
+          this.titleTarget.textContent = video.title || "動画"
+        }
+        if (this.hasChannelTarget) {
+          this.channelTarget.textContent = video.channel_name || ""
+        }
+      } else {
+        if (this.hasTitleTarget) this.titleTarget.textContent = "動画"
+        if (this.hasChannelTarget) this.channelTarget.textContent = ""
+      }
+    } catch (error) {
+      console.error("Video info fetch error:", error)
+      if (this.hasTitleTarget) this.titleTarget.textContent = "動画"
+      if (this.hasChannelTarget) this.channelTarget.textContent = ""
     }
   }
 

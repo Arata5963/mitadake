@@ -5,8 +5,27 @@
   <article class="w-40 h-[200px]">
     <div class="h-full bg-white border border-gray-200 rounded-lg overflow-hidden hover:border-gray-300 hover:shadow-sm transition-all flex flex-col">
 
-      <%# サムネイル - 固定高さ 90px %>
-      <%= link_to post_path(task.post), class: "block flex-shrink-0", data: { turbo_frame: "_top" } do %>
+      <%# サムネイル - 固定高さ 90px、クリックでモーダル %>
+      <% if task.achieved? %>
+        <div class="block flex-shrink-0 w-full cursor-pointer"
+             data-controller="achievement-card"
+             data-achievement-card-entry-id-value="<%= task.id %>"
+             data-achievement-card-post-id-value="<%= task.post.id %>"
+             data-achievement-card-show-url-value="<%= show_achievement_post_post_entry_path(task.post, task) %>"
+             data-achievement-card-mode-value="display"
+             data-action="click->achievement-card#open">
+      <% else %>
+        <div class="block flex-shrink-0 w-full cursor-pointer"
+             data-controller="achievement-card"
+             data-achievement-card-entry-id-value="<%= task.id %>"
+             data-achievement-card-post-id-value="<%= task.post.id %>"
+             data-achievement-card-achieve-url-value="<%= achieve_post_post_entry_path(task.post, task) %>"
+             data-achievement-card-mode-value="input"
+             data-achievement-card-video-thumbnail-value="<%= task.post.youtube_thumbnail_url %>"
+             data-achievement-card-video-url-value="<%= post_path(task.post) %>"
+             data-achievement-card-video-title-value="<%= task.post.youtube_title %>"
+             data-action="click->achievement-card#open">
+      <% end %>
         <div class="h-[90px] bg-gray-100 relative overflow-hidden">
           <% if task.post.youtube_thumbnail_url.present? %>
             <%= image_tag task.post.youtube_thumbnail_url,
@@ -20,9 +39,8 @@
               </svg>
             </div>
           <% end %>
-
         </div>
-      <% end %>
+      </div>
 
       <%# コンテンツ - 残りの高さを使用 %>
       <div class="flex-1 p-2 flex flex-col min-h-0">
@@ -38,21 +56,38 @@
           </p>
         <% end %>
 
-        <%# 期限 + チェック - 下部固定 %>
-        <div class="flex items-center justify-between mt-auto pt-1">
-          <span class="text-[11px] font-medium <%= deadline_color_class(task) %>">
-            <%= task.deadline.strftime("%-m/%-d") %>
-          </span>
-
-          <%= button_to achieve_post_post_entry_path(task.post, task),
-                method: :patch,
-                class: "w-[18px] h-[18px] rounded-sm border-2 border-gray-700 flex items-center justify-center transition-all cursor-pointer flex-shrink-0 hover:bg-gray-100",
-                title: task.achieved? ? "未達成に戻す" : "達成" do %>
-            <% if task.achieved? %>
-              <svg class="w-3.5 h-3.5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+        <%# チェック - 下部固定 %>
+        <div class="flex items-center justify-end mt-auto pt-1">
+          <% if task.achieved? %>
+            <%# 達成済み → モーダルで記録表示 %>
+            <button type="button"
+                    class="w-[18px] h-[18px] rounded-sm border-2 border-emerald-500 bg-emerald-500 flex items-center justify-center cursor-pointer"
+                    title="達成記録を見る"
+                    data-controller="achievement-card"
+                    data-achievement-card-entry-id-value="<%= task.id %>"
+                    data-achievement-card-post-id-value="<%= task.post.id %>"
+                    data-achievement-card-show-url-value="<%= show_achievement_post_post_entry_path(task.post, task) %>"
+                    data-achievement-card-mode-value="display"
+                    data-action="click->achievement-card#open">
+              <svg class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
               </svg>
-            <% end %>
+            </button>
+          <% else %>
+            <%# 未達成 → モーダルで達成記録入力 %>
+            <button type="button"
+                    class="w-[18px] h-[18px] rounded-sm border-2 border-gray-700 flex items-center justify-center transition-all cursor-pointer flex-shrink-0 hover:bg-gray-100"
+                    title="達成"
+                    data-controller="achievement-card"
+                    data-achievement-card-entry-id-value="<%= task.id %>"
+                    data-achievement-card-post-id-value="<%= task.post.id %>"
+                    data-achievement-card-achieve-url-value="<%= achieve_post_post_entry_path(task.post, task) %>"
+                    data-achievement-card-mode-value="input"
+                    data-achievement-card-video-thumbnail-value="<%= task.post.youtube_thumbnail_url %>"
+                    data-achievement-card-video-url-value="<%= post_path(task.post) %>"
+                    data-achievement-card-video-title-value="<%= task.post.youtube_title %>"
+                    data-action="click->achievement-card#open">
+            </button>
           <% end %>
         </div>
       </div>

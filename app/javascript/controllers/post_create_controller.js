@@ -19,7 +19,7 @@ export default class extends Controller {
   static values = {
     youtubeUrl: String,
     createUrl: String,
-    findOrCreateUrl: String,
+    suggestUrl: String,
     convertUrl: String,
     minLength: { type: Number, default: 2 }
   }
@@ -28,7 +28,6 @@ export default class extends Controller {
     this.timeout = null
     this.selectedIndex = -1
     this.selectedVideo = null
-    this.postId = null
     // サムネイル（画像アップロード必須）
     this.selectedThumbnail = { key: 'custom', emoji: null, color: null, customImage: null }
 
@@ -330,31 +329,18 @@ export default class extends Controller {
     }
 
     try {
-      // まず動画のPostを取得/作成
-      const findResponse = await fetch(this.findOrCreateUrlValue, {
+      // AI提案を取得（Postを作成せずに動画情報を直接渡す）
+      const suggestResponse = await fetch(this.suggestUrlValue, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Accept": "application/json",
           "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content
         },
-        body: JSON.stringify({ youtube_url: this.selectedVideo.url })
-      })
-
-      const findData = await findResponse.json()
-      if (!findData.success || !findData.post_id) {
-        throw new Error("Failed to get post")
-      }
-
-      this.postId = findData.post_id
-
-      // AI提案を取得
-      const suggestResponse = await fetch(`/posts/${this.postId}/suggest_action_plans`, {
-        method: "POST",
-        headers: {
-          "Accept": "application/json",
-          "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content
-        }
+        body: JSON.stringify({
+          video_id: this.selectedVideo.videoId,
+          title: this.selectedVideo.title
+        })
       })
 
       const suggestData = await suggestResponse.json()
@@ -413,6 +399,7 @@ export default class extends Controller {
     this.actionPlanInputTarget.value = plan
     this.updateSubmitButton()
     this.updateConvertButton()
+    this.updateCollectionPreview()  // サムネイルプレビューを更新
     this.actionPlanInputTarget.focus()
   }
 
@@ -429,7 +416,6 @@ export default class extends Controller {
   // 動画選択をクリア
   clearSelection() {
     this.selectedVideo = null
-    this.postId = null
     this.inputTarget.value = ""
     this.previewTarget.style.display = "none"
 

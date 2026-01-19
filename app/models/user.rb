@@ -3,9 +3,6 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable,
          :omniauthable, omniauth_providers: [ :google_oauth2 ]
 
-  # 通知の受信者として設定（メール通知は無効）
-  acts_as_target email: :email, email_allowed: false
-
   has_many :posts, dependent: :destroy
   has_many :achievements, dependent: :destroy
   has_many :cheers, dependent: :destroy

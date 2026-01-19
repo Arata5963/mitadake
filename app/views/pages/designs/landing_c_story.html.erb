@@ -1,0 +1,432 @@
+<%# app/views/pages/designs/landing_c_story.html.erb %>
+<%# デザインC: ストーリー重視 - 感情に訴えるナラティブデザイン %>
+
+<div class="min-h-screen bg-white">
+
+  <%# ===== 1. ヒーローセクション - 問いかけ ===== %>
+  <section class="min-h-[90vh] flex flex-col justify-center px-6 relative overflow-hidden">
+    <%# 背景デコレーション %>
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <div class="absolute top-20 left-10 w-64 h-64 bg-gray-100 rounded-full blur-3xl opacity-60"></div>
+      <div class="absolute bottom-20 right-10 w-96 h-96 bg-gray-100 rounded-full blur-3xl opacity-60"></div>
+    </div>
+
+    <div class="max-w-4xl mx-auto text-center relative z-10">
+      <div class="mb-8"
+           data-controller="scroll-animation"
+           data-scroll-animation-animation-value="fade-up">
+        <span class="inline-block px-4 py-2 bg-gray-100 text-gray-600 text-sm rounded-full">
+          YouTube学習を変える
+        </span>
+      </div>
+
+      <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight mb-8"
+          data-controller="scroll-animation"
+          data-scroll-animation-animation-value="fade-up"
+          data-scroll-animation-delay-value="100">
+        その動画、<br class="sm:hidden">
+        <span class="relative">
+          見ただけ
+          <svg class="absolute -bottom-2 left-0 w-full h-3 text-red-400" viewBox="0 0 200 12" preserveAspectRatio="none">
+            <path d="M0,8 Q50,0 100,8 T200,8" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/>
+          </svg>
+        </span>？
+      </h1>
+
+      <p class="text-xl sm:text-2xl text-gray-500 mb-12 max-w-2xl mx-auto"
+         data-controller="scroll-animation"
+         data-scroll-animation-animation-value="fade-up"
+         data-scroll-animation-delay-value="200">
+        「いい動画だった」で終わっていませんか？
+      </p>
+
+      <div data-controller="scroll-animation"
+           data-scroll-animation-animation-value="fade-up"
+           data-scroll-animation-delay-value="300">
+        <%= link_to new_user_session_path, class: "group inline-flex items-center gap-3 px-8 py-4 bg-gray-900 text-white text-lg font-semibold rounded-full hover:bg-gray-800 transition-all duration-300" do %>
+          変える方法を見る
+          <svg class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+          </svg>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <%# ===== 2. ストーリー - Before ===== %>
+  <section class="py-20 sm:py-32 px-6 bg-gray-50">
+    <div class="max-w-3xl mx-auto">
+      <div class="text-center mb-16"
+           data-controller="scroll-animation"
+           data-scroll-animation-animation-value="fade-up">
+        <span class="text-sm text-gray-400 tracking-widest uppercase">Before</span>
+        <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mt-4">
+          よくあるパターン
+        </h2>
+      </div>
+
+      <div class="space-y-6">
+        <%# パターン1 %>
+        <div class="flex gap-4 items-start"
+             data-controller="scroll-animation"
+             data-scroll-animation-animation-value="fade-left">
+          <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+            <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <div class="bg-white rounded-2xl p-6 flex-1 shadow-sm">
+            <p class="text-lg text-gray-700">
+              「勉強になった！」<br>
+              <span class="text-gray-400 text-base">→ でも翌日には忘れてる</span>
+            </p>
+          </div>
+        </div>
+
+        <%# パターン2 %>
+        <div class="flex gap-4 items-start"
+             data-controller="scroll-animation"
+             data-scroll-animation-animation-value="fade-left"
+             data-scroll-animation-delay-value="100">
+          <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+            <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <div class="bg-white rounded-2xl p-6 flex-1 shadow-sm">
+            <p class="text-lg text-gray-700">
+              「今度やってみよう」<br>
+              <span class="text-gray-400 text-base">→ 「今度」は永遠に来ない</span>
+            </p>
+          </div>
+        </div>
+
+        <%# パターン3 %>
+        <div class="flex gap-4 items-start"
+             data-controller="scroll-animation"
+             data-scroll-animation-animation-value="fade-left"
+             data-scroll-animation-delay-value="200">
+          <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+            <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <div class="bg-white rounded-2xl p-6 flex-1 shadow-sm">
+            <p class="text-lg text-gray-700">
+              「やることリストに追加」<br>
+              <span class="text-gray-400 text-base">→ リストは増える一方</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center mt-16"
+           data-controller="scroll-animation"
+           data-scroll-animation-animation-value="fade-up"
+           data-scroll-animation-delay-value="300">
+        <p class="text-2xl sm:text-3xl text-gray-900 font-medium">
+          結果、何も変わらない。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <%# ===== 3. ストーリー - After ===== %>
+  <section class="py-20 sm:py-32 px-6">
+    <div class="max-w-3xl mx-auto">
+      <div class="text-center mb-16"
+           data-controller="scroll-animation"
+           data-scroll-animation-animation-value="fade-up">
+        <span class="text-sm text-green-600 tracking-widest uppercase">After</span>
+        <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mt-4">
+          mitadake?を使うと
+        </h2>
+      </div>
+
+      <div class="space-y-6">
+        <%# After1 %>
+        <div class="flex gap-4 items-start"
+             data-controller="scroll-animation"
+             data-scroll-animation-animation-value="fade-right">
+          <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+          <div class="bg-gray-50 rounded-2xl p-6 flex-1">
+            <p class="text-lg text-gray-700">
+              動画を観る
+              <span class="text-green-600 font-medium">→ 具体的なアクションを宣言</span>
+            </p>
+          </div>
+        </div>
+
+        <%# After2 %>
+        <div class="flex gap-4 items-start"
+             data-controller="scroll-animation"
+             data-scroll-animation-animation-value="fade-right"
+             data-scroll-animation-delay-value="100">
+          <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+          <div class="bg-gray-50 rounded-2xl p-6 flex-1">
+            <p class="text-lg text-gray-700">
+              7日の期限
+              <span class="text-green-600 font-medium">→ 「いつかやろう」が「今週やろう」に</span>
+            </p>
+          </div>
+        </div>
+
+        <%# After3 %>
+        <div class="flex gap-4 items-start"
+             data-controller="scroll-animation"
+             data-scroll-animation-animation-value="fade-right"
+             data-scroll-animation-delay-value="200">
+          <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+          <div class="bg-gray-50 rounded-2xl p-6 flex-1">
+            <p class="text-lg text-gray-700">
+              1つに集中
+              <span class="text-green-600 font-medium">→ 確実にやり切れる</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center mt-16"
+           data-controller="scroll-animation"
+           data-scroll-animation-animation-value="fade-up"
+           data-scroll-animation-delay-value="300">
+        <p class="text-2xl sm:text-3xl text-gray-900 font-medium">
+          「見ただけ」が<span class="text-green-600">「やってみた」</span>に変わる。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <%# ===== 4. 仕組み（How it works） ===== %>
+  <section class="py-20 sm:py-32 px-6 bg-gray-900 text-white">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-16"
+           data-controller="scroll-animation"
+           data-scroll-animation-animation-value="fade-up">
+        <h2 class="text-3xl sm:text-4xl font-bold mb-4">
+          仕組みはシンプル
+        </h2>
+        <p class="text-gray-400 text-lg">
+          3つのステップで行動が変わる
+        </p>
+      </div>
+
+      <%# タイムライン形式 %>
+      <div class="relative">
+        <%# 縦線 %>
+        <div class="absolute left-6 sm:left-1/2 top-0 bottom-0 w-px bg-gray-700 transform sm:-translate-x-1/2"></div>
+
+        <div class="space-y-12 sm:space-y-16">
+          <%# Step 1 %>
+          <div class="relative flex flex-col sm:flex-row gap-6 sm:gap-12"
+               data-controller="scroll-animation"
+               data-scroll-animation-animation-value="fade-up">
+            <div class="sm:w-1/2 sm:text-right sm:pr-12">
+              <div class="inline-flex items-center gap-3 sm:flex-row-reverse">
+                <div class="w-12 h-12 bg-white text-gray-900 rounded-full flex items-center justify-center text-xl font-bold relative z-10">
+                  1
+                </div>
+                <h3 class="text-xl font-bold">動画を選ぶ</h3>
+              </div>
+              <p class="text-gray-400 mt-3 ml-16 sm:ml-0">
+                YouTubeで気になる動画を見つけたら、URLを貼り付けるだけ
+              </p>
+            </div>
+            <div class="hidden sm:block sm:w-1/2"></div>
+          </div>
+
+          <%# Step 2 %>
+          <div class="relative flex flex-col sm:flex-row gap-6 sm:gap-12"
+               data-controller="scroll-animation"
+               data-scroll-animation-animation-value="fade-up"
+               data-scroll-animation-delay-value="100">
+            <div class="hidden sm:block sm:w-1/2"></div>
+            <div class="sm:w-1/2 sm:pl-12">
+              <div class="inline-flex items-center gap-3">
+                <div class="w-12 h-12 bg-white text-gray-900 rounded-full flex items-center justify-center text-xl font-bold relative z-10">
+                  2
+                </div>
+                <h3 class="text-xl font-bold">アクション宣言</h3>
+              </div>
+              <p class="text-gray-400 mt-3 ml-16 sm:ml-0">
+                AIが提案する具体的なアクションを選ぶ、または自分で書く
+              </p>
+            </div>
+          </div>
+
+          <%# Step 3 %>
+          <div class="relative flex flex-col sm:flex-row gap-6 sm:gap-12"
+               data-controller="scroll-animation"
+               data-scroll-animation-animation-value="fade-up"
+               data-scroll-animation-delay-value="200">
+            <div class="sm:w-1/2 sm:text-right sm:pr-12">
+              <div class="inline-flex items-center gap-3 sm:flex-row-reverse">
+                <div class="w-12 h-12 bg-white text-gray-900 rounded-full flex items-center justify-center text-xl font-bold relative z-10">
+                  3
+                </div>
+                <h3 class="text-xl font-bold">7日以内に達成</h3>
+              </div>
+              <p class="text-gray-400 mt-3 ml-16 sm:ml-0">
+                達成したらチェック。あなたのコレクションに追加
+              </p>
+            </div>
+            <div class="hidden sm:block sm:w-1/2"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <%# ===== 5. 特徴ハイライト ===== %>
+  <section class="py-20 sm:py-32 px-6">
+    <div class="max-w-5xl mx-auto">
+      <div class="grid md:grid-cols-2 gap-8">
+        <%# AI提案 %>
+        <div class="bg-gradient-to-br from-purple-50 to-white p-8 sm:p-10 rounded-3xl"
+             data-controller="scroll-animation"
+             data-scroll-animation-animation-value="fade-up">
+          <div class="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center mb-6">
+            <svg class="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900 mb-3">AIがアクションを提案</h3>
+          <p class="text-gray-600 leading-relaxed">
+            「何をすればいいかわからない」を解決。動画の内容を分析して、具体的で実行可能なアクションを自動で提案します。
+          </p>
+        </div>
+
+        <%# 1つに集中 %>
+        <div class="bg-gradient-to-br from-blue-50 to-white p-8 sm:p-10 rounded-3xl"
+             data-controller="scroll-animation"
+             data-scroll-animation-animation-value="fade-up"
+             data-scroll-animation-delay-value="100">
+          <div class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mb-6">
+            <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900 mb-3">1つに集中</h3>
+          <p class="text-gray-600 leading-relaxed">
+            今のアクションを達成するまで、次には進めません。「あれもこれも」を防いで、確実にやり切れる仕組みです。
+          </p>
+        </div>
+
+        <%# カスタムサムネイル %>
+        <div class="bg-gradient-to-br from-amber-50 to-white p-8 sm:p-10 rounded-3xl"
+             data-controller="scroll-animation"
+             data-scroll-animation-animation-value="fade-up"
+             data-scroll-animation-delay-value="200">
+          <div class="w-14 h-14 bg-amber-100 rounded-2xl flex items-center justify-center mb-6">
+            <svg class="w-7 h-7 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900 mb-3">カスタムサムネイル</h3>
+          <p class="text-gray-600 leading-relaxed">
+            達成したアクションには、あなただけの画像を設定できます。振り返るたびに達成感を感じられる仕組みです。
+          </p>
+        </div>
+
+        <%# 行動ランキング %>
+        <div class="bg-gradient-to-br from-green-50 to-white p-8 sm:p-10 rounded-3xl"
+             data-controller="scroll-animation"
+             data-scroll-animation-animation-value="fade-up"
+             data-scroll-animation-delay-value="300">
+          <div class="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center mb-6">
+            <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900 mb-3">行動数ランキング</h3>
+          <p class="text-gray-600 leading-relaxed">
+            再生数やいいね数ではなく「実際に行動された数」で動画を発見。本当に人を動かす動画が見つかります。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <%# ===== 6. ランキングセクション ===== %>
+  <section class="py-20 sm:py-32 px-6 bg-gray-50">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-12"
+           data-controller="scroll-animation"
+           data-scroll-animation-animation-value="fade-up">
+        <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+          行動につながった動画
+        </h2>
+        <p class="text-gray-600">
+          <span class="font-medium">再生数</span>ではなく<span class="font-medium">行動された数</span>でランキング
+        </p>
+      </div>
+
+      <% if @ranking_posts.present? %>
+        <div class="space-y-4">
+          <% @ranking_posts.first(5).each_with_index do |post, index| %>
+            <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow"
+                 data-controller="scroll-animation"
+                 data-scroll-animation-animation-value="fade-up"
+                 data-scroll-animation-delay-value="<%= index * 80 %>">
+              <div class="flex items-center gap-4 sm:gap-6">
+                <span class="text-3xl font-bold <%= index < 3 ? 'text-gray-900' : 'text-gray-300' %> w-8 text-center flex-shrink-0">
+                  <%= index + 1 %>
+                </span>
+                <img src="<%= post.youtube_thumbnail_url(size: :mqdefault) %>"
+                     alt=""
+                     class="w-24 sm:w-32 h-14 sm:h-18 object-cover rounded-xl flex-shrink-0">
+                <div class="flex-1 min-w-0">
+                  <p class="font-semibold text-gray-900 truncate"><%= post.youtube_title %></p>
+                  <p class="text-sm text-gray-500 truncate"><%= post.youtube_channel_name %></p>
+                </div>
+                <div class="text-right flex-shrink-0 pl-4">
+                  <p class="text-2xl font-bold text-green-600"><%= post.post_entries.count %></p>
+                  <p class="text-xs text-gray-500">アクション</p>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </section>
+
+  <%# ===== 7. 最終CTA ===== %>
+  <section class="py-24 sm:py-32 px-6">
+    <div class="max-w-3xl mx-auto text-center">
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-6"
+          data-controller="scroll-animation"
+          data-scroll-animation-animation-value="fade-up">
+        次の動画から、<br>
+        変えてみませんか？
+      </h2>
+      <p class="text-xl text-gray-500 mb-12"
+         data-controller="scroll-animation"
+         data-scroll-animation-animation-value="fade-up"
+         data-scroll-animation-delay-value="100">
+        「見ただけ」を「やってみた」に。
+      </p>
+      <%= link_to new_user_session_path,
+          class: "inline-flex items-center gap-3 px-10 py-5 bg-gray-900 text-white text-lg font-semibold rounded-full hover:bg-gray-800 transition-all duration-300 hover:scale-105 shadow-xl",
+          data: { controller: "scroll-animation", scroll_animation_animation_value: "zoom-in", scroll_animation_delay_value: "200" } do %>
+        始めてみる
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+        </svg>
+      <% end %>
+    </div>
+  </section>
+
+</div>

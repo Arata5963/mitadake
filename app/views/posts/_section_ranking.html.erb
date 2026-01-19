@@ -5,7 +5,7 @@
 <section class="mb-8">
   <%# セクションヘッダー %>
   <div class="flex items-center justify-between mb-4">
-    <h2 class="text-lg font-bold text-gray-900">アクション数ランキング</h2>
+    <h2 class="text-lg font-bold text-gray-900">人気の動画</h2>
   </div>
 
   <%# 横スクロールコンテナ %>
@@ -42,7 +42,7 @@
                       loading: "lazy" %>
                 <%# ランキングバッジ %>
                 <div class="absolute top-2 left-2 w-7 h-7 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg
-                  <%= rank <= 3 ? 'bg-gray-900' : 'bg-gray-700 bg-opacity-80' %>">
+                  bg-gray-900">
                   <%= rank %>
                 </div>
               </div>
@@ -67,7 +67,7 @@
           <article class="flex-shrink-0 group flex items-start gap-2" style="width: 240px; min-width: 240px; max-width: 240px;">
             <%# 大きなランキング番号 %>
             <div class="flex-shrink-0 w-10 flex items-center justify-center pt-8">
-              <span class="text-3xl font-black <%= rank <= 3 ? 'text-gray-900' : 'text-gray-300' %>">
+              <span class="text-3xl font-black text-gray-900">
                 <%= rank %>
               </span>
             </div>
@@ -112,7 +112,7 @@
               <%= link_to post_path(post), class: "block" do %>
                 <div class="flex items-start gap-2">
                   <%# インラインランキング番号 %>
-                  <span class="flex-shrink-0 text-sm font-bold <%= rank <= 3 ? 'text-gray-900' : 'text-gray-400' %>">
+                  <span class="flex-shrink-0 text-sm font-bold text-gray-900">
                     #<%= rank %>
                   </span>
                   <h3 class="text-sm font-medium text-gray-900 group-hover:text-gray-700 transition-colors line-clamp-2">

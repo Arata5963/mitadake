@@ -41,7 +41,6 @@ gem "ransack", "~> 4.0"            # 検索機能
 gem "meta-tags"
 gem "google-apis-youtube_v3"        # YouTube Data API v3 クライアント
 gem "gemini-ai"                      # Gemini AI API クライアント
-gem "activity_notification"          # アプリ内通知機能
 
 
 # ===== 開発・テスト環境専用 =====

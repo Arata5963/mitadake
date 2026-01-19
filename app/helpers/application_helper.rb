@@ -41,19 +41,6 @@ module ApplicationHelper
   end
   # ★★★ OGP・メタタグのデフォルト設定（ここまで追加） ★★★
 
-  # タスクの期限に応じた色クラスを返す
-  def deadline_color_class(task)
-    return "text-gray-400" if task.achieved?
-
-    if task.deadline < Date.current
-      "text-red-500"  # 期限切れ
-    elsif task.deadline == Date.current
-      "text-orange-500"  # 今日
-    else
-      "text-gray-500"  # 今後
-    end
-  end
-
   # MarkdownをHTMLに変換（サニタイズ付き）
   def markdown_to_html(text)
     return "" if text.blank?

@@ -339,8 +339,14 @@ export default class extends Controller {
 
   // 画像選択
   handleFileSelect(event) {
+    console.log("[entry-edit] handleFileSelect called")
     const file = event.target.files[0]
-    if (!file) return
+    if (!file) {
+      console.log("[entry-edit] No file selected")
+      return
+    }
+
+    console.log("[entry-edit] File selected:", file.name, file.size, "bytes")
 
     // ファイルサイズチェック（5MB）
     if (file.size > 5 * 1024 * 1024) {
@@ -353,6 +359,7 @@ export default class extends Controller {
     reader.onload = (e) => {
       this.thumbnailData = e.target.result
       this.thumbnailCleared = false
+      console.log("[entry-edit] thumbnailData set, length:", this.thumbnailData.length)
 
       // プレースホルダーを非表示、画像を表示
       if (this.hasUploadPlaceholderTarget) {
@@ -400,6 +407,10 @@ export default class extends Controller {
   async submitForm() {
     const content = this.actionPlanInputTarget.value.trim()
 
+    console.log("[entry-edit] submitForm called")
+    console.log("[entry-edit] thumbnailData:", this.thumbnailData ? `set (${this.thumbnailData.length} chars)` : "null")
+    console.log("[entry-edit] thumbnailCleared:", this.thumbnailCleared)
+
     if (!this.selectedVideo) {
       alert('動画を選択してください')
       return
@@ -414,6 +425,9 @@ export default class extends Controller {
     this.submitButtonTarget.disabled = true
     this.submitButtonTarget.textContent = '保存中...'
 
+    const thumbnailToSend = this.thumbnailCleared ? "CLEAR" : this.thumbnailData
+    console.log("[entry-edit] Sending thumbnail_data:", thumbnailToSend ? `${thumbnailToSend.substring(0, 50)}...` : "null")
+
     try {
       // JSONでPATCHリクエスト
       const response = await fetch(this.updateUrlValue, {
@@ -426,7 +440,7 @@ export default class extends Controller {
         body: JSON.stringify({
           post_entry: {
             content: content,
-            thumbnail_data: this.thumbnailCleared ? "CLEAR" : this.thumbnailData,
+            thumbnail_data: thumbnailToSend,
             new_video_url: this.videoChanged ? this.selectedVideo.url : null
           }
         })

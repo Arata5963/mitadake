@@ -1,7 +1,6 @@
 <%# app/views/posts/_section_hero_video.html.erb %>
-<%# フィーチャー動画（アクション数TOP5からランダム）- 自動再生・ミュート %>
+<%# フィーチャー動画（全投稿からランダム）- 自動再生・ミュート %>
 <%# オーバーレイ: 再生/一時停止のみ / 動画情報: 常に下に表示 %>
-<% rank ||= 1 %>
 
 <section class="mb-8" data-controller="hero-video" data-hero-video-video-id-value="<%= post.youtube_video_id %>">
   <%# 動画コンテナ %>
@@ -35,11 +34,8 @@
   <%# 動画情報（常に下に表示） %>
   <%= link_to post_path(post), class: "block mt-3 group/info" do %>
     <div class="flex items-center gap-2 mb-2">
-      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-black text-white">
-        TOP <%= rank %>
-      </span>
       <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-        <%= post.post_entries.count %> アクション
+        <%= post.post_entries.count %>アクション
       </span>
     </div>
     <h2 class="text-gray-900 text-base sm:text-lg font-bold leading-tight line-clamp-2 group-hover/info:text-gray-600 transition-colors">

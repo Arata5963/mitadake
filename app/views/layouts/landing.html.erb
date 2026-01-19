@@ -9,13 +9,9 @@
     <%= yield :head %>
     <%# Tailwind を先に、Application を後に %>
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
 
     <%= javascript_importmap_tags %>
-
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-109R2FXJBS"></script>
@@ -27,18 +23,7 @@
     </script>
   </head>
 
-  <body class="min-h-screen bg-cream flex flex-col">
-    <%= render "shared/header" %>
-    <%= render "shared/flash_messages" %>
-
-
-    <main class="flex-1">
-      <%= yield %>
-    </main>
-
-    <%# レコメンドモーダル用コンテナ %>
-    <div id="recommendation_modal"></div>
-    <%# 達成記録モーダル用コンテナ %>
-    <div id="achievement_modal"></div>
+  <body class="min-h-screen bg-white">
+    <%= yield %>
   </body>
 </html>

@@ -1,37 +1,40 @@
 <%# 達成コレクション - グリッドレイアウト用 %>
 <% post = entry.post %>
 <% user = entry.user %>
-<%# サムネイル: カスタム画像があれば使用、なければYouTubeサムネイル %>
-<% custom_thumbnail = entry.signed_thumbnail_url %>
-<% youtube_thumbnail = "https://i.ytimg.com/vi/#{post.youtube_video_id}/mqdefault.jpg" %>
-<% display_thumbnail = custom_thumbnail.presence || youtube_thumbnail %>
+<%# サムネイル: 達成記録画像 > カスタム画像 > YouTubeサムネイル %>
+<% display_thumbnail = entry.signed_result_image_url || entry.signed_thumbnail_url || "https://i.ytimg.com/vi/#{post.youtube_video_id}/mqdefault.jpg" %>
 
-<article class="group">
-  <%= link_to post_path(post), class: "block" do %>
-    <div class="rounded-lg overflow-hidden bg-gray-100 aspect-video relative">
-      <%= image_tag display_thumbnail,
-            alt: entry.content,
-            class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-200",
-            loading: "lazy" %>
-    </div>
-  <% end %>
+<article class="group"
+         data-controller="achievement-card"
+         data-achievement-card-entry-id-value="<%= entry.id %>"
+         data-achievement-card-post-id-value="<%= post.id %>"
+         data-achievement-card-show-url-value="<%= show_achievement_post_post_entry_path(post, entry) %>"
+         data-achievement-card-mode-value="display">
+  <div class="rounded-lg overflow-hidden bg-gray-100 aspect-video relative cursor-pointer"
+       data-action="click->achievement-card#open">
+    <%= image_tag display_thumbnail,
+          alt: entry.content,
+          class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-200",
+          loading: "lazy" %>
+  </div>
   <div class="pt-2">
-    <%= link_to post_path(post), class: "block" do %>
-      <h3 class="text-sm font-medium text-gray-900 group-hover:text-gray-700 transition-colors line-clamp-2">
-        <%= entry.content %>
-      </h3>
-    <% end %>
-    <div class="flex items-center justify-between mt-2">
-      <div class="flex items-center gap-1.5 min-w-0">
-        <% if user.avatar.present? %>
-          <%= image_tag user.avatar.url, class: "w-6 h-6 rounded-full object-cover flex-shrink-0", loading: "lazy" %>
+    <h3 class="text-sm font-medium text-gray-900 group-hover:text-gray-700 transition-colors line-clamp-2 cursor-pointer"
+        data-action="click->achievement-card#open">
+      <%= entry.content %>
+    </h3>
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px;">
+      <%= link_to user_profile_path(user), style: "display: flex; align-items: center; gap: 6px; text-decoration: none;" do %>
+        <% if user.avatar.present? && user.avatar.url.present? %>
+          <%= image_tag user.avatar.url, style: "width: 24px; height: 24px; border-radius: 50%; object-fit: cover;", loading: "lazy" %>
         <% else %>
-          <div class="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-            <span class="text-[10px] font-bold text-white"><%= user.name.to_s.first || "?" %></span>
+          <div style="width: 24px; height: 24px; border-radius: 50%; background: #e5e7eb; display: flex; align-items: center; justify-content: center;">
+            <svg style="width: 14px; height: 14px; color: #9ca3af;" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
           </div>
         <% end %>
-        <p class="text-xs text-gray-500 truncate"><%= user.name.presence || "名無しさん" %></p>
-      </div>
+        <span style="font-size: 12px; color: #888;"><%= user.name.presence || "名無しさん" %></span>
+      <% end %>
       <%= render 'entry_flames/flame_button', post_entry: entry %>
     </div>
   </div>

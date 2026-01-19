@@ -4,18 +4,7 @@
 
 <div class="min-h-screen bg-white">
   <%# ===== メインコンテンツエリア（1000px幅・中央配置） ===== %>
-  <div style="max-width: 1000px; margin: 0 auto; padding: 0 20px;">
-
-    <%# 戻るボタン %>
-    <div class="py-4">
-      <% back_path = params[:from] == 'mypage' ? mypage_path : posts_path %>
-      <%= link_to back_path, class: "inline-flex items-center gap-1 text-sm text-gray-400 hover:text-gray-600 transition-colors" do %>
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-        </svg>
-        <span>戻る</span>
-      <% end %>
-    </div>
+  <div style="max-width: 1000px; margin: 0 auto; padding: 0 20px;" class="pt-6">
 
     <%# ===== ヒーロー: YouTube サムネイル ===== %>
     <%= link_to @post.youtube_url,
@@ -89,95 +78,63 @@
   <%# ===== アクションプランセクション（フルワイド） ===== %>
   <section style="border-top: 1px solid #f3f4f6; padding-top: 32px; margin-bottom: 32px;">
     <div style="max-width: 1000px; margin: 0 auto; padding: 0 20px;">
-      <% achieved_entries = @post.post_entries.achieved.includes(:user).order(achieved_at: :desc) %>
-      <h2 style="font-size: 18px; font-weight: 700; color: #1a1a1a; margin-bottom: 24px; display: flex; align-items: center; gap: 8px;">
-        <span>達成したアクション</span>
-        <span style="font-size: 14px; font-weight: 400; color: #9ca3af;">(<%= achieved_entries.count %>)</span>
-      </h2>
+      <%
+        achieved_entries = @post.post_entries.achieved.includes(:user).order(achieved_at: :desc)
+        pending_entries = @post.post_entries.not_achieved.includes(:user).order(created_at: :desc)
+        current_tab = params[:tab] || 'achieved'
+      %>
 
-      <%# アクションプラン一覧（グリッド表示）- 達成済みのみ %>
-      <% if achieved_entries.any? %>
-        <style>
+      <%# タブ切り替え %>
+      <div class="flex gap-1 mb-6 border-b border-gray-200">
+        <%= link_to post_path(@post, tab: 'achieved'),
+            class: "px-4 py-2 text-sm font-medium transition-colors #{current_tab == 'achieved' ? 'text-gray-900 border-b-2 border-gray-900 -mb-px' : 'text-gray-500 hover:text-gray-700'}" do %>
+          達成 (<%= achieved_entries.count %>)
+        <% end %>
+        <%= link_to post_path(@post, tab: 'pending'),
+            class: "px-4 py-2 text-sm font-medium transition-colors #{current_tab == 'pending' ? 'text-gray-900 border-b-2 border-gray-900 -mb-px' : 'text-gray-500 hover:text-gray-700'}" do %>
+          挑戦中 (<%= pending_entries.count %>)
+        <% end %>
+      </div>
+
+      <style>
+        .action-plan-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 16px;
+        }
+        @media (min-width: 640px) {
           .action-plan-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 16px;
+            grid-template-columns: repeat(3, 1fr);
           }
-          @media (min-width: 640px) {
-            .action-plan-grid {
-              grid-template-columns: repeat(3, 1fr);
-            }
-          }
-        </style>
-        <div class="action-plan-grid">
-          <% achieved_entries.each do |entry| %>
-            <%
-              user = entry.user
-              custom_thumbnail = entry.signed_thumbnail_url
-              youtube_thumbnail = "https://i.ytimg.com/vi/#{@post.youtube_video_id}/mqdefault.jpg"
-              display_thumbnail = custom_thumbnail.presence || youtube_thumbnail
-            %>
-            <article class="group">
-              <div class="relative rounded-lg overflow-hidden bg-gray-100 aspect-video">
-                <%= image_tag display_thumbnail,
-                      alt: entry.content,
-                      class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-200",
-                      loading: "lazy" %>
-              </div>
-              <div class="pt-2">
-                <p class="text-sm font-medium text-gray-900 leading-tight line-clamp-2">
-                  <%= entry.content %>
-                </p>
-                <div class="flex items-center justify-between mt-2">
-                  <%= link_to user_profile_path(user), class: "flex items-center gap-1.5 hover:opacity-80 transition-opacity" do %>
-                    <% if user.avatar.present? %>
-                      <%= image_tag user.avatar.url, class: "w-6 h-6 rounded-full object-cover flex-shrink-0", loading: "lazy" %>
-                    <% else %>
-                      <div class="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-                        <span class="text-[10px] font-bold text-white"><%= user.name&.first&.upcase || '?' %></span>
-                      </div>
-                    <% end %>
-                    <span class="text-xs text-gray-500 truncate"><%= user.name.presence || "名無しさん" %></span>
-                  <% end %>
-                  <%# いいねボタン（ハート） %>
-                  <% if user_signed_in? %>
-                    <%= button_to toggle_flame_post_post_entry_path(@post, entry),
-                          method: :post,
-                          class: "flex items-center gap-1 text-xs transition-colors hover:opacity-70",
-                          form: { data: { turbo_frame: "_top" } } do %>
-                      <% if entry.flamed_by?(current_user) %>
-                        <%# いいね済み：塗りつぶし（控えめピンク） %>
-                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="#e8a0a0">
-                          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                        </svg>
-                        <span style="color: #c08080;"><%= entry.entry_flames.count %></span>
-                      <% else %>
-                        <%# 未いいね：アウトライン %>
-                        <svg class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                        </svg>
-                        <span class="text-gray-400"><%= entry.entry_flames.count %></span>
-                      <% end %>
-                    <% end %>
-                  <% else %>
-                    <div class="flex items-center gap-1 text-xs text-gray-400">
-                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                      </svg>
-                      <span><%= entry.entry_flames.count %></span>
-                    </div>
-                  <% end %>
-                </div>
-              </div>
-            </article>
-          <% end %>
-        </div>
+        }
+      </style>
+
+      <% if current_tab == 'achieved' %>
+        <%# 達成タブ %>
+        <% if achieved_entries.any? %>
+          <div class="action-plan-grid">
+            <% achieved_entries.each do |entry| %>
+              <%= render 'posts/entry_card', entry: entry, post: @post %>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="text-center py-8 px-4 bg-gray-50 rounded-xl">
+            <p class="text-sm text-gray-500">まだ達成されたアクションがありません</p>
+          </div>
+        <% end %>
       <% else %>
-        <div class="text-center py-8 px-4 bg-gray-50 rounded-xl">
-          <div class="text-4xl mb-3 opacity-50">💭</div>
-          <p class="text-sm text-gray-500">まだアクションプランがありません</p>
-          <p class="text-xs text-gray-400 mt-1">最初のアクションプランを投稿してみましょう！</p>
-        </div>
+        <%# 挑戦中タブ %>
+        <% if pending_entries.any? %>
+          <div class="action-plan-grid">
+            <% pending_entries.each do |entry| %>
+              <%= render 'posts/entry_card', entry: entry, post: @post, show_deadline: true %>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="text-center py-8 px-4 bg-gray-50 rounded-xl">
+            <p class="text-sm text-gray-500">挑戦中のアクションがありません</p>
+          </div>
+        <% end %>
       <% end %>
     </div>
   </section>

@@ -5,24 +5,13 @@ class PostEntry < ApplicationRecord
   belongs_to :user
   has_many :entry_flames, dependent: :destroy
 
-  # 期限当日通知用
-  acts_as_notifiable :users,
-    targets: ->(entry, _key) { [entry.user] },
-    notifier: :user,
-    email_allowed: false,
-    notifiable_path: :post_path_for_notification
-
-  # 通知用パス
-  def post_path_for_notification
-    Rails.application.routes.url_helpers.post_path(post, from: "notification")
-  end
-
   # コールバック
   before_validation :set_auto_deadline, on: :create
 
   # バリデーション
   validates :content, presence: true
-  validates :user_id, uniqueness: { scope: :post_id, message: "この動画には既にアクションプランを投稿しています" }
+  validates :reflection, length: { maximum: 500 }, allow_blank: true
+  # 同じ動画への複数投稿を許可（未達成がなければOK）
   validate :one_incomplete_action_per_user, on: :create
 
   # スコープ
@@ -126,6 +115,54 @@ class PostEntry < ApplicationRecord
     nil
   end
 
+  # 達成記録画像の署名付きURLを取得
+  def signed_result_image_url
+    return nil if result_image.blank?
+
+    s3_key = extract_s3_key(result_image)
+    return nil if s3_key.blank?
+
+    s3 = Aws::S3::Resource.new(
+      region: ENV["AWS_REGION"],
+      access_key_id: ENV["AWS_ACCESS_KEY_ID"],
+      secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"]
+    )
+    obj = s3.bucket(ENV["AWS_BUCKET"]).object(s3_key)
+    obj.presigned_url(:get, expires_in: 600)
+  rescue Aws::S3::Errors::ServiceError
+    nil
+  end
+
+  # 達成記録表示用サムネイルURL（フォールバック付き）
+  # 優先度: 達成記録画像 > 投稿時カスタムサムネイル > YouTubeサムネイル
+  def display_result_thumbnail_url
+    signed_result_image_url ||
+      signed_thumbnail_url ||
+      "https://i.ytimg.com/vi/#{post.youtube_video_id}/mqdefault.jpg"
+  end
+
+  # 感想・画像付きで達成
+  def achieve_with_reflection!(reflection_text: nil, result_image_data: nil)
+    transaction do
+      self.reflection = reflection_text if reflection_text.present?
+
+      if result_image_data.present?
+        self.result_image = process_result_image(result_image_data)
+      end
+
+      self.achieved_at = Time.current
+      save!
+
+      # 既存のサムネイル生成ジョブは維持
+      ThumbnailGenerationJob.perform_later(id)
+    end
+  end
+
+  # 感想の編集
+  def update_reflection!(reflection_text:)
+    update!(reflection: reflection_text)
+  end
+
   private
 
   # 期限を自動設定（作成日から7日後）
@@ -141,5 +178,42 @@ class PostEntry < ApplicationRecord
     if existing.present?
       errors.add(:base, "未達成のアクションプランがあります。達成してから新しいプランを投稿してください")
     end
+  end
+
+  # 達成記録画像をS3にアップロード
+  def process_result_image(base64_data)
+    return nil if base64_data.blank?
+
+    # Base64データをパース
+    matches = base64_data.match(/\Adata:(.*?);base64,(.*)\z/m)
+    return nil unless matches
+
+    content_type = matches[1]
+    decoded_data = Base64.decode64(matches[2])
+
+    # ファイル拡張子を決定
+    extension = case content_type
+    when "image/jpeg" then "jpg"
+    when "image/png" then "png"
+    when "image/webp" then "webp"
+    else "jpg"
+    end
+
+    # S3にアップロード（ユーザーごとにフォルダ分け）
+    filename = "result_images/#{user_id}/#{SecureRandom.uuid}.#{extension}"
+
+    s3_client = Aws::S3::Client.new
+    s3_client.put_object(
+      bucket: ENV["AWS_BUCKET"],
+      key: filename,
+      body: decoded_data,
+      content_type: content_type
+    )
+
+    # S3キーを返す
+    filename
+  rescue StandardError => e
+    Rails.logger.error("Failed to upload result image: #{e.message}")
+    nil
   end
 end

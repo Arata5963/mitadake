@@ -24,7 +24,6 @@ services:
     # サービス依存関係
     depends_on:
       - db                         # dbサービス起動後にwebサービスを起動
-      - redis                      # Redisサービス起動後にwebサービスを起動
 
     # コンテナ操作用設定
     stdin_open: true               # 標準入力を開放（デバッグ用）
@@ -48,42 +47,6 @@ services:
     ports:
       - "5432:5432"               # PostgreSQL標準ポートをホストに転送
 
-  # Redis（Sidekiqバックエンド）コンテナ
-  redis:
-    image: redis:7-alpine         # Redis 7の軽量Alpine版を使用
-
-    # データ永続化用ボリューム
-    volumes:
-      - redis_data:/data          # Redisデータを永続ボリュームに保存
-
-    # ポート転送設定
-    ports:
-      - "6379:6379"               # Redis標準ポートをホストに転送
-
-  # Sidekiqワーカーコンテナ
-  sidekiq:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-
-    working_dir: /app
-
-    command: bundle exec sidekiq -C config/sidekiq.yml
-
-    volumes:
-      - ./:/app
-
-    env_file:
-      - .env.development
-
-    depends_on:
-      - db
-      - redis
-
-    stdin_open: true
-    tty: true
-
 # 永続ボリューム定義
 volumes:
   postgres_data:                  # PostgreSQLデータ保存用の名前付きボリューム
-  redis_data:                     # Redisデータ保存用の名前付きボリューム

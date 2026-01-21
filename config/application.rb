@@ -54,9 +54,10 @@ module Mitadake
     # ==========================================
     # バックグラウンドジョブ設定
     # ==========================================
-    # ActiveJobのアダプタをSidekiqに設定
+    # ActiveJobのアダプタをSolid Queueに設定
     # （perform_later で非同期処理を実行できる）
-    config.active_job.queue_adapter = :sidekiq
+    # Solid Queue は Redis 不要で PostgreSQL を使用
+    config.active_job.queue_adapter = :solid_queue
 
     # ==========================================
     # Rails Generator 設定

@@ -56,8 +56,6 @@ gem "solid_cache"                  # 高速キャッシュシステム
 gem "solid_queue"                  # バックグラウンドジョブ処理
 gem "solid_cable"                  # WebSocket通信（リアルタイム機能）
 gem "bootsnap", require: false     # Rails起動高速化
-gem "sidekiq", "~> 7.2"            # バックグラウンドジョブ処理（Redis使用）
-gem "sidekiq-scheduler", "~> 5.0"  # 定期ジョブスケジューラ
 
 # ===== 画像アップロード機能 =====
 gem "carrierwave"                  # ファイルアップロード管理

@@ -25,9 +25,6 @@
 #   post_path(@p)  → "/posts/1"
 #   root_path      → "/"
 #
-require "sidekiq/web"
-require "sidekiq-scheduler/web"
-
 Rails.application.routes.draw do
   # ==========================================
   # Devise（認証）ルート
@@ -48,7 +45,6 @@ Rails.application.routes.draw do
   # 開発環境でメールをブラウザで確認できるようにする
   if Rails.env.development?
     mount LetterOpenerWeb::Engine, at: "/letter_opener"  # メール確認UI
-    mount Sidekiq::Web, at: "/sidekiq"  # Sidekiq Web UI（ジョブ管理）
   end
 
   # ==========================================

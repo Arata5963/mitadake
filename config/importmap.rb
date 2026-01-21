@@ -53,7 +53,5 @@ pin_all_from "app/javascript/utils", under: "utils"
 pin "stimulus-autocomplete" # @3.1.0
 
 # flatpickr: 日付選択カレンダー
-pin "flatpickr" # @4.6.13
 
 # marked: Markdown → HTML 変換
-pin "marked" # @17.0.1

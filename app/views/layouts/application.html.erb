@@ -16,7 +16,6 @@
 
   【外部ライブラリ】
   - Tailwind CSS: ユーティリティファーストCSSフレームワーク
-  - Flatpickr: 日付選択ライブラリ
   - Chart.js: グラフ描画ライブラリ
   - Google Analytics: アクセス解析
 
@@ -35,7 +34,6 @@
     <%= yield :head %>
     <%# Tailwind を先に、Application を後に %>
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "collections", "data-turbo-track": "reload" %>
 

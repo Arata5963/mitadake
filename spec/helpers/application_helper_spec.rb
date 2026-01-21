@@ -2,6 +2,41 @@
 require 'rails_helper'
 
 RSpec.describe ApplicationHelper, type: :helper do
+  describe '#display_name' do
+    context '名前が設定されている場合' do
+      let(:user) { build(:user, name: 'テストユーザー') }
+
+      it 'ユーザーの名前を返す' do
+        expect(helper.display_name(user)).to eq('テストユーザー')
+      end
+    end
+
+    context '名前が空文字の場合' do
+      let(:user) { build(:user, name: '') }
+
+      before do
+        # バリデーションをスキップして空文字を設定
+        allow(user).to receive(:name).and_return('')
+      end
+
+      it '「名無しさん」を返す' do
+        expect(helper.display_name(user)).to eq('名無しさん')
+      end
+    end
+
+    context '名前がnilの場合' do
+      let(:user) { build(:user) }
+
+      before do
+        allow(user).to receive(:name).and_return(nil)
+      end
+
+      it '「名無しさん」を返す' do
+        expect(helper.display_name(user)).to eq('名無しさん')
+      end
+    end
+  end
+
   describe '#default_meta_tags' do
     before do
       # request オブジェクトをモック

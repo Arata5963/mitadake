@@ -8,7 +8,11 @@ abort("The Rails environment is running in production mode!") if Rails.env.produ
 # that will avoid rails generators crashing because migrations haven't been run yet
 # return unless Rails.env.test?
 require 'rspec/rails'
+require 'webmock/rspec'
 # Add additional requires below this line. Rails is not loaded until this point!
+
+# WebMock設定: テスト中は外部HTTPリクエストを無効化（localhostは許可）
+WebMock.disable_net_connect!(allow_localhost: true)
 require 'simplecov'
 SimpleCov.start 'rails' do
   add_filter '/bin/'

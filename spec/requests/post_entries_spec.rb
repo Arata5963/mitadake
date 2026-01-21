@@ -146,6 +146,65 @@ RSpec.describe 'PostEntries', type: :request do
           expect(response).to have_http_status(:unprocessable_entity)
         end
       end
+
+      context 'with JSON format' do
+        it 'returns JSON success response' do
+          patch post_post_entry_path(post_record, entry),
+                params: { post_entry: { content: 'Updated via JSON' } },
+                headers: { 'Accept' => 'application/json' }
+          expect(response).to have_http_status(:success)
+          json = JSON.parse(response.body)
+          expect(json['success']).to be true
+        end
+
+        it 'includes redirect_url for mypage' do
+          patch post_post_entry_path(post_record, entry),
+                params: { post_entry: { content: 'Updated' }, from: 'mypage' },
+                headers: { 'Accept' => 'application/json' }
+          json = JSON.parse(response.body)
+          expect(json['redirect_url']).to eq(mypage_path)
+        end
+
+        context 'with invalid params' do
+          it 'returns JSON error response' do
+            patch post_post_entry_path(post_record, entry),
+                  params: { post_entry: { content: '' } },
+                  headers: { 'Accept' => 'application/json' }
+            expect(response).to have_http_status(:unprocessable_entity)
+            json = JSON.parse(response.body)
+            expect(json['success']).to be false
+          end
+        end
+      end
+
+      context 'with thumbnail_s3_key CLEAR' do
+        before { entry.update!(thumbnail_url: 'existing_url') }
+
+        it 'clears the thumbnail' do
+          patch post_post_entry_path(post_record, entry), params: {
+            post_entry: { content: 'Updated', thumbnail_s3_key: 'CLEAR' }
+          }
+          expect(entry.reload.thumbnail_url).to be_nil
+        end
+      end
+
+      context 'with thumbnail_s3_key present' do
+        it 'sets the thumbnail URL' do
+          patch post_post_entry_path(post_record, entry), params: {
+            post_entry: { content: 'Updated', thumbnail_s3_key: 'uploads/new_image.jpg' }
+          }
+          expect(entry.reload.thumbnail_url).to eq('uploads/new_image.jpg')
+        end
+      end
+
+      context 'with from=mypage' do
+        it 'redirects to mypage' do
+          patch post_post_entry_path(post_record, entry), params: {
+            post_entry: { content: 'Updated' }, from: 'mypage'
+          }
+          expect(response).to redirect_to(mypage_path)
+        end
+      end
     end
 
     context 'when logged in as different user' do
@@ -176,6 +235,21 @@ RSpec.describe 'PostEntries', type: :request do
       it 'redirects to post' do
         delete post_post_entry_path(post_record, entry)
         expect(response).to redirect_to(post_path(post_record, design: nil))
+      end
+
+      context 'with from=mypage' do
+        it 'redirects to mypage' do
+          delete post_post_entry_path(post_record, entry), params: { from: 'mypage' }
+          expect(response).to redirect_to(mypage_path)
+        end
+      end
+
+      context 'when referer includes mypage' do
+        it 'redirects to mypage' do
+          delete post_post_entry_path(post_record, entry),
+                 headers: { 'HTTP_REFERER' => 'http://example.com/mypage' }
+          expect(response).to redirect_to(mypage_path)
+        end
       end
     end
 
@@ -236,6 +310,61 @@ RSpec.describe 'PostEntries', type: :request do
                 params: { reflection: '頑張りました！' },
                 headers: { 'Accept' => 'application/json' }
           expect(entry.reload.reflection).to eq('頑張りました！')
+        end
+
+        context 'when already achieved' do
+          before { entry.update!(achieved_at: Time.current, reflection: 'Old reflection') }
+
+          it 'marks as not achieved' do
+            patch achieve_post_post_entry_path(post_record, entry),
+                  headers: { 'Accept' => 'application/json' }
+            expect(response).to have_http_status(:success)
+            json = JSON.parse(response.body)
+            expect(json['achieved']).to be false
+            expect(entry.reload.achieved?).to be false
+          end
+
+          it 'clears reflection' do
+            patch achieve_post_post_entry_path(post_record, entry),
+                  headers: { 'Accept' => 'application/json' }
+            expect(entry.reload.reflection).to be_nil
+          end
+        end
+      end
+
+      context 'with Turbo Stream format' do
+        it 'marks entry as achieved' do
+          patch achieve_post_post_entry_path(post_record, entry),
+                params: { reflection: '達成しました！' },
+                headers: { 'Accept' => 'text/vnd.turbo-stream.html' }
+          expect(response).to have_http_status(:success)
+          expect(entry.reload.achieved?).to be true
+        end
+
+        context 'when already achieved' do
+          before { entry.update!(achieved_at: Time.current, reflection: 'Old reflection') }
+
+          it 'marks as not achieved' do
+            patch achieve_post_post_entry_path(post_record, entry),
+                  headers: { 'Accept' => 'text/vnd.turbo-stream.html' }
+            expect(entry.reload.achieved?).to be false
+          end
+        end
+      end
+
+      context 'with redirect_to=mypage' do
+        it 'redirects to mypage' do
+          patch achieve_post_post_entry_path(post_record, entry),
+                params: { redirect_to: 'mypage' }
+          expect(response).to redirect_to(mypage_path)
+        end
+      end
+
+      context 'when referer includes mypage' do
+        it 'redirects to mypage' do
+          patch achieve_post_post_entry_path(post_record, entry),
+                headers: { 'HTTP_REFERER' => 'http://example.com/mypage' }
+          expect(response).to redirect_to(mypage_path)
         end
       end
     end

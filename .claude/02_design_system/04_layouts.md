@@ -1,92 +1,56 @@
-# mitadake? レイアウトシステム
+# レイアウト
 
-本ドキュメントでは、mitadake?で使用するレイアウトパターン、グリッドシステム、レスポンシブ対応を定義します。
+## ページレイアウト
 
----
-
-## 基本構造
-
-### ページレイアウト
+### 基本構造
 
 ```html
-<div class="min-h-screen bg-cream flex flex-col">
+<body class="min-h-screen bg-white flex flex-col">
   <!-- ヘッダー -->
-  <header class="bg-white border-b border-accent/20 sticky top-0 z-50">
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-40">
     ...
   </header>
 
   <!-- メインコンテンツ -->
   <main class="flex-1">
-    <div class="max-w-4xl mx-auto px-4 py-8">
-      ...
-    </div>
+    ...
   </main>
 
-  <!-- フッター -->
-  <footer class="bg-white border-t border-accent/20">
+  <!-- フッター（必要に応じて） -->
+  <footer>
     ...
   </footer>
-</div>
+</body>
 ```
 
-### コンテナ幅
-
-| 用途 | Tailwind | 最大幅 |
-|------|----------|--------|
-| 狭い（フォーム等） | `max-w-2xl` | 672px |
-| 標準（詳細ページ） | `max-w-4xl` | 896px |
-| 広い（一覧ページ） | `max-w-6xl` | 1152px |
-| 最大 | `max-w-7xl` | 1280px |
+### コンテンツ幅
 
 ```html
-<!-- 狭いコンテナ（フォーム用） -->
-<div class="max-w-2xl mx-auto px-4">
-
-<!-- 標準コンテナ -->
-<div class="max-w-4xl mx-auto px-4">
-
-<!-- 広いコンテナ（一覧用） -->
-<div class="max-w-6xl mx-auto px-4">
+<div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
+  <!-- コンテンツ -->
+</div>
 ```
 
 ---
 
 ## ヘッダー
 
-### 標準ヘッダー
-
 ```html
-<header class="bg-white border-b border-accent/20 sticky top-0 z-50">
-  <div class="max-w-screen-xl mx-auto px-4">
-    <div class="flex items-center justify-between h-16">
-
+<header class="bg-white border-b border-gray-200 sticky top-0 z-40">
+  <div class="mx-auto max-w-screen-xl px-4">
+    <div class="flex h-14 items-center justify-between">
       <!-- ロゴ -->
-      <a href="/" class="flex items-center gap-2">
-        <div class="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
-          <span class="text-white font-bold">?</span>
-        </div>
-        <span class="text-xl font-bold text-primary">mitadake?</span>
-      </a>
+      <a href="/" class="text-lg font-bold text-gray-900">mitadake?</a>
 
       <!-- ナビゲーション -->
-      <nav class="flex items-center gap-4">
-        <!-- デスクトップメニュー -->
-        <div class="hidden sm:flex items-center gap-4">
-          <a href="/posts" class="text-primary/80 hover:text-accent transition-colors">
-            一覧
-          </a>
-        </div>
-
-        <!-- 投稿ボタン -->
-        <a href="/posts/new" class="bg-accent text-white font-medium px-4 py-2 rounded-xl hover:bg-accent/90 transition-all">
+      <div class="flex items-center gap-4">
+        <button style="background: #333; color: white; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600;">
           投稿
-        </a>
-
-        <!-- ハンバーガーメニュー（モバイル） -->
-        <button class="sm:hidden p-2 text-primary/60 hover:bg-accent/10 rounded-lg">
-          <svg class="w-6 h-6"><!-- メニューアイコン --></svg>
         </button>
-      </nav>
+        <button class="p-1 rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-100">
+          <img src="avatar.jpg" class="w-8 h-8 rounded-full" />
+        </button>
+      </div>
     </div>
   </div>
 </header>
@@ -94,191 +58,56 @@
 
 ---
 
-## フッター
+## スペーシング
 
-```html
-<footer class="bg-white border-t border-accent/20 mt-auto">
-  <div class="max-w-screen-xl mx-auto px-4 py-8">
-    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+### 基本単位
 
-      <!-- ロゴ -->
-      <div class="flex items-center gap-2">
-        <div class="w-6 h-6 bg-accent rounded-md flex items-center justify-center">
-          <span class="text-white font-bold text-sm">?</span>
-        </div>
-        <span class="font-semibold text-primary">mitadake?</span>
-      </div>
+| Tailwind | 値 | 用途 |
+|----------|-----|------|
+| `gap-1` | 4px | 極小間隔 |
+| `gap-2` | 8px | 小間隔 |
+| `gap-3` | 12px | 中小間隔 |
+| `gap-4` | 16px | 標準間隔 |
+| `gap-6` | 24px | 大間隔 |
+| `gap-8` | 32px | セクション間 |
 
-      <!-- リンク -->
-      <nav class="flex items-center gap-6 text-sm">
-        <a href="/terms" class="text-primary/60 hover:text-accent transition-colors">
-          利用規約
-        </a>
-        <a href="/privacy" class="text-primary/60 hover:text-accent transition-colors">
-          プライバシー
-        </a>
-        <a href="/contact" class="text-primary/60 hover:text-accent transition-colors">
-          お問い合わせ
-        </a>
-      </nav>
-    </div>
+### パディング
 
-    <div class="mt-6 pt-6 border-t border-accent/10 text-center">
-      <p class="text-sm text-primary/40">&copy; 2025 mitadake?</p>
-    </div>
-  </div>
-</footer>
-```
+| 用途 | Tailwind |
+|------|----------|
+| カード内 | `p-4` / `p-5` |
+| 入力フィールド | `px-4 py-3` |
+| ボタン | `px-4 py-2` |
+| ページ余白 | `px-4` |
 
 ---
 
-## グリッドシステム
+## グリッド
 
-### カードグリッド（投稿一覧）
+### 投稿一覧（レスポンシブ）
 
 ```html
-<!-- 1列 → 2列 → 3列 -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
   <!-- カード -->
-  <article class="bg-white rounded-2xl shadow-sm border border-accent/20">
-    ...
-  </article>
 </div>
 ```
 
-### 2カラムグリッド
+### 2カラムレイアウト
 
 ```html
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-  <div>左カラム</div>
-  <div>右カラム</div>
-</div>
-```
-
-### サイドバーレイアウト
-
-```html
-<div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-  <!-- メインコンテンツ（3/4） -->
-  <div class="lg:col-span-3">
-    ...
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="lg:col-span-2">
+    <!-- メインコンテンツ -->
   </div>
-
-  <!-- サイドバー（1/4） -->
-  <aside class="lg:col-span-1">
-    ...
-  </aside>
-</div>
-```
-
----
-
-## ページパターン
-
-### 一覧ページ
-
-```html
-<div class="min-h-screen bg-cream">
-  <div class="max-w-6xl mx-auto px-4 py-8">
-
-    <!-- ページヘッダー -->
-    <header class="mb-8">
-      <div class="flex items-center justify-between">
-        <h1 class="text-2xl sm:text-3xl font-bold text-primary">投稿一覧</h1>
-        <a href="/posts/new" class="bg-accent text-white font-medium px-4 py-2 rounded-xl hover:bg-accent/90 transition-all">
-          新規投稿
-        </a>
-      </div>
-    </header>
-
-    <!-- フィルターセクション -->
-    <section class="mb-8">
-      <div class="bg-white rounded-2xl shadow-sm border border-accent/20 p-6">
-        <!-- フィルター内容 -->
-      </div>
-    </section>
-
-    <!-- カードグリッド -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <!-- カード -->
-    </div>
-
-    <!-- ページネーション -->
-    <nav class="mt-8 flex justify-center">
-      <!-- ページネーション -->
-    </nav>
-
-  </div>
-</div>
-```
-
-### 詳細ページ
-
-```html
-<div class="min-h-screen bg-cream">
-  <div class="max-w-4xl mx-auto px-4 py-8">
-
-    <!-- パンくず -->
-    <nav class="mb-6 text-sm text-primary/60">
-      <a href="/" class="hover:text-accent">ホーム</a>
-      <span class="mx-2">/</span>
-      <a href="/posts" class="hover:text-accent">投稿一覧</a>
-      <span class="mx-2">/</span>
-      <span class="text-primary">詳細</span>
-    </nav>
-
-    <!-- メインカード -->
-    <article class="bg-white rounded-2xl shadow-sm border border-accent/20 overflow-hidden">
-      <!-- コンテンツ -->
-    </article>
-
-    <!-- 関連セクション -->
-    <section class="mt-8">
-      <h2 class="text-xl font-bold text-primary mb-4">コメント</h2>
-      <div class="bg-white rounded-2xl shadow-sm border border-accent/20 p-6">
-        <!-- コメント -->
-      </div>
-    </section>
-
-  </div>
-</div>
-```
-
-### フォームページ
-
-```html
-<div class="min-h-screen bg-cream">
-  <div class="max-w-2xl mx-auto px-4 py-8">
-
-    <!-- ページタイトル -->
-    <h1 class="text-2xl font-bold text-primary mb-8">新規投稿</h1>
-
-    <!-- フォームカード -->
-    <div class="bg-white rounded-2xl shadow-sm border border-accent/20 p-6">
-      <form class="space-y-6">
-        <!-- フォームフィールド -->
-
-        <!-- ボタン -->
-        <div class="flex items-center gap-4 pt-4">
-          <button type="submit" class="bg-accent text-white font-semibold px-6 py-3 rounded-xl hover:bg-accent/90 transition-all">
-            投稿する
-          </button>
-          <a href="/posts" class="text-primary/60 font-medium px-6 py-3 rounded-xl hover:bg-accent/10 transition-all">
-            キャンセル
-          </a>
-        </div>
-      </form>
-    </div>
-
+  <div>
+    <!-- サイドバー -->
   </div>
 </div>
 ```
 
 ---
 
-## レスポンシブ対応
-
-### ブレークポイント
+## ブレークポイント
 
 | 名前 | Tailwind | 値 | 用途 |
 |------|----------|-----|------|
@@ -288,70 +117,22 @@
 | lg | `lg:` | 1024px | デスクトップ |
 | xl | `xl:` | 1280px | 大画面 |
 
-### レスポンシブパターン
-
-```html
-<!-- テキストサイズ -->
-<h1 class="text-2xl sm:text-3xl lg:text-4xl">
-
-<!-- パディング -->
-<div class="px-4 sm:px-6 lg:px-8">
-
-<!-- グリッド -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-
-<!-- 表示/非表示 -->
-<div class="hidden sm:block">デスクトップのみ</div>
-<div class="sm:hidden">モバイルのみ</div>
-
-<!-- フレックス方向 -->
-<div class="flex flex-col sm:flex-row">
-```
-
 ---
 
-## 間隔・余白ガイド
+## 角丸・影
 
-### セクション間
+### 角丸
 
-```html
-<!-- 大きなセクション間 -->
-<section class="py-12">
+| 用途 | Tailwind |
+|------|----------|
+| 小 | `rounded-lg` |
+| 標準 | `rounded-xl` |
+| 完全円 | `rounded-full` |
 
-<!-- 通常のセクション間 -->
-<section class="py-8">
+### 影
 
-<!-- 小さなセクション間 -->
-<section class="py-6">
-```
-
-### 要素間
-
-```html
-<!-- カード間 -->
-<div class="space-y-4">
-
-<!-- グリッドギャップ -->
-<div class="gap-4 md:gap-6">
-
-<!-- リスト項目間 -->
-<ul class="space-y-2">
-```
-
----
-
-## Z-Index管理
-
-| 用途 | 値 | Tailwind |
-|------|-----|----------|
-| ベースコンテンツ | 0 | `z-0` |
-| カードホバー | 10 | `z-10` |
-| ドロップダウン | 20 | `z-20` |
-| スティッキーヘッダー | 50 | `z-50` |
-| モーダル背景 | 40 | `z-40` |
-| モーダル | 50 | `z-50` |
-| トースト | 60 | `z-[60]` |
-
----
-
-*最終更新: 2025-12-08*
+| 用途 | Tailwind |
+|------|----------|
+| カード | `shadow-sm` |
+| ホバー | `shadow-md` |
+| モーダル | `shadow-xl` |

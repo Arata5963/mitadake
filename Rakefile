@@ -1,36 +1,40 @@
 # Rakefile
 # ==========================================
-# Rake タスク定義ファイル
+# rails コマンドの裏側で使われる設定ファイル
 # ==========================================
 #
-# 【このファイルの役割】
-# Rake タスクのエントリーポイント。
-# Rails 標準タスクとカスタムタスクを読み込む。
+# 【重要】あなたは既にこのファイルを使っています！
 #
-# 【カスタムタスクの追加方法】
-# lib/tasks/ フォルダに .rake ファイルを作成すると、
-# 自動的にタスクとして認識される。
+#   docker compose exec web rails db:migrate
+#                         ↓
+#              内部で Rakefile を読み込んでいる
 #
-# 【例: lib/tasks/sample.rake】
-#   namespace :sample do
-#     desc "サンプルタスク"
-#     task hello: :environment do
-#       puts "Hello, World!"
-#     end
-#   end
-#   → bin/rake sample:hello で実行
+#   つまり「rails db:migrate」=「rake db:migrate」です。
+#   Rails 5 以降、rake は rails に統合されました。
 #
-# 【よく使う標準タスク】
-#   bin/rake -T             # タスク一覧
-#   bin/rake db:migrate     # マイグレーション実行
-#   bin/rake db:seed        # 初期データ投入
-#   bin/rake routes         # ルーティング一覧
-#   bin/rake stats          # コード統計
+# 【このファイルがないと困ること】
+#   - rails db:migrate が動かない（テーブル変更不可）
+#   - rails db:seed が動かない（初期データ投入不可）
+#   - rails routes が動かない（URL一覧表示不可）
+#   - 本番デプロイが失敗する
+#
+# 【このファイルの中身】
+#   たった2行だが、これで全ての rails コマンドが使えるようになる。
+#
+#   require_relative "config/application"  ← Rails を読み込む
+#   Rails.application.load_tasks           ← コマンド群を有効化
+#
+# 【よく使うコマンド】
+#   rails db:migrate   # DBのテーブル構造を更新
+#   rails db:seed      # 初期データを投入
+#   rails db:rollback  # 最後のマイグレーションを取り消す
+#   rails routes       # URL一覧を表示
+#   rails -T           # 使えるコマンド一覧
 #
 # ==========================================
 
-# カスタムタスクは lib/tasks/*.rake に配置すると自動読み込み
+# Rails アプリケーションを読み込む
 require_relative "config/application"
 
-# Rails 標準タスクを読み込む
+# rails db:migrate などのコマンドを使えるようにする
 Rails.application.load_tasks

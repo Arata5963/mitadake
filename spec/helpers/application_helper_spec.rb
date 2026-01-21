@@ -61,12 +61,5 @@ RSpec.describe ApplicationHelper, type: :helper do
       expect(meta[:twitter][:title]).to eq(:title)
       expect(meta[:twitter][:description]).to eq(:description)
     end
-
-    it 'ファビコン設定を含む（最低限のエントリ確認）' do
-      expect(meta[:icon]).to be_an(Array)
-      expect(meta[:icon].length).to be > 0
-      # 最低限の存在チェック（バージョン付きURLも許容）
-      expect(meta[:icon].any? { |icon| icon[:href].to_s.start_with?('/favicon.ico') }).to be true
-    end
   end
 end

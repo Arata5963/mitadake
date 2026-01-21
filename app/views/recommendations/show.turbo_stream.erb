@@ -1,4 +1,0 @@
-<%# app/views/recommendations/show.turbo_stream.erb %>
-<%= turbo_stream.update "recommendation_modal" do %>
-  <%= render "recommendations/modal", post: @post, recommended_posts: @recommended_posts %>
-<% end %>

@@ -43,54 +43,6 @@ class YoutubeService
       []
     end
 
-    # 動画のトップコメントを取得（いいね数順）
-    # @param video_id [String] YouTube動画ID
-    # @param max_results [Integer] 取得数（デフォルト: 20）
-    # @return [Array<Hash>] コメント配列
-    def fetch_top_comments(video_id, max_results: 20)
-      return [] if video_id.blank?
-
-      youtube = Rails.application.config.youtube_service
-      return [] if youtube.nil?
-
-      # コメントを取得（relevanceで人気順に近い順序で取得）
-      # APIの制限で直接いいね順には取得できないため、多めに取得してソート
-      response = youtube.list_comment_threads(
-        "snippet",
-        video_id: video_id,
-        max_results: 100, # 多めに取得
-        order: "relevance",
-        text_format: "plainText"
-      )
-
-      return [] if response.items.blank?
-
-      # いいね数でソートしてトップN件を返す
-      comments = response.items.map do |item|
-        comment = item.snippet.top_level_comment
-        snippet = comment.snippet
-        {
-          comment_id: comment.id,  # YouTube直リンク用
-          author: snippet.author_display_name,
-          author_image: snippet.author_profile_image_url,
-          author_channel_url: snippet.author_channel_url,
-          text: snippet.text_display,
-          like_count: snippet.like_count || 0,
-          published_at: snippet.published_at,
-          updated_at: snippet.updated_at
-        }
-      end
-
-      comments.sort_by { |c| -c[:like_count] }.first(max_results)
-    rescue Google::Apis::ClientError => e
-      # コメントが無効な動画の場合など
-      Rails.logger.warn("YouTube API comments error: #{e.message}")
-      []
-    rescue Google::Apis::ServerError, Google::Apis::AuthorizationError => e
-      Rails.logger.error("YouTube API error: #{e.message}")
-      []
-    end
-
     # YouTube URLから動画情報（タイトル・チャンネル名）を取得
     # @param youtube_url [String] YouTube動画のURL
     # @return [Hash, nil] { title:, channel_name: } または nil（取得失敗時）

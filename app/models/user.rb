@@ -69,10 +69,6 @@ class User < ApplicationRecord
     )
   end
 
-  def total_achievements_count
-    achievements.count
-  end
-
   # 現在の未達成アクションプラン（1つのみ）
   def current_action_plan
     post_entries.not_achieved.first
@@ -81,11 +77,6 @@ class User < ApplicationRecord
   # 現在取り組んでいる動画（未達成アクションがある動画）
   def current_video
     current_action_plan&.post
-  end
-
-  # 未達成アクションがあるか
-  def has_active_action?
-    post_entries.not_achieved.exists?
   end
 
   private

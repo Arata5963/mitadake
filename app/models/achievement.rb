@@ -9,6 +9,4 @@ class Achievement < ApplicationRecord
     message: "既に達成済みです"
   }
 
-  scope :today, -> { where(achieved_at: Date.current) }
-  scope :recent, -> { order(achieved_at: :desc) }
 end

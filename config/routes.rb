@@ -10,14 +10,6 @@ Rails.application.routes.draw do
   if Rails.env.development?
     mount LetterOpenerWeb::Engine, at: "/letter_opener"
     mount Sidekiq::Web, at: "/sidekiq"  # Sidekiq Web UI
-    get "design/countdown", to: "pages#countdown_design"
-    get "design/action-plan", to: "pages#action_plan_design"
-    get "design/achieved-videos", to: "pages#achieved_videos_design"
-    get "design/new-post", to: "pages#new_post_design"
-    get "design/landing", to: "pages#landing_design"
-    get "design/landing-a", to: "pages#landing_a_design"
-    get "design/landing-b", to: "pages#landing_b_design"
-    get "design/landing-c", to: "pages#landing_c_design"
   end
 
   get "up" => "rails/health#show", as: :rails_health_check
@@ -39,9 +31,6 @@ Rails.application.routes.draw do
       post :convert_to_youtube_title
       post :suggest_action_plans
       get :recent
-    end
-    member do
-      post :summarize
     end
     resources :post_entries, only: [ :create, :edit, :update, :destroy ] do
       member do

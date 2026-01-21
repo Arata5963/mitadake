@@ -2,48 +2,6 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
-  describe '#total_achievements_count' do
-    let(:user) { create(:user) }
-    let(:post1) { create(:post, user: user) }
-    let(:post2) { create(:post, user: user) }
-
-    context '達成記録がない場合' do
-      it '0を返す' do
-        expect(user.total_achievements_count).to eq(0)
-      end
-    end
-
-    context '達成記録がある場合' do
-      before do
-        # タスク型: 1投稿1達成なので、異なる投稿で複数達成を作成
-        create(:achievement, user: user, post: post1, achieved_at: Date.current)
-        create(:achievement, user: user, post: post2, achieved_at: Date.current - 1.day)
-      end
-
-      it '達成記録の合計数を返す' do
-        expect(user.total_achievements_count).to eq(2)
-      end
-    end
-
-    context '複数ユーザーの達成記録がある場合' do
-      let(:other_user) { create(:user) }
-      let(:other_post) { create(:post, user: other_user) }
-
-      before do
-        # 対象ユーザーの達成記録
-        create(:achievement, user: user, post: post1, achieved_at: Date.current)
-
-        # 他のユーザーの達成記録（カウントされない）
-        create(:achievement, user: other_user, post: other_post, achieved_at: Date.current)
-      end
-
-      it '自分の達成記録のみカウントする' do
-        expect(user.total_achievements_count).to eq(1)
-        expect(other_user.total_achievements_count).to eq(1)
-      end
-    end
-  end
-
   describe 'avatar (CarrierWave)' do
     let(:user) { create(:user) }
 

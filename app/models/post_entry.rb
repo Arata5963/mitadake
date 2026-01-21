@@ -33,8 +33,6 @@ class PostEntry < ApplicationRecord
     else
       # 達成する場合
       update!(achieved_at: Time.current)
-      # サムネイル生成ジョブを起動（バックグラウンドで実行）
-      ThumbnailGenerationJob.perform_later(id)
     end
   end
 
@@ -139,9 +137,6 @@ class PostEntry < ApplicationRecord
 
       self.achieved_at = Time.current
       save!
-
-      # 既存のサムネイル生成ジョブは維持
-      ThumbnailGenerationJob.perform_later(id)
     end
   end
 

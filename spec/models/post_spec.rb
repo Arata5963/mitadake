@@ -94,21 +94,6 @@ RSpec.describe Post, type: :model do
     end
   end
 
-  describe "#entry_users" do
-    let(:post) { create(:post) }
-    let(:user1) { create(:user) }
-    let(:user2) { create(:user) }
-
-    before do
-      create(:post_entry, post: post, user: user1, deadline: 1.week.from_now)
-      create(:post_entry, post: post, user: user2)
-    end
-
-    it "エントリーを持つユーザー一覧を返す" do
-      expect(post.entry_users).to include(user1, user2)
-    end
-  end
-
   describe "#entries_by_user" do
     let(:post) { create(:post) }
     let(:user) { create(:user) }

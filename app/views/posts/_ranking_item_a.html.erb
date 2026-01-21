@@ -1,4 +1,24 @@
-<%# 案A: サムネイル左上にバッジ %>
+<%#
+  app/views/posts/_ranking_item_a.html.erb
+  ==========================================
+  ランキングアイテム（デザインA）
+  ==========================================
+
+  【デザインパターン】
+  案A: サムネイル左上にバッジ
+
+  【特徴】
+  - 順位をサムネイル左上の丸いバッジで表示
+  - シンプルで視認性が高い
+
+  【パラメータ】
+  - post: Postオブジェクト
+  - rank: 順位（1, 2, 3...）
+
+  【使用箇所】
+  _section_ranking.html.erb から呼び出し。
+  design: 'A' を指定した場合に使用される。
+%>
 <article class="flex-shrink-0 group" style="width: 200px; min-width: 200px; max-width: 200px;">
   <%= link_to post_path(post), class: "block" do %>
     <div class="relative rounded-lg overflow-hidden bg-gray-100" style="width: 200px; height: 112px;">

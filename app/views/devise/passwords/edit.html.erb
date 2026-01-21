@@ -1,4 +1,29 @@
-<%# app/views/devise/passwords/edit.html.erb %>
+<%#
+  app/views/devise/passwords/edit.html.erb
+  ==========================================
+  新しいパスワード設定ページ
+  ==========================================
+
+  【このページの役割】
+  パスワードリセットメールのリンクからアクセスするページ。
+  新しいパスワードを入力して変更を確定する。
+
+  【アクセス方法】
+  1. ログインページで「パスワードをお忘れの方」をクリック
+  2. メールアドレスを入力してリセットメール送信
+  3. メール内のリンクをクリック → このページ
+
+  【フォーム送信先】
+  PUT /users/password → Devise::PasswordsController#update
+
+  【使用されるパーシャル】
+  - devise/shared/_error_messages: エラー表示
+  - shared/_password_field: パスワード入力フィールド（表示切替付き）
+
+  【hidden_field :reset_password_token】
+  メールのリンクに含まれるトークンをフォームに埋め込む。
+  このトークンで正当なリセット要求か確認する。
+%>
 <% content_for :title, "新しいパスワードを設定" %>
 
 <div class="min-h-screen bg-white">

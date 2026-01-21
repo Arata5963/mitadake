@@ -1,4 +1,21 @@
-<%# 最初のページへのリンク %>
+<%#
+  app/views/kaminari/_first_page.html.erb
+  ==========================================
+  Kaminari: 最初のページへのリンク
+  ==========================================
+
+  【役割】
+  ページネーションの「<<」ボタン。
+  クリックすると1ページ目に移動。
+
+  【表示条件】
+  _paginator.html.erb で
+  「unless current_page.first?」と指定されているため、
+  1ページ目以外で表示される。
+
+  【urlについて】
+  Kaminariが自動的に ?page=1 のURLを生成して渡す。
+%>
 <%= link_to url, class: "h-10 px-3 flex items-center justify-center border border-gray-200 bg-white hover:bg-gray-50 text-gray-500 text-sm rounded-lg transition-colors" do %>
   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>

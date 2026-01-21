@@ -1,3 +1,25 @@
+<%#
+  app/views/devise/mailer/unlock_instructions.html.erb
+  ==========================================
+  アカウントロック解除メール
+  ==========================================
+
+  【このテンプレートの役割】
+  アカウントがロックされた際に送信される解除用メール。
+  リンクをクリックするとアカウントが解除される。
+
+  【アカウントロックとは？】
+  Devise の Lockable モジュールの機能。
+  ログイン失敗が一定回数を超えるとアカウントをロックし、
+  不正アクセスを防止する。
+
+  【使用可能な変数】
+  - @resource: Userオブジェクト
+  - @token: アンロック用トークン
+
+  【送信タイミング】
+  - ログイン失敗が規定回数を超えた時
+%>
 <p>Hello <%= @resource.email %>!</p>
 
 <p>Your account has been locked due to an excessive number of unsuccessful sign in attempts.</p>

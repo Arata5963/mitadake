@@ -1,5 +1,34 @@
-<%# 達成コレクションセクション（デザイン切り替え対応） %>
-<%# 動画とアクションプランの両方を見せる高品質デザイン %>
+<%#
+  app/views/users/collections/_collection_section.html.erb
+  ==========================================
+  達成コレクションセクション
+  ==========================================
+
+  【このパーシャルの役割】
+  マイページで達成したアクションプランを表示するセクション。
+  複数のデザインテーマから選択可能。
+
+  【パラメータ】
+  - achieved_entries: 達成済みPostEntryのコレクション
+  - user: Userオブジェクト
+  - is_own_page: 自分のページかどうか
+
+  【利用可能なデザイン】
+  1. youtube: YouTube動画風
+  2. quote_card: 名言カード風
+  3. journal: 日記/ジャーナル風
+  4. certificate: 達成証明書風
+  5. sticky: 付箋メモ風
+  6. recipe: レシピカード風
+
+  【デザイン切り替え】
+  URLパラメータ ?design=xxx で切り替え。
+  デフォルトは 'youtube'。
+
+  【ページネーション】
+  デザインごとに1ページあたりの表示数が異なる。
+  Kaminariと同じUIで自前実装。
+%>
 <%
   designs = [
     { key: 'youtube', name: 'YouTube風', icon: '▶️', description: '自分の動画として表示' },

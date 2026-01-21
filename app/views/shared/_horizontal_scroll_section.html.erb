@@ -1,3 +1,31 @@
+<%#
+  app/views/shared/_horizontal_scroll_section.html.erb
+  ==========================================
+  横スクロールセクション（共通レイアウト）
+  ==========================================
+
+  【このパーシャルの役割】
+  横スクロールで要素を表示する共通レイアウト。
+  ランキング、チャンネル、最近の投稿などで使用。
+
+  【パラメータ】
+  - title: セクションタイトル（必須）
+  - link_path: 「全てを表示」のリンク先（任意）
+  - link_text: リンクテキスト（デフォルト: "全てを表示 →"）
+  - button_top: 左右ボタンの上からの位置（デフォルト: "56px"）
+  - show_content: コンテンツを表示するか（デフォルト: true）
+  - empty_message: コンテンツがない場合のメッセージ（任意）
+
+  【使い方】
+    render layout: "shared/horizontal_scroll_section",
+           locals: { title: "人気の動画" } do
+      # ここにアイテムを描画
+    end
+
+  【Stimulusコントローラー】
+  horizontal-scroll: 左右ボタンでスクロール、
+  スクロール位置に応じてボタンの表示/非表示を制御
+%>
 <section class="mb-8">
   <div class="flex items-center justify-between mb-4 flex-nowrap">
     <h2 class="text-lg font-bold text-gray-900 whitespace-nowrap"><%= title %></h2>

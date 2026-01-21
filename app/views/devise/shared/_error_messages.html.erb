@@ -1,4 +1,27 @@
-<%# app/views/devise/shared/_error_messages.html.erb %>
+<%#
+  app/views/devise/shared/_error_messages.html.erb
+  ==========================================
+  Devise用エラーメッセージ表示
+  ==========================================
+
+  【このパーシャルの役割】
+  Deviseフォームでバリデーションエラーがあった場合に
+  エラーメッセージを表示する。赤いボックスでエラー一覧を表示。
+
+  【resourceとは？】
+  Deviseが提供する変数で、現在の認証対象モデル（User）を指す。
+  フォームで送信されたデータとバリデーションエラーを保持。
+
+  【使用箇所】
+  - ログインページ
+  - 新規登録ページ
+  - パスワードリセットページ
+  - プロフィール編集ページ
+
+  【エラーメッセージの例】
+  - 「メールアドレスを入力してください」
+  - 「パスワードは6文字以上で入力してください」
+%>
 <% if resource.errors.any? %>
   <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
     <div class="flex items-start gap-3">

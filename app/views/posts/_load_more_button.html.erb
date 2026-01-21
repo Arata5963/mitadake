@@ -1,6 +1,28 @@
-<%# app/views/posts/_load_more_button.html.erb %>
-<%# もっと見るボタン - Turbo Stream対応 %>
-<%# 初期状態は非表示、load-more コントローラーが画面いっぱい時に表示 %>
+<%#
+  app/views/posts/_load_more_button.html.erb
+  ==========================================
+  「もっと見る」ボタン
+  ==========================================
+
+  【このパーシャルの役割】
+  ページネーションで次のページがある場合に表示する
+  「もっと見る」ボタン。クリックでTurbo Streamで追加読み込み。
+
+  【パラメータ】
+  posts: ページネーション済みのPostコレクション
+
+  【表示ロジック】
+  posts.next_page が存在する → ボタン表示
+  存在しない → 非表示（全て読み込み済み）
+
+  【Turbo Stream対応】
+  link_to に data: { turbo_stream: true } を指定することで、
+  クリック時にTurbo Streamレスポンスを受け取る。
+
+  【初期状態】
+  class="hidden" で非表示。load-moreコントローラーが
+  スクロールに応じて表示を制御する。
+%>
 
 <div id="load-more-container" data-load-more-target="button" class="hidden">
   <% if posts.next_page %>

@@ -1,5 +1,34 @@
-# Additional translations at https://github.com/heartcombo/devise/wiki/I18n
-
+# config/locales/devise.en.yml
+# ==========================================
+# Devise（認証）英語ロケール
+# ==========================================
+#
+# 【このファイルの役割】
+# Devise認証ライブラリで使用される英語メッセージを定義。
+# ログイン、登録、パスワードリセット等のメッセージ。
+#
+# 【Deviseとは？】
+# Rails の認証ライブラリ。ユーザー登録、ログイン、
+# パスワードリセット、メール確認などの機能を提供。
+#
+# 【構造】
+# devise:
+#   confirmations:      → メール確認関連
+#   failure:            → 認証失敗メッセージ
+#   mailer:             → 送信メールの件名
+#   omniauth_callbacks: → OAuth認証（Google等）
+#   passwords:          → パスワードリセット
+#   registrations:      → ユーザー登録
+#   sessions:           → ログイン/ログアウト
+#   unlocks:            → アカウント凍結解除
+#
+# 【カスタマイズ方法】
+# このファイルのメッセージを編集すると、
+# Deviseが表示するメッセージが変わる。
+#
+# 【参考】
+# https://github.com/heartcombo/devise/wiki/I18n
+#
 en:
   devise:
     confirmations:

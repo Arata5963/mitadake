@@ -1,7 +1,7 @@
 // app/javascript/utils/s3_uploader.js
 // S3アップロード関連のユーティリティ
 
-import { getCsrfToken } from './html_helpers'
+import { getCsrfToken } from "utils/html_helpers"
 
 /**
  * ファイルをS3に直接アップロード（署名付きURL方式）

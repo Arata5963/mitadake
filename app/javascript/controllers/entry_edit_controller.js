@@ -3,9 +3,9 @@
 // 動画変更 + アクションプラン編集 + サムネイル変更
 
 import { Controller } from "@hotwired/stimulus"
-import { extractVideoId, getThumbnailUrl } from "../utils/youtube_helpers"
-import { escapeHtml, fetchJson } from "../utils/html_helpers"
-import { uploadToS3, isValidFileSize } from "../utils/s3_uploader"
+import { extractVideoId, getThumbnailUrl } from "utils/youtube_helpers"
+import { escapeHtml, fetchJson } from "utils/html_helpers"
+import { uploadToS3, isValidFileSize } from "utils/s3_uploader"
 
 export default class extends Controller {
   static targets = [

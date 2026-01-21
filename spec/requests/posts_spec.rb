@@ -1,4 +1,34 @@
 # spec/requests/posts_spec.rb
+# ==========================================
+# Posts コントローラーのリクエストテスト
+# ==========================================
+#
+# 【このファイルの役割】
+# 投稿（YouTube動画）関連のAPIエンドポイントをテストする。
+# CRUD操作、検索、AI機能など多くのエンドポイントがある。
+#
+# 【テストの実行方法】
+#   docker compose exec web rspec spec/requests/posts_spec.rb
+#
+# 【テスト対象】
+# - GET /posts（一覧表示）
+# - GET /posts/:id（詳細表示）
+# - GET /posts/new（新規作成フォーム）
+# - POST /posts/find_or_create（動画検索/作成）
+# - POST /posts/create_with_action（動画+アクションプラン作成）
+# - GET/PATCH /posts/:id/edit（編集）
+# - DELETE /posts/:id（削除）
+# - GET /posts/autocomplete（オートコンプリート）
+# - GET /posts/recent（最近の投稿）
+# - GET /posts/youtube_search（YouTube検索）
+# - GET /posts/search_posts（投稿検索）
+# - POST /posts/suggest_action_plans（AI提案）
+# - POST /posts/convert_to_youtube_title（タイトル変換）
+#
+# 【認証テスト】
+# sign_in helper を使用してログイン状態をシミュレート。
+# 未ログイン時はログインページにリダイレクトされることを確認。
+#
 require 'rails_helper'
 
 RSpec.describe "Posts", type: :request do

@@ -1,4 +1,31 @@
 # spec/models/user_devise_spec.rb
+# ==========================================
+# User モデルのDevise機能テスト
+# ==========================================
+#
+# 【このファイルの役割】
+# Deviseが提供する認証機能が正しく設定されているかを検証する。
+# user_spec.rb を補完するテスト。
+#
+# 【テストの実行方法】
+#   docker compose exec web rspec spec/models/user_devise_spec.rb
+#
+# 【テスト対象】
+# - Deviseモジュール（database_authenticatable, registerable等）
+# - OmniAuth（Google OAuth2）設定
+# - メールバリデーション（フォーマット、重複）
+# - パスワードバリデーション（長さ、確認）
+# - アバターアップローダー設定
+# - 依存削除（ユーザー削除時の連鎖削除）
+#
+# 【Deviseモジュール一覧】
+# - database_authenticatable: パスワード認証
+# - registerable: ユーザー登録
+# - recoverable: パスワードリセット
+# - rememberable: ログイン状態保持
+# - validatable: メール・パスワードバリデーション
+# - omniauthable: OAuth認証（Google）
+#
 require 'rails_helper'
 
 RSpec.describe User, type: :model do

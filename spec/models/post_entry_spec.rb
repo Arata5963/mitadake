@@ -1,4 +1,29 @@
 # spec/models/post_entry_spec.rb
+# ==========================================
+# PostEntry モデルのテスト
+# ==========================================
+#
+# 【このファイルの役割】
+# PostEntry（アクションプラン）モデルのバリデーション、
+# アソシエーション、メソッドが正しく動作することを検証する。
+#
+# 【テストの実行方法】
+#   docker compose exec web rspec spec/models/post_entry_spec.rb
+#
+# 【テスト対象】
+# - バリデーション（content必須、1ユーザー1未達成制限）
+# - アソシエーション（post, user, entry_likes）
+# - スコープ（recent, achieved, not_achieved, expired）
+# - 達成機能（achieve!, achieved?）
+# - 期限管理（days_remaining, deadline_status）
+# - いいね機能（liked_by?）
+# - サムネイル・画像のS3署名URL生成
+# - 振り返り機能（achieve_with_reflection!, update_reflection!）
+#
+# 【ビジネスルール】
+# ユーザーは未達成のアクションプランを1つしか持てない。
+# 達成するか削除してから、新しいプランを作成できる。
+#
 require 'rails_helper'
 
 RSpec.describe PostEntry, type: :model do

@@ -1,4 +1,33 @@
 # spec/system/posts_spec.rb
+# ==========================================
+# 投稿関連のシステムテスト
+# ==========================================
+#
+# 【このファイルの役割】
+# 投稿（YouTube動画）の作成、一覧、詳細、編集、削除の
+# エンドツーエンドテストを行う。
+#
+# 【テストの実行方法】
+#   docker compose exec web rspec spec/system/posts_spec.rb
+#
+# 【テスト対象】
+# - 投稿作成（JavaScript必須のためスキップ）
+# - 投稿一覧表示
+# - 投稿詳細表示
+# - 投稿編集（権限チェック含む）
+# - 投稿削除（エントリー削除）
+#
+# 【注意】
+# 現在のUIはStimulusコントローラーを使用しているため、
+# 投稿作成フローは rack_test ではテストできない。
+# 代わりに request spec でAPIレベルのテストを行う。
+#
+# 【page.driver.submit】
+# Capybara の rack_test ドライバーで
+# DELETE リクエストを直接送信する方法。
+#
+#   page.driver.submit :delete, post_path(post), {}
+#
 require 'rails_helper'
 
 RSpec.describe "Posts", type: :system do

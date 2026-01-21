@@ -1,4 +1,25 @@
 # spec/models/entry_like_spec.rb
+# ==========================================
+# EntryLike モデルのテスト
+# ==========================================
+#
+# 【このファイルの役割】
+# EntryLike（いいね）モデルのバリデーション、
+# アソシエーション、削除連鎖が正しく動作することを検証する。
+#
+# 【テストの実行方法】
+#   docker compose exec web rspec spec/models/entry_like_spec.rb
+#
+# 【テスト対象】
+# - アソシエーション（user, post_entry）
+# - ユニーク制約（同じユーザーは同じエントリーに1回だけいいね可能）
+# - 依存削除（ユーザー削除・エントリー削除時に連鎖削除）
+# - いいねカウント
+#
+# 【データ構造】
+#   User ──< EntryLike >── PostEntry
+#   ユーザーはエントリーに「いいね」できる（多対多の中間テーブル）
+#
 require 'rails_helper'
 
 RSpec.describe EntryLike, type: :model do

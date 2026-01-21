@@ -1,0 +1,45 @@
+<%#
+  アバター表示パーシャル
+  user: ユーザーオブジェクト
+  size: :xs(16px), :sm(24px), :md(32px), :lg(40px), :xl(56px), :xxl(80px)
+  fallback: :icon, :initial, :gradient
+  lazy: true/false
+-%>
+<%
+  size = local_assigns[:size] || :sm
+  fallback = local_assigns[:fallback] || :icon
+  lazy = local_assigns[:lazy] || false
+
+  size_classes = {
+    xs: "w-4 h-4", sm: "w-6 h-6", md: "w-8 h-8",
+    lg: "w-10 h-10", xl: "w-14 h-14", xxl: "w-20 h-20"
+  }
+  icon_classes = {
+    xs: "w-2.5 h-2.5", sm: "w-3.5 h-3.5", md: "w-4 h-4",
+    lg: "w-5 h-5", xl: "w-7 h-7", xxl: "w-10 h-10"
+  }
+  text_classes = {
+    xs: "text-[8px]", sm: "text-[10px]", md: "text-xs",
+    lg: "text-sm", xl: "text-base", xxl: "text-lg"
+  }
+
+  container = size_classes[size] || size_classes[:sm]
+  icon_size = icon_classes[size] || icon_classes[:sm]
+  text_size = text_classes[size] || text_classes[:sm]
+  has_avatar = user&.avatar.present? && user&.avatar&.url.present?
+-%>
+<% if has_avatar %>
+  <%= image_tag user.avatar.url, alt: "", class: "#{container} rounded-full object-cover flex-shrink-0", loading: lazy ? "lazy" : nil %>
+<% elsif fallback == :initial %>
+  <div class="<%= container %> rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+    <span class="<%= text_size %> font-medium text-gray-500"><%= user&.name&.first&.upcase || '?' %></span>
+  </div>
+<% elsif fallback == :gradient %>
+  <div class="<%= container %> rounded-full flex-shrink-0" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);"></div>
+<% else %>
+  <div class="<%= container %> rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+    <svg class="<%= icon_size %> text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+    </svg>
+  </div>
+<% end %>

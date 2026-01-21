@@ -44,10 +44,6 @@
     <%# 投稿イメージ（3件グリッド）- 幅を広げるため別コンテナ %>
     <% if @achieved_entries.present? %>
       <div class="max-w-4xl mx-auto mb-12">
-        <style>
-          .hero-card-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
-          @media (min-width: 640px) { .hero-card-grid { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; } }
-        </style>
         <div class="hero-card-grid">
           <% @achieved_entries.first(3).each do |entry| %>
             <article class="border border-gray-200 rounded-lg overflow-hidden bg-white">
@@ -60,11 +56,7 @@
                   <%= entry.content %>
                 </p>
                 <div class="flex items-center gap-2">
-                  <% if entry.user&.avatar.present? %>
-                    <img src="<%= entry.user.avatar.url %>" alt="" class="w-6 h-6 rounded-full object-cover">
-                  <% else %>
-                    <div class="w-6 h-6 rounded-full" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);"></div>
-                  <% end %>
+                  <%= render "shared/avatar", user: entry.user, size: :sm, fallback: :gradient %>
                   <span class="text-xs text-gray-500"><%= entry.user&.name %></span>
                 </div>
               </div>
@@ -254,11 +246,7 @@
                   <%= entry.content %>
                 </p>
                 <div class="flex items-center gap-2">
-                  <% if entry.user&.avatar.present? %>
-                    <img src="<%= entry.user.avatar.url %>" alt="" class="w-6 h-6 rounded-full object-cover">
-                  <% else %>
-                    <div class="w-6 h-6 rounded-full" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);"></div>
-                  <% end %>
+                  <%= render "shared/avatar", user: entry.user, size: :sm, fallback: :gradient %>
                   <span class="text-xs text-gray-500"><%= entry.user&.name %></span>
                 </div>
               </div>

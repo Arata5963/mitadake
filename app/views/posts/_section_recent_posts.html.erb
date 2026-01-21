@@ -1,78 +1,37 @@
 <%# app/views/posts/_section_recent_posts.html.erb %>
 <%# 投稿一覧セクション（横スクロール） %>
 
-<section class="mb-8">
-  <%# セクションヘッダー %>
-  <div class="flex items-center justify-between mb-4 flex-nowrap">
-    <h2 class="text-lg font-bold text-gray-900 whitespace-nowrap">投稿一覧</h2>
-    <%= link_to recent_posts_path, data: { turbo: false }, class: "text-sm text-gray-500 hover:text-gray-700 whitespace-nowrap flex-shrink-0" do %>
-      全てを表示 →
-    <% end %>
-  </div>
-
-  <%# 横スクロールコンテナ %>
-  <div class="relative overflow-hidden" data-controller="horizontal-scroll">
-    <%# 左スクロールボタン %>
-    <button type="button"
-            data-horizontal-scroll-target="leftBtn"
-            data-action="click->horizontal-scroll#scrollLeft"
-            class="hidden absolute z-10 w-10 h-10 bg-white rounded-full shadow-lg items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200"
-            style="left: 8px; top: 56px; transform: translateY(-50%);">
-      <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-      </svg>
-    </button>
-
-    <%# 投稿リスト %>
-    <div data-horizontal-scroll-target="container"
-         data-action="scroll->horizontal-scroll#onScroll"
-         class="flex gap-4 overflow-x-auto scrollbar-hide pb-2 pr-12"
-         style="scroll-behavior: smooth; -ms-overflow-style: none; scrollbar-width: none;">
-
-      <% posts.each do |post| %>
-        <article class="flex-shrink-0 group" style="width: 200px; min-width: 200px; max-width: 200px;">
-          <%= link_to post_path(post), class: "block" do %>
-            <div class="rounded-lg overflow-hidden bg-gray-100" style="width: 200px; height: 112px;">
-              <%= image_tag post.youtube_thumbnail_url(size: :mqdefault),
-                    alt: post.youtube_title,
-                    class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-200",
-                    loading: "lazy" %>
-            </div>
-          <% end %>
-          <div class="pt-2" style="height: 72px;">
-            <%= link_to post_path(post), class: "block" do %>
-              <h3 class="text-sm font-medium text-gray-900 group-hover:text-gray-700 transition-colors line-clamp-2">
-                <%= post.youtube_title %>
-              </h3>
-            <% end %>
-            <% if post.youtube_channel_name.present? %>
-              <div class="flex items-center gap-1 mt-1">
-                <% if post.youtube_channel_thumbnail_url.present? %>
-                  <%= image_tag post.youtube_channel_thumbnail_url, class: "w-4 h-4 rounded-full flex-shrink-0", loading: "lazy" %>
-                <% end %>
-                <p class="text-xs text-gray-500 truncate"><%= post.youtube_channel_name %></p>
-              </div>
-            <% end %>
-          </div>
-        </article>
+<%= render layout: "shared/horizontal_scroll_section", locals: {
+  title: "投稿一覧",
+  link_path: recent_posts_path,
+  link_text: "全てを表示 →",
+  button_top: "56px"
+} do %>
+  <% posts.each do |post| %>
+    <article class="flex-shrink-0 group" style="width: 200px; min-width: 200px; max-width: 200px;">
+      <%= link_to post_path(post), class: "block" do %>
+        <div class="rounded-lg overflow-hidden bg-gray-100" style="width: 200px; height: 112px;">
+          <%= image_tag post.youtube_thumbnail_url(size: :mqdefault),
+                alt: post.youtube_title,
+                class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-200",
+                loading: "lazy" %>
+        </div>
       <% end %>
-    </div>
-
-    <%# 右スクロールボタン %>
-    <button type="button"
-            data-horizontal-scroll-target="rightBtn"
-            data-action="click->horizontal-scroll#scrollRight"
-            class="flex absolute z-10 w-10 h-10 bg-white rounded-full shadow-lg items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200 cursor-pointer"
-            style="right: 8px; top: 56px; transform: translateY(-50%);">
-      <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-      </svg>
-    </button>
-  </div>
-</section>
-
-<style>
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-</style>
+      <div class="pt-2" style="height: 72px;">
+        <%= link_to post_path(post), class: "block" do %>
+          <h3 class="text-sm font-medium text-gray-900 group-hover:text-gray-700 transition-colors line-clamp-2">
+            <%= post.youtube_title %>
+          </h3>
+        <% end %>
+        <% if post.youtube_channel_name.present? %>
+          <div class="flex items-center gap-1 mt-1">
+            <% if post.youtube_channel_thumbnail_url.present? %>
+              <%= image_tag post.youtube_channel_thumbnail_url, class: "w-4 h-4 rounded-full flex-shrink-0", loading: "lazy" %>
+            <% end %>
+            <p class="text-xs text-gray-500 truncate"><%= post.youtube_channel_name %></p>
+          </div>
+        <% end %>
+      </div>
+    </article>
+  <% end %>
+<% end %>

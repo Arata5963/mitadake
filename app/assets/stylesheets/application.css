@@ -2228,3 +2228,48 @@ span.flatpickr-weekday {
 .markdown-content em {
   font-style: italic;
 }
+
+/* ===== ランディングページ ===== */
+.hero-card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .hero-card-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+/* ===== コレクションページ ===== */
+.collection-grid-youtube {
+  display: grid !important;
+  gap: 1rem !important;
+  grid-template-columns: 1fr !important;
+}
+
+@media (min-width: 768px) {
+  .collection-grid-youtube {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+
+/* ===== 投稿詳細ページ ===== */
+.action-plan-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .action-plan-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ===== 共通アニメーション ===== */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

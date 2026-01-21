@@ -11,12 +11,6 @@
   has_custom_thumbnail = custom_thumbnail.present?
 %>
 
-<style>
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-</style>
-
 <div style="min-height: calc(100vh - 56px); background: #fff;">
   <div style="max-width: 1000px; margin: 0 auto; padding: 24px 20px;"
        data-controller="entry-edit"
@@ -141,11 +135,7 @@
           <div style="padding-top: 8px;">
             <p data-entry-edit-target="previewText" style="font-size: 14px; font-weight: 500; color: #333; margin: 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"><%= @entry.content %></p>
             <div style="display: flex; align-items: center; gap: 6px; margin-top: 6px;">
-              <% if current_user.avatar.present? %>
-                <%= image_tag current_user.avatar.url, style: "width: 24px; height: 24px; border-radius: 50%; object-fit: cover;" %>
-              <% else %>
-                <div style="width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #8b5cf6);"></div>
-              <% end %>
+              <%= render "shared/avatar", user: current_user, size: :sm, fallback: :gradient %>
               <span style="font-size: 12px; color: #888;"><%= current_user.name.presence || "あなた" %></span>
             </div>
           </div>

@@ -1,42 +1,57 @@
 # app/models/post_entry.rb
-# アクションプラン専用モデル
+# アクションプラン（ユーザーが動画から学んで実行する行動計画）を表すモデル
+#
+# 主な機能:
+# - YouTube動画（Post）に紐づいた行動計画を管理
+# - 期限管理（デフォルト7日）
+# - 達成状態の管理（achieved_at）
+# - いいね機能（EntryLike経由）
+# - S3に保存したサムネイル/達成記録画像の署名付きURL生成
+#
+# 制約:
+# - 1ユーザーにつき未達成のアクションプランは1つのみ
 class PostEntry < ApplicationRecord
-  belongs_to :post
-  belongs_to :user
-  has_many :entry_likes, dependent: :destroy
+  # ===== アソシエーション =====
+  belongs_to :post      # 動画
+  belongs_to :user      # 作成者
+  has_many :entry_likes, dependent: :destroy  # いいね
 
-  # コールバック
+  # ===== コールバック =====
   before_validation :set_auto_deadline, on: :create
 
-  # バリデーション
-  validates :content, presence: true
-  validates :reflection, length: { maximum: 500 }, allow_blank: true
-  # 同じ動画への複数投稿を許可（未達成がなければOK）
+  # ===== バリデーション =====
+  validates :content, presence: true  # アクションプラン内容（必須）
+  validates :reflection, length: { maximum: 500 }, allow_blank: true  # 振り返りコメント
   validate :one_incomplete_action_per_user, on: :create
 
-  # スコープ
+  # ===== スコープ =====
   scope :recent, -> { order(created_at: :desc) }
   scope :not_achieved, -> { where(achieved_at: nil) }
   scope :achieved, -> { where.not(achieved_at: nil) }
   scope :expired, -> { not_achieved.where("deadline < ?", Date.current) }
 
-  # 達成済みか
+  # ===== 達成状態メソッド =====
+
+  # 達成済みか判定
+  # @return [Boolean]
   def achieved?
     achieved_at.present?
   end
 
-  # 達成をトグル
+  # 達成状態をトグル（達成⇔未達成）
+  # @return [Boolean] 保存成功したか
   def achieve!
     if achieved?
-      # 達成を取り消す場合
       update!(achieved_at: nil)
     else
-      # 達成する場合
       update!(achieved_at: Time.current)
     end
   end
 
-  # 残り日数を計算（達成済みはnil）
+  # ===== 期限関連メソッド =====
+
+  # 残り日数を計算
+  # @return [Integer, nil] 残り日数（達成済み/期限なしはnil）
   def days_remaining
     return nil if achieved?
     return nil if deadline.blank?
@@ -44,21 +59,26 @@ class PostEntry < ApplicationRecord
     (deadline - Date.current).to_i
   end
 
-  # 残り日数の表示用ステータス
+  # 期限のステータスを取得（UI表示用）
+  # @return [Symbol] :achieved, :expired, :today, :urgent, :warning, :normal
   def deadline_status
     days = days_remaining
     return :achieved if achieved?
     return :expired if days.nil? || days < 0
 
     case days
-    when 0 then :today
-    when 1 then :urgent
-    when 2..3 then :warning
+    when 0 then :today      # 今日が期限
+    when 1 then :urgent     # 明日が期限
+    when 2..3 then :warning # 2-3日以内
     else :normal
     end
   end
 
-  # いいね済みかどうか
+  # ===== いいね関連メソッド =====
+
+  # 指定ユーザーがいいね済みか判定
+  # @param user [User, nil] ユーザー
+  # @return [Boolean]
   def liked_by?(user)
     return false if user.nil?
     entry_likes.exists?(user_id: user.id)

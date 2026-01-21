@@ -1,8 +1,17 @@
 # app/controllers/users/omniauth_callbacks_controller.rb
+# Google OAuth2認証のコールバック処理
+#
+# 認証フロー:
+# 1. ユーザーがGoogleログインボタンをクリック
+# 2. Googleの認証画面にリダイレクト
+# 3. 認証成功後、このコントローラーのgoogle_oauth2アクションが呼ばれる
+# 4. User.from_omniauthでユーザーを検索/作成してログイン
+#
+# セキュリティ:
+# - CSRF対策としてstate検証を有効化（verify_authenticity_tokenを無効化しない）
 class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
-  # ※ Omniauth 2系 + omniauth-rails_csrf_protection を使う前提なので
-  # verify_authenticity_token を無効化しない（state検証が働かなくなるため）
-
+  # Google OAuth2認証成功時のコールバック
+  # @route GET/POST /users/auth/google_oauth2/callback
   def google_oauth2
     auth = request.env["omniauth.auth"]
     unless auth

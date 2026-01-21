@@ -1,11 +1,22 @@
 // app/javascript/controllers/horizontal_scroll_controller.js
+// 横スクロール可能なカルーセルの制御コントローラー
+//
+// 機能:
+// - 左右の矢印ボタンでスクロール
+// - スクロール位置に応じてボタンの表示/非表示を切り替え
+// - モバイル（768px未満）では矢印ボタンを非表示
+//
+// 使用場面:
+// - ランキングカード一覧
+// - チャンネル一覧
+// - 動画カード一覧
+
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["container", "leftBtn", "rightBtn"]
 
   connect() {
-    // 初期状態でボタンの表示を更新
     setTimeout(() => this.updateNavigation(), 100)
 
     // 画面リサイズ時にボタン表示を更新

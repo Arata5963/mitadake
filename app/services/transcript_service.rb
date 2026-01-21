@@ -1,6 +1,19 @@
 # frozen_string_literal: true
 
-# YouTube動画の字幕を取得するサービスクラス
+# app/services/transcript_service.rb
+# YouTube動画の字幕（キャプション）を取得するサービスクラス
+#
+# 仕組み:
+# - Pythonスクリプト（lib/scripts/get_transcript.py）を実行
+# - youtube-transcript-api ライブラリを使用して字幕を取得
+# - 日本語字幕 → 英語字幕 → 自動生成字幕 の順で試行
+#
+# 使用場面:
+# - GeminiServiceでアクションプラン生成時に字幕テキストを提供
+#
+# 依存:
+# - Python3 + youtube-transcript-api パッケージ
+# - lib/scripts/get_transcript.py スクリプト
 class TranscriptService
   SCRIPT_PATH = "/app/lib/scripts/get_transcript.py"
   TIMEOUT = 30 # 秒

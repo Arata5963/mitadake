@@ -1,6 +1,21 @@
 # frozen_string_literal: true
 
-# Gemini APIを使用してYouTube動画のアクションプラン生成を行うサービスクラス
+# app/services/gemini_service.rb
+# Google Gemini APIを使用してAI機能を提供するサービスクラス
+#
+# 主な機能:
+# - アクションプラン提案（suggest_action_plans）
+#   - 動画の字幕テキストからAIが3つのアクションプランを提案
+#   - 字幕がない場合はタイトルから推測して生成
+# - YouTubeタイトル風変換（convert_to_youtube_title）
+#   - ユーザー入力のアクションプランをキャッチーなタイトルに変換
+#
+# 依存:
+# - TranscriptService（字幕取得用）
+# - Net::HTTP（API呼び出し）
+#
+# 環境変数:
+# - GEMINI_API_KEY: Gemini APIキー
 class GeminiService
   TEXT_TIMEOUT = 60 # テキスト分析用タイムアウト
 

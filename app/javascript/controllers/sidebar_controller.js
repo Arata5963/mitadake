@@ -1,10 +1,18 @@
+// app/javascript/controllers/sidebar_controller.js
+// モバイル用サイドバーの開閉を制御するコントローラー
+//
+// 機能:
+// - サイドバーのスライドイン/アウト
+// - オーバーレイの表示/非表示
+// - ESCキーで閉じる
+// - 開いている間はbodyのスクロールを無効化
+
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["panel", "overlay"]
 
   connect() {
-    // ESCキーで閉じる
     this.boundHandleKeydown = this.handleKeydown.bind(this)
     document.addEventListener("keydown", this.boundHandleKeydown)
   }

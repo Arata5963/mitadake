@@ -1,6 +1,21 @@
+# app/uploaders/image_uploader.rb
+# CarrierWaveを使った画像アップロード処理を定義
+#
+# 使用場所:
+# - User#avatar（プロフィール画像）
+#
+# 機能:
+# - アップロード時に自動リサイズ（最大2000x2000px）
+# - サムネイル版を自動生成（300x300px）
+# - 許可拡張子の制限（jpg, jpeg, gif, png）
+# - S3へのアップロード（carrierwave-fog経由）
+#
+# 依存:
+# - CarrierWave gem
+# - MiniMagick gem（ImageMagickラッパー）
+# - ImageMagick（Dockerfileでインストール済み）
 class ImageUploader < CarrierWave::Uploader::Base
   # MiniMagickライブラリを読み込み（画像のリサイズ・変換処理を可能にする）
-  # 事前にDockerfileでimagemagickパッケージがインストールされている必要がある
   include CarrierWave::MiniMagick
 
   # ファイル保存先をfog（クラウドストレージ）に指定

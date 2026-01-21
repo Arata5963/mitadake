@@ -1,6 +1,19 @@
 # frozen_string_literal: true
 
+# app/services/youtube_service.rb
 # YouTube Data API v3を使用して動画情報を取得するサービスクラス
+#
+# 主な機能:
+# - 動画タイトルで検索（search_videos）
+# - 動画URL/IDから詳細情報を取得（fetch_video_info）
+# - チャンネルサムネイル取得
+#
+# 依存:
+# - Google::Apis::YoutubeV3（gem 'google-api-client'）
+# - Rails.application.config.youtube_service（初期化済みAPIクライアント）
+#
+# 環境変数:
+# - YOUTUBE_API_KEY: YouTube Data API v3のAPIキー
 class YoutubeService
   class << self
     # 動画をタイトルで検索

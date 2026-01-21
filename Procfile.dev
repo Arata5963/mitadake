@@ -1,11 +1,15 @@
-# Procfile.dev - 開発サーバーで同時起動するコマンド一覧
+# Procfile.dev
+# ==========================================
+# bin/dev で起動するコマンドの一覧
 # ==========================================
 #
-# 【使い方】bin/dev を実行すると、このファイルが読み込まれる
-#
-# 【書式】名前: コマンド
+#   bin/dev を実行
+#       ↓
+#   このファイルを読む
+#       ↓
+#   下の2つが同時に起動する
 #
 # ==========================================
 
 web: bin/rails server              # Railsサーバー (localhost:3000)
-css: bin/rails tailwindcss:watch   # Tailwind CSS 自動ビルド
+css: bin/rails tailwindcss:watch   # CSS変更を監視して自動反映

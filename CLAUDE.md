@@ -25,6 +25,7 @@
 | 画像アップロード | `03_library_guides/04_carrierwave.md` |
 | バックグラウンドジョブ | `03_library_guides/05_sidekiq.md` |
 | Git操作・PR作成 | `01_technical_design/10_git_workflow.md` |
+| コメントの書き方 | `01_development_docs/comment_guidelines.md` |
 | 設計決定の記録 | `04_adr/` |
 
 ## ドキュメント構成
@@ -70,7 +71,7 @@
    - Model/Controller: CamelCase
    - メソッド/変数: snake_case
    - 定数: SCREAMING_SNAKE_CASE
-3. **コメント**: 日本語可、複雑なロジックには必須
+3. **コメント**: `01_development_docs/comment_guidelines.md` に従う
 
 ### Git運用
 

@@ -1,21 +1,27 @@
 // app/javascript/controllers/post_create_controller.js
-import { Controller } from "@hotwired/stimulus"
-
 // 新規投稿コントローラー
-// 動画選択 + アクションプラン入力 → 同時作成
+// 動画選択 + アクションプラン入力 + サムネイル画像 → 同時作成
+
+import { Controller } from "@hotwired/stimulus"
+import { extractVideoId, getThumbnailUrl } from "utils/youtube_helpers"
+import { escapeHtml, fetchJson } from "utils/html_helpers"
+import { uploadToS3, isValidFileSize } from "utils/s3_uploader"
+
 export default class extends Controller {
   static targets = [
-    "input", "results", "pasteButton",
+    // 検索・入力
+    "input", "results", "pasteButton", "inputWrapper", "searchArea",
+    // 動画プレビュー
     "preview", "previewThumbnail", "previewTitle", "previewChannel",
+    // アクションプラン
     "actionPlanInput", "submitButton", "form",
-    "step1", "step2",
-    "suggestions", "suggestionsContainer", "suggestButton",
-    "searchArea", "inputWrapper",
-    "convertButton",
-    // コレクションプレビュー（画像アップロード統合）
+    // AI提案
+    "suggestions", "suggestionsContainer", "suggestButton", "convertButton",
+    // 画像アップロード
     "collectionPreview", "previewCard", "previewImage", "previewActionPlan",
     "uploadPlaceholder", "fileInput", "clearImageButton"
   ]
+
   static values = {
     youtubeUrl: String,
     createUrl: String,
@@ -24,15 +30,15 @@ export default class extends Controller {
     minLength: { type: Number, default: 2 }
   }
 
+  // ===== ライフサイクル =====
+
   connect() {
     this.timeout = null
     this.selectedIndex = -1
     this.selectedVideo = null
-    // サムネイル（署名付きURL方式）
-    this.selectedFile = null      // Fileオブジェクトを保持
-    this.uploadedS3Key = null     // アップロード後のS3キー
+    this.selectedFile = null
+    this.uploadedS3Key = null
 
-    // クリック外で結果を閉じる
     this.handleClickOutside = this.handleClickOutside.bind(this)
     document.addEventListener("click", this.handleClickOutside)
   }
@@ -41,7 +47,8 @@ export default class extends Controller {
     document.removeEventListener("click", this.handleClickOutside)
   }
 
-  // 統合入力ハンドラー
+  // ===== 入力・検索 =====
+
   handleInput() {
     clearTimeout(this.timeout)
     const value = this.inputTarget.value.trim()
@@ -51,23 +58,17 @@ export default class extends Controller {
       return
     }
 
-    // YouTube URLかどうかを判定
-    const videoId = this.extractVideoId(value)
+    const videoId = extractVideoId(value)
 
     if (videoId) {
-      // URL入力の場合 → プレビュー表示
       this.showUrlDetected(value, videoId)
     } else if (value.length >= this.minLengthValue) {
-      // 検索クエリの場合 → YouTube検索
-      this.timeout = setTimeout(() => {
-        this.fetchResults(value)
-      }, 300)
+      this.timeout = setTimeout(() => this.fetchResults(value), 300)
     } else {
       this.hideResults()
     }
   }
 
-  // キーボードナビゲーション
   handleKeydown(event) {
     const items = this.resultsTarget.querySelectorAll("[data-index]")
 
@@ -97,15 +98,10 @@ export default class extends Controller {
 
   updateSelection(items) {
     items.forEach((item, i) => {
-      if (i === this.selectedIndex) {
-        item.classList.add("bg-gray-100")
-      } else {
-        item.classList.remove("bg-gray-100")
-      }
+      item.classList.toggle("bg-gray-100", i === this.selectedIndex)
     })
   }
 
-  // クリップボードから貼り付け
   async pasteFromClipboard() {
     try {
       const text = await navigator.clipboard.readText()
@@ -120,15 +116,16 @@ export default class extends Controller {
     }
   }
 
-  // URL検出時の表示
+  // ===== 検索結果 =====
+
   showUrlDetected(url, videoId) {
-    const thumbnail = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`
+    const thumbnail = getThumbnailUrl(videoId)
 
     this.resultsTarget.innerHTML = `
       <button type="button"
               class="w-full flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors text-left"
               data-action="click->post-create#selectUrl"
-              data-url="${this.escapeHtml(url)}"
+              data-url="${escapeHtml(url)}"
               data-video-id="${videoId}"
               data-index="0">
         <img src="${thumbnail}" alt="" class="w-20 h-12 object-cover rounded flex-shrink-0">
@@ -145,10 +142,8 @@ export default class extends Controller {
     this.showResults()
   }
 
-  // YouTube検索結果を取得
   async fetchResults(query) {
     try {
-      // ローディング表示
       this.resultsTarget.innerHTML = `
         <div class="p-4 text-center text-gray-500 text-sm">
           <div class="inline-block w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin mr-2"></div>
@@ -171,45 +166,58 @@ export default class extends Controller {
     }
   }
 
-  // 検索結果を描画
   renderResults(videos) {
     if (videos.length === 0) {
       this.resultsTarget.innerHTML = '<p class="text-center text-gray-500 p-4 text-sm">動画が見つかりません</p>'
       return
     }
 
-    const html = videos.map((video, index) => `
+    this.resultsTarget.innerHTML = videos.map((video, index) => `
       <button type="button"
               class="w-full flex items-start gap-3 p-3 hover:bg-gray-50 transition-colors text-left border-b border-gray-100 last:border-b-0"
               data-action="click->post-create#selectVideo"
               data-url="${video.youtube_url}"
-              data-video-id="${this.extractVideoId(video.youtube_url)}"
-              data-title="${this.escapeHtml(video.title)}"
-              data-channel="${this.escapeHtml(video.channel_name)}"
+              data-video-id="${extractVideoId(video.youtube_url)}"
+              data-title="${escapeHtml(video.title)}"
+              data-channel="${escapeHtml(video.channel_name)}"
               data-thumbnail="${video.thumbnail_url}"
               data-index="${index}">
         <img src="${video.thumbnail_url}" alt="" class="w-20 h-12 object-cover rounded flex-shrink-0">
         <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-gray-900 line-clamp-2">${this.escapeHtml(video.title)}</p>
-          <p class="text-xs text-gray-500 mt-0.5">${this.escapeHtml(video.channel_name)}</p>
+          <p class="text-sm font-medium text-gray-900 line-clamp-2">${escapeHtml(video.title)}</p>
+          <p class="text-xs text-gray-500 mt-0.5">${escapeHtml(video.channel_name)}</p>
         </div>
       </button>
     `).join("")
 
-    this.resultsTarget.innerHTML = html
     this.selectedIndex = -1
   }
 
-  // URL選択時
+  showResults() {
+    this.resultsTarget.style.display = "block"
+  }
+
+  hideResults() {
+    this.resultsTarget.style.display = "none"
+    this.resultsTarget.innerHTML = ""
+    this.selectedIndex = -1
+  }
+
+  handleClickOutside(event) {
+    if (!this.element.contains(event.target)) {
+      this.hideResults()
+    }
+  }
+
+  // ===== 動画選択 =====
+
   async selectUrl(event) {
     const url = event.currentTarget.dataset.url
     const videoId = event.currentTarget.dataset.videoId
 
-    // YouTube APIで動画情報を取得
     this.showLoadingPreview()
 
     try {
-      // 動画情報を取得するためにfind_or_createを呼び出し（保存はしない）
       const response = await fetch(`${this.youtubeUrlValue}?q=${videoId}`, {
         headers: { "Accept": "application/json" }
       })
@@ -218,8 +226,7 @@ export default class extends Controller {
         const videos = await response.json()
         if (videos.length > 0) {
           this.setSelectedVideo({
-            url: url,
-            videoId: videoId,
+            url, videoId,
             title: videos[0].title,
             channel: videos[0].channel_name,
             thumbnail: videos[0].thumbnail_url
@@ -228,39 +235,26 @@ export default class extends Controller {
         }
       }
 
-      // フォールバック: 基本情報のみ
-      this.setSelectedVideo({
-        url: url,
-        videoId: videoId,
-        title: "動画",
-        channel: "",
-        thumbnail: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`
-      })
+      this.setSelectedVideoFallback(url, videoId)
     } catch (error) {
-      // フォールバック
-      this.setSelectedVideo({
-        url: url,
-        videoId: videoId,
-        title: "動画",
-        channel: "",
-        thumbnail: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`
-      })
+      this.setSelectedVideoFallback(url, videoId)
     }
   }
 
-  // 動画選択時
   selectVideo(event) {
-    const data = event.currentTarget.dataset
+    const { url, videoId, title, channel, thumbnail } = event.currentTarget.dataset
+    this.setSelectedVideo({ url, videoId, title, channel, thumbnail })
+  }
+
+  setSelectedVideoFallback(url, videoId) {
     this.setSelectedVideo({
-      url: data.url,
-      videoId: data.videoId,
-      title: data.title,
-      channel: data.channel,
-      thumbnail: data.thumbnail
+      url, videoId,
+      title: "動画",
+      channel: "",
+      thumbnail: getThumbnailUrl(videoId)
     })
   }
 
-  // ローディングプレビュー表示
   showLoadingPreview() {
     this.hideResults()
     this.previewTarget.style.display = "block"
@@ -269,44 +263,46 @@ export default class extends Controller {
     this.previewChannelTarget.textContent = ""
   }
 
-  // 選択した動画を設定
   setSelectedVideo(video) {
     this.selectedVideo = video
     this.hideResults()
 
-    // 検索エリアを非表示
     if (this.hasSearchAreaTarget) {
       this.searchAreaTarget.style.display = "none"
     }
 
-    // プレビュー表示
     this.previewTarget.style.display = "block"
-    // 高画質サムネイルを使用（sddefault or maxresdefault）
-    const hqThumbnail = video.thumbnail.replace('mqdefault', 'sddefault')
-    this.previewThumbnailTarget.src = hqThumbnail
+    this.previewThumbnailTarget.src = video.thumbnail.replace('mqdefault', 'sddefault')
     this.previewTitleTarget.textContent = video.title
     this.previewChannelTarget.textContent = video.channel
 
-    // AI提案ボタンを表示
     this.showSuggestButton()
 
-    // コレクションプレビューを表示（画像アップロード統合）
     if (this.hasCollectionPreviewTarget) {
       this.collectionPreviewTarget.style.display = "block"
     }
 
-    // アクションプラン入力にフォーカス
-    setTimeout(() => {
-      this.actionPlanInputTarget.focus()
-    }, 100)
-
-    // 投稿ボタンの状態を更新
+    setTimeout(() => this.actionPlanInputTarget.focus(), 100)
     this.updateSubmitButton()
-    // 変換ボタンの状態を更新
     this.updateConvertButton()
   }
 
-  // AI提案ボタンを表示
+  clearSelection() {
+    this.selectedVideo = null
+    this.inputTarget.value = ""
+    this.previewTarget.style.display = "none"
+
+    if (this.hasSearchAreaTarget) {
+      this.searchAreaTarget.style.display = "block"
+    }
+
+    this.hideSuggestions()
+    this.updateSubmitButton()
+    this.inputTarget.focus()
+  }
+
+  // ===== AI提案 =====
+
   showSuggestButton() {
     if (this.hasSuggestionsTarget) {
       this.suggestionsTarget.style.display = "block"
@@ -316,11 +312,18 @@ export default class extends Controller {
     }
   }
 
-  // AI提案を取得（ボタンクリック時）
+  hideSuggestions() {
+    if (this.hasSuggestionsTarget) {
+      this.suggestionsTarget.style.display = "none"
+    }
+    if (this.hasSuggestionsContainerTarget) {
+      this.suggestionsContainerTarget.innerHTML = ""
+    }
+  }
+
   async fetchAiSuggestions() {
     if (!this.selectedVideo) return
 
-    // ボタンをローディング状態に
     if (this.hasSuggestButtonTarget) {
       this.suggestButtonTarget.disabled = true
       this.suggestButtonTarget.innerHTML = `
@@ -330,25 +333,18 @@ export default class extends Controller {
     }
 
     try {
-      // AI提案を取得（Postを作成せずに動画情報を直接渡す）
-      const suggestResponse = await fetch(this.suggestUrlValue, {
+      const response = await fetchJson(this.suggestUrlValue, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content
-        },
         body: JSON.stringify({
           video_id: this.selectedVideo.videoId,
           title: this.selectedVideo.title
         })
       })
 
-      const suggestData = await suggestResponse.json()
+      const data = await response.json()
 
-      if (suggestData.success && suggestData.action_plans && suggestData.action_plans.length > 0) {
-        this.renderSuggestions(suggestData.action_plans)
-        // ボタンを非表示
+      if (data.success && data.action_plans?.length > 0) {
+        this.renderSuggestions(data.action_plans)
         if (this.hasSuggestButtonTarget) {
           this.suggestButtonTarget.style.display = "none"
         }
@@ -361,7 +357,6 @@ export default class extends Controller {
     }
   }
 
-  // AI提案エラー表示
   showSuggestError(message) {
     if (this.hasSuggestButtonTarget) {
       this.suggestButtonTarget.disabled = false
@@ -374,93 +369,47 @@ export default class extends Controller {
     }
   }
 
-  // AI提案を描画
   renderSuggestions(plans) {
     if (!this.hasSuggestionsContainerTarget) return
 
-    const items = plans.map(plan => `
+    this.suggestionsContainerTarget.innerHTML = plans.map(plan => `
       <button type="button"
               data-action="click->post-create#selectSuggestion"
-              data-plan="${this.escapeHtml(plan)}"
+              data-plan="${escapeHtml(plan)}"
               class="suggestion-item"
               style="display: flex; align-items: center; width: 100%; text-align: left; padding: 12px 14px; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 8px; font-size: 14px; color: #333; cursor: pointer; transition: all 0.15s;"
               onmouseover="this.style.background='#f5f5f5'; this.style.borderColor='#333';"
               onmouseout="this.style.background='#fff'; this.style.borderColor='#e0e0e0';">
-        <span style="flex: 1;">${this.escapeHtml(plan)}</span>
+        <span style="flex: 1;">${escapeHtml(plan)}</span>
         <span style="flex-shrink: 0; color: #888; font-size: 12px;">選択 →</span>
       </button>
     `).join("")
-
-    this.suggestionsContainerTarget.innerHTML = items
   }
 
-  // 提案を選択
   selectSuggestion(event) {
     const plan = event.currentTarget.dataset.plan
     this.actionPlanInputTarget.value = plan
     this.updateSubmitButton()
     this.updateConvertButton()
-    this.updateCollectionPreview()  // サムネイルプレビューを更新
+    this.updateCollectionPreview()
     this.actionPlanInputTarget.focus()
   }
 
-  // AI提案エリアを非表示
-  hideSuggestions() {
-    if (this.hasSuggestionsTarget) {
-      this.suggestionsTarget.style.display = "none"
-    }
-    if (this.hasSuggestionsContainerTarget) {
-      this.suggestionsContainerTarget.innerHTML = ""
-    }
-  }
+  // ===== タイトル変換 =====
 
-  // 動画選択をクリア
-  clearSelection() {
-    this.selectedVideo = null
-    this.inputTarget.value = ""
-    this.previewTarget.style.display = "none"
-
-    // 検索エリアを再表示
-    if (this.hasSearchAreaTarget) {
-      this.searchAreaTarget.style.display = "block"
-    }
-
-    this.hideSuggestions()
-    this.updateSubmitButton()
-    this.inputTarget.focus()
-  }
-
-  // アクションプラン入力時
-  handleActionPlanInput() {
-    this.updateSubmitButton()
-    // テキストエリアの高さを自動調整
-    this.autoResizeTextarea()
-    // 変換ボタンの表示/非表示
-    this.updateConvertButton()
-    // コレクションプレビュー更新
-    this.updateCollectionPreview()
-  }
-
-  // 変換ボタンの表示/非表示
   updateConvertButton() {
     if (!this.hasConvertButtonTarget) return
 
-    const text = this.actionPlanInputTarget.value.trim()
-    if (text.length > 0 && this.selectedVideo) {
-      this.convertButtonTarget.style.display = "inline-flex"
-    } else {
-      this.convertButtonTarget.style.display = "none"
-    }
+    const hasText = this.actionPlanInputTarget.value.trim().length > 0
+    this.convertButtonTarget.style.display = hasText && this.selectedVideo ? "inline-flex" : "none"
   }
 
-  // アクションプランをYouTubeタイトル風に変換
   async convertToYouTubeTitle() {
     if (!this.hasConvertButtonTarget) return
 
     const actionPlan = this.actionPlanInputTarget.value.trim()
     if (!actionPlan) return
 
-    // ボタンをローディング状態に
     const originalHtml = this.convertButtonTarget.innerHTML
     this.convertButtonTarget.disabled = true
     this.convertButtonTarget.innerHTML = `
@@ -469,29 +418,21 @@ export default class extends Controller {
     `
 
     try {
-      const response = await fetch(this.convertUrlValue, {
+      const response = await fetchJson(this.convertUrlValue, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content
-        },
         body: JSON.stringify({ action_plan: actionPlan })
       })
 
       const data = await response.json()
 
       if (data.success && data.title) {
-        // 変換後のタイトルを入力欄に設定
         this.actionPlanInputTarget.value = data.title
         this.updateSubmitButton()
         this.autoResizeTextarea()
-        // ボタンを元の状態に戻してから非表示に
         this.convertButtonTarget.innerHTML = originalHtml
         this.convertButtonTarget.disabled = false
         this.convertButtonTarget.style.display = "none"
       } else {
-        // エラー
         alert(data.error || "変換に失敗しました")
         this.convertButtonTarget.innerHTML = originalHtml
         this.convertButtonTarget.disabled = false
@@ -504,46 +445,107 @@ export default class extends Controller {
     }
   }
 
-  // テキストエリアの高さを自動調整
+  // ===== アクションプラン入力 =====
+
+  handleActionPlanInput() {
+    this.updateSubmitButton()
+    this.autoResizeTextarea()
+    this.updateConvertButton()
+    this.updateCollectionPreview()
+  }
+
   autoResizeTextarea() {
     const textarea = this.actionPlanInputTarget
     textarea.style.height = "auto"
     textarea.style.height = textarea.scrollHeight + "px"
   }
 
-  // 入力フォーカス時
   focusInput() {
     if (this.hasInputWrapperTarget) {
       this.inputWrapperTarget.style.borderColor = "#333"
     }
   }
 
-  // 入力ブラー時
   blurInput() {
     if (this.hasInputWrapperTarget) {
       this.inputWrapperTarget.style.borderColor = "#e0e0e0"
     }
   }
 
-  // 投稿ボタンの状態を更新
+  // ===== 画像アップロード =====
+
+  handleFileSelect(event) {
+    const file = event.target.files[0]
+    if (!file) return
+
+    if (!isValidFileSize(file, 5)) {
+      alert('ファイルサイズは5MB以下にしてください')
+      return
+    }
+
+    this.selectedFile = file
+    this.uploadedS3Key = null
+
+    const previewUrl = URL.createObjectURL(file)
+
+    if (this.hasUploadPlaceholderTarget) {
+      this.uploadPlaceholderTarget.style.display = 'none'
+    }
+    if (this.hasPreviewImageTarget) {
+      this.previewImageTarget.style.display = 'block'
+      this.previewImageTarget.src = previewUrl
+    }
+    if (this.hasClearImageButtonTarget) {
+      this.clearImageButtonTarget.style.display = 'flex'
+    }
+
+    this.updateSubmitButton()
+  }
+
+  clearImage(event) {
+    event.preventDefault()
+    event.stopPropagation()
+
+    this.selectedFile = null
+    this.uploadedS3Key = null
+
+    if (this.hasPreviewImageTarget) {
+      this.previewImageTarget.style.display = 'none'
+      this.previewImageTarget.src = ''
+    }
+    if (this.hasUploadPlaceholderTarget) {
+      this.uploadPlaceholderTarget.style.display = 'flex'
+    }
+    if (this.hasClearImageButtonTarget) {
+      this.clearImageButtonTarget.style.display = 'none'
+    }
+    if (this.hasFileInputTarget) {
+      this.fileInputTarget.value = ''
+    }
+
+    this.updateSubmitButton()
+  }
+
+  updateCollectionPreview() {
+    if (!this.hasPreviewActionPlanTarget) return
+
+    const text = this.actionPlanInputTarget.value.trim() || 'アクションプランがここに表示されます'
+    this.previewActionPlanTarget.textContent = text
+  }
+
+  // ===== フォーム送信 =====
+
   updateSubmitButton() {
     const hasVideo = !!this.selectedVideo
     const hasActionPlan = this.actionPlanInputTarget.value.trim().length > 0
-    const hasImage = !!this.selectedFile || !!this.uploadedS3Key  // 画像必須
+    const hasImage = !!this.selectedFile || !!this.uploadedS3Key
     const canSubmit = hasVideo && hasActionPlan && hasImage
 
     this.submitButtonTarget.disabled = !canSubmit
-
-    if (canSubmit) {
-      this.submitButtonTarget.style.background = "#333"
-      this.submitButtonTarget.style.cursor = "pointer"
-    } else {
-      this.submitButtonTarget.style.background = "#c0c0c0"
-      this.submitButtonTarget.style.cursor = "not-allowed"
-    }
+    this.submitButtonTarget.style.background = canSubmit ? "#333" : "#c0c0c0"
+    this.submitButtonTarget.style.cursor = canSubmit ? "pointer" : "not-allowed"
   }
 
-  // フォーム送信
   async submitForm(event) {
     event.preventDefault()
 
@@ -551,7 +553,6 @@ export default class extends Controller {
       return
     }
 
-    // ボタンをローディング状態に
     const originalText = this.submitButtonTarget.innerHTML
     this.submitButtonTarget.disabled = true
     this.submitButtonTarget.innerHTML = `
@@ -560,22 +561,21 @@ export default class extends Controller {
     `
 
     try {
-      // 1. 画像をS3に直接アップロード
-      const s3Key = await this.uploadToS3()
+      // 1. S3アップロード
+      let s3Key = this.uploadedS3Key
+      if (this.selectedFile && !s3Key) {
+        s3Key = await uploadToS3(this.selectedFile)
+        this.uploadedS3Key = s3Key
+      }
 
       this.submitButtonTarget.innerHTML = `
         <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
         投稿中...
       `
 
-      // 2. 投稿を作成（S3キーを送信）
-      const response = await fetch(this.createUrlValue, {
+      // 2. 投稿作成
+      const response = await fetchJson(this.createUrlValue, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content
-        },
         body: JSON.stringify({
           youtube_url: this.selectedVideo.url,
           action_plan: this.actionPlanInputTarget.value.trim(),
@@ -586,14 +586,12 @@ export default class extends Controller {
       const data = await response.json()
 
       if (data.success && data.url) {
-        // 成功 → 詳細ページへ遷移
         if (window.Turbo) {
           window.Turbo.visit(data.url)
         } else {
           window.location.href = data.url
         }
       } else {
-        // エラー
         alert(data.error || "投稿に失敗しました")
         this.submitButtonTarget.disabled = false
         this.submitButtonTarget.innerHTML = originalText
@@ -604,158 +602,5 @@ export default class extends Controller {
       this.submitButtonTarget.disabled = false
       this.submitButtonTarget.innerHTML = originalText
     }
-  }
-
-  // S3に直接アップロード（署名付きURL方式）
-  async uploadToS3() {
-    if (!this.selectedFile) return null
-    if (this.uploadedS3Key) return this.uploadedS3Key  // 既にアップロード済み
-
-    // 1. 署名付きURLを取得
-    const presignResponse = await fetch('/api/presigned_urls', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
-      },
-      body: JSON.stringify({
-        filename: this.selectedFile.name,
-        content_type: this.selectedFile.type
-      })
-    })
-
-    if (!presignResponse.ok) {
-      throw new Error('署名付きURLの取得に失敗しました')
-    }
-
-    const { upload_url, s3_key } = await presignResponse.json()
-
-    // 2. S3に直接PUT
-    const uploadResponse = await fetch(upload_url, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': this.selectedFile.type
-      },
-      body: this.selectedFile
-    })
-
-    if (!uploadResponse.ok) {
-      throw new Error('S3へのアップロードに失敗しました')
-    }
-
-    this.uploadedS3Key = s3_key
-    return s3_key
-  }
-
-  // URLからビデオIDを抽出
-  extractVideoId(url) {
-    const patterns = [
-      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
-      /^([a-zA-Z0-9_-]{11})$/
-    ]
-
-    for (const pattern of patterns) {
-      const match = url.match(pattern)
-      if (match) return match[1]
-    }
-    return null
-  }
-
-  // 結果を表示
-  showResults() {
-    this.resultsTarget.style.display = "block"
-  }
-
-  // 結果を非表示
-  hideResults() {
-    this.resultsTarget.style.display = "none"
-    this.resultsTarget.innerHTML = ""
-    this.selectedIndex = -1
-  }
-
-  // クリック外で閉じる
-  handleClickOutside(event) {
-    if (!this.element.contains(event.target)) {
-      this.hideResults()
-    }
-  }
-
-  // 画像選択（署名付きURL方式：Base64変換しない）
-  handleFileSelect(event) {
-    const file = event.target.files[0]
-    if (!file) return
-
-    // ファイルサイズチェック（5MB）
-    if (file.size > 5 * 1024 * 1024) {
-      alert('ファイルサイズは5MB以下にしてください')
-      return
-    }
-
-    // ファイルを保持（Base64変換しない）
-    this.selectedFile = file
-    this.uploadedS3Key = null  // 新しいファイルが選択されたらリセット
-
-    // プレビュー表示（ローカルURL使用）
-    const previewUrl = URL.createObjectURL(file)
-
-    // プレースホルダーを非表示、画像を表示
-    if (this.hasUploadPlaceholderTarget) {
-      this.uploadPlaceholderTarget.style.display = 'none'
-    }
-    if (this.hasPreviewImageTarget) {
-      this.previewImageTarget.style.display = 'block'
-      this.previewImageTarget.src = previewUrl
-    }
-    // ×ボタンを表示
-    if (this.hasClearImageButtonTarget) {
-      this.clearImageButtonTarget.style.display = 'flex'
-    }
-
-    // 投稿ボタンの状態を更新
-    this.updateSubmitButton()
-  }
-
-  // 画像をクリア
-  clearImage(event) {
-    event.preventDefault()
-    event.stopPropagation()
-
-    this.selectedFile = null
-    this.uploadedS3Key = null
-
-    // 画像を非表示、プレースホルダーを表示
-    if (this.hasPreviewImageTarget) {
-      this.previewImageTarget.style.display = 'none'
-      this.previewImageTarget.src = ''
-    }
-    if (this.hasUploadPlaceholderTarget) {
-      this.uploadPlaceholderTarget.style.display = 'flex'
-    }
-    // ×ボタンを非表示
-    if (this.hasClearImageButtonTarget) {
-      this.clearImageButtonTarget.style.display = 'none'
-    }
-    // ファイル入力をリセット
-    if (this.hasFileInputTarget) {
-      this.fileInputTarget.value = ''
-    }
-
-    // 投稿ボタンの状態を更新
-    this.updateSubmitButton()
-  }
-
-  // コレクションプレビュー更新（アクションプランテキストのみ）
-  updateCollectionPreview() {
-    if (!this.hasPreviewActionPlanTarget) return
-
-    const text = this.actionPlanInputTarget.value.trim() || 'アクションプランがここに表示されます'
-    this.previewActionPlanTarget.textContent = text
-  }
-
-  // HTMLエスケープ
-  escapeHtml(text) {
-    const div = document.createElement("div")
-    div.textContent = text
-    return div.innerHTML
   }
 }

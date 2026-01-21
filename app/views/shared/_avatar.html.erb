@@ -1,9 +1,27 @@
 <%#
+  app/views/shared/_avatar.html.erb
+  ==========================================
   アバター表示パーシャル
-  user: ユーザーオブジェクト
-  size: :xs(16px), :sm(24px), :md(32px), :lg(40px), :xl(56px), :xxl(80px)
-  fallback: :icon, :initial, :gradient
-  lazy: true/false
+  ==========================================
+
+  【このパーシャルの役割】
+  ユーザーのアバター画像を統一的に表示する。
+  画像がない場合のフォールバック表示も対応。
+
+  【パラメータ】
+  - user: ユーザーオブジェクト
+  - size: サイズ指定
+    :xs(16px), :sm(24px), :md(32px),
+    :lg(40px), :xl(56px), :xxl(80px)
+  - fallback: 画像がない場合の表示
+    :icon（デフォルトアイコン）
+    :initial（名前の頭文字）
+    :gradient（グラデーション背景）
+  - lazy: 遅延読み込み（true/false）
+
+  【使用例】
+    render "shared/avatar", user: current_user, size: :md
+    render "shared/avatar", user: @entry.user, size: :sm, fallback: :gradient
 -%>
 <%
   size = local_assigns[:size] || :sm

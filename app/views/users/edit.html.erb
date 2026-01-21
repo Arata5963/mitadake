@@ -1,4 +1,28 @@
-<%# app/views/users/edit.html.erb %>
+<%#
+  app/views/users/edit.html.erb
+  ==========================================
+  プロフィール編集ページ
+  ==========================================
+
+  【このページの役割】
+  ユーザーのプロフィール情報を編集するフォーム。
+
+  【編集可能な項目】
+  - プロフィール画像（CarrierWaveアップロード）
+  - ユーザー名
+  - 引用（好きなフレーズ）
+  - 引用元動画（YouTube URL）
+
+  【Stimulusコントローラー】
+  - image-preview: プロフィール画像のプレビュー表示
+  - youtube-search: 引用元動画のYouTube検索
+
+  【フォーム送信】
+  PATCH /mypage で UsersController#update へ送信。
+
+  【コントローラー】
+  UsersController#edit, UsersController#update
+%>
 <% content_for :title, "プロフィール編集" %>
 
 <div class="min-h-screen bg-white">

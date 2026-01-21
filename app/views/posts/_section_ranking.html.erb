@@ -1,6 +1,20 @@
-<%# app/views/posts/_section_ranking.html.erb %>
-<%# ランキングセクション（横スクロール） %>
-<%# locals: posts, design %>
+<%#
+  app/views/posts/_section_ranking.html.erb
+  ==========================================
+  ランキングセクション（横スクロール）
+  ==========================================
+
+  【このパーシャルの役割】
+  「人気の動画」ランキングを横スクロールで表示するセクション。
+
+  【パラメータ】
+  - posts: ランキング順のPostコレクション
+  - design: ランキングカードのデザイン種類（'A', 'D', 'G', 'H'等）
+
+  【使用されるパーシャル】
+  - shared/horizontal_scroll_section: 横スクロールレイアウト
+  - posts/ranking_item_X: ランキングカード（デザイン別）
+%>
 
 <%= render layout: "shared/horizontal_scroll_section", locals: {
   title: "人気の動画",

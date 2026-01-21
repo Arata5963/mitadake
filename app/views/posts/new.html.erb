@@ -1,5 +1,38 @@
-<%# app/views/posts/new.html.erb %>
-<%# 新規投稿ページ - note風デザイン %>
+<%#
+  app/views/posts/new.html.erb
+  ==========================================
+  新規投稿ページ（note風デザイン）
+  ==========================================
+
+  【このページの役割】
+  YouTube動画とアクションプランを投稿するフォーム。
+  すべてStimulusコントローラーで制御される。
+
+  【投稿フロー】
+  1. YouTube検索で動画を選択
+  2. アクションプランを入力（AI提案あり）
+  3. サムネイル画像をアップロード（任意）
+  4. 投稿ボタンで送信
+
+  【Stimulusコントローラー】
+  post-create:
+    - handleInput: YouTube検索
+    - handleKeydown: キーボード操作
+    - clearSelection: 動画選択解除
+    - fetchAiSuggestions: AIによるアクションプラン提案
+    - convertToYouTubeTitle: アクションプランをYouTube風タイトルに変換
+    - handleFileSelect: サムネイル画像アップロード
+    - submitForm: フォーム送信（Ajax）
+
+  【API連携】
+  - youtube_search_posts_path: YouTube動画検索API
+  - suggest_action_plans_posts_path: AI提案API（Gemini）
+  - convert_to_youtube_title_posts_path: タイトル変換API（Gemini）
+  - create_with_action_posts_path: 投稿作成API
+
+  【コントローラー】
+  PostsController#new, PostsController#create_with_action
+%>
 <% content_for :title, "新規投稿" %>
 
 <div style="min-height: calc(100vh - 56px); background: #fff;">

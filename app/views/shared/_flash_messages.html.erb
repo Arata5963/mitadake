@@ -1,4 +1,32 @@
-<%# app/views/shared/_flash_messages.html.erb %>
+<%#
+  app/views/shared/_flash_messages.html.erb
+  ==========================================
+  フラッシュメッセージ表示
+  ==========================================
+
+  【このパーシャルの役割】
+  コントローラーから設定されたフラッシュメッセージを表示する。
+  画面右上に固定表示され、5秒後に自動消去。
+
+  【フラッシュタイプ】
+  - notice/success: 緑色（成功メッセージ）
+  - alert/error: 赤色（エラーメッセージ）
+  - その他: 青色（情報メッセージ）
+
+  【Stimulusコントローラー】
+  flash:
+    - remove-after-value: 自動消去までの時間（ミリ秒）
+    - remove: 閉じるボタンクリック時の削除
+
+  【使用例（コントローラー側）】
+    redirect_to posts_path, notice: "投稿しました"
+    redirect_to posts_path, alert: "エラーが発生しました"
+
+  【スタイル】
+  - 固定位置（fixed top-20 right-4）
+  - 左ボーダーでタイプ識別
+  - シャドウで浮き出し
+%>
 <div id="flash-messages" class="fixed top-20 right-4 z-50 space-y-2 max-w-sm">
   <% flash.each do |type, message| %>
     <%

@@ -1,2 +1,36 @@
+# Procfile.dev
+# ==========================================
+# 開発サーバー起動時に実行するコマンド一覧
+# ==========================================
+#
+# 【重要】あなたは既にこのファイルを使っています！
+#
+#   docker compose exec web bin/dev
+#                           ↓
+#                  Procfile.dev を読み込む
+#                           ↓
+#            下記のコマンドが同時に起動される
+#
+# 【このファイルがないと困ること】
+#   - bin/dev が動かない
+#   - rails server と tailwindcss:watch を
+#     別々のターミナルで起動する必要がある
+#
+# 【書式】
+#   名前: コマンド
+#
+#   名前はログに表示される識別子（自由につけてOK）
+#   例: web, css, js, worker など
+#
+# 【Foreman とは】
+#   Procfile を読んで複数プロセスを管理するツール。
+#   bin/dev 内で「foreman start -f Procfile.dev」と呼ばれる。
+#
+# ==========================================
+
+# Railsサーバー（http://localhost:3000）
 web: bin/rails server
+
+# Tailwind CSS の監視・自動ビルド
+# ファイル変更を検知して自動でCSSを再生成する
 css: bin/rails tailwindcss:watch

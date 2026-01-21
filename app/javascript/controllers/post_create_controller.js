@@ -1,6 +1,41 @@
 // app/javascript/controllers/post_create_controller.js
-// 新規投稿コントローラー
-// 動画選択 + アクションプラン入力 + サムネイル画像 → 同時作成
+// ==========================================
+// 新規投稿（アクションプラン作成）コントローラー
+// ==========================================
+//
+// 【このコントローラーの役割】
+// 新規投稿画面で、動画選択 + アクションプラン入力 + サムネイル画像を
+// 1つのフォームで処理する。このアプリのメイン機能。
+//
+// 【処理フロー】
+//
+//   1. YouTube URL/キーワード入力
+//      ↓
+//   2. 動画を検索・選択
+//      ↓
+//   3. アクションプランを入力（AI提案も可能）
+//      ↓
+//   4. サムネイル画像を選択（S3にアップロード）
+//      ↓
+//   5. 送信 → Post & PostEntry を同時作成
+//
+// 【機能一覧】
+// - YouTube検索/URL検出
+// - 動画プレビュー表示
+// - AI提案（Gemini API）
+// - タイトル変換（AIでYouTube風に）
+// - 画像アップロード（S3署名付きURL）
+// - フォーム送信・バリデーション
+//
+// 【HTML側の使い方】
+// data-controller="post-create" を付けた要素内に
+// 各種 target と action を設定。詳細はビューファイル参照。
+//
+// 【Stimulusの概念】
+// - targets: HTML要素の参照（data-post-create-target="xxx"）
+// - values: コントローラーへの設定値（data-post-create-xxx-value="..."）
+// - actions: イベントハンドラー（data-action="click->post-create#xxx"）
+//
 
 import { Controller } from "@hotwired/stimulus"
 import { extractVideoId, getThumbnailUrl } from "utils/youtube_helpers"

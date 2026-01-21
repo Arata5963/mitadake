@@ -8,27 +8,6 @@ class Post < ApplicationRecord
   scope :with_entries, -> {
     joins(:post_entries).distinct
   }
-  scope :without_entries, -> {
-    left_joins(:post_entries)
-      .group("posts.id")
-      .having("COUNT(post_entries.id) = 0")
-  }
-  # 達成済みエントリーがある投稿
-  scope :with_achieved_entries, -> {
-    joins(:post_entries)
-      .where.not(post_entries: { achieved_at: nil })
-      .distinct
-  }
-  # 未達成エントリーのみの投稿（達成済みが1つもない）
-  scope :with_pending_entries_only, -> {
-    joins(:post_entries)
-      .where(post_entries: { achieved_at: nil })
-      .where.not(id: with_achieved_entries.select(:id))
-      .distinct
-  }
-  scope :stale_empty, -> {
-    without_entries.where("posts.created_at < ?", 24.hours.ago)
-  }
 
   before_save :set_youtube_video_id, if: :should_fetch_youtube_info?
   before_save :fetch_youtube_info, if: :should_fetch_youtube_info?
@@ -49,19 +28,6 @@ class Post < ApplicationRecord
 
   def self.ransackable_associations(_auth_object = nil)
     %w[user achievements]
-  end
-
-  # エントリー関連ヘルパー
-  def latest_entry
-    post_entries.recent.first
-  end
-
-  def entries_count
-    post_entries.count
-  end
-
-  def has_action_entries?
-    post_entries.where(entry_type: :action).exists?
   end
 
   # YouTube動画ID取得（保存値優先、なければURLから抽出）
@@ -94,16 +60,6 @@ class Post < ApplicationRecord
     end
   end
 
-  # 動画IDでPostを検索または初期化（互換性のため残す）
-  def self.find_or_initialize_by_video(youtube_url:)
-    video_id = extract_video_id(youtube_url)
-    return nil unless video_id
-
-    post = find_or_initialize_by(youtube_video_id: video_id)
-    post.youtube_url = youtube_url if post.new_record?
-    post
-  end
-
   # YouTubeサムネイルURL取得
   def youtube_thumbnail_url(size: :mqdefault)
     return nil unless youtube_video_id
@@ -118,11 +74,6 @@ class Post < ApplicationRecord
     "https://www.youtube.com/embed/#{youtube_video_id}"
   end
 
-  # エントリーを持つユーザー一覧
-  def entry_users
-    User.where(id: post_entries.select(:user_id).distinct)
-  end
-
   # 特定ユーザーのエントリーを取得
   def entries_by_user(user)
     post_entries.where(user: user)
@@ -131,17 +82,6 @@ class Post < ApplicationRecord
   # 特定ユーザーがエントリーを持っているか
   def has_entries_by?(user)
     post_entries.exists?(user: user)
-  end
-
-  # 達成率データを返す（グラフ表示用）
-  def achievement_stats
-    total = post_entries.count
-    return nil if total == 0
-
-    achieved = post_entries.achieved.count
-    percentage = (achieved.to_f / total * 100).round
-
-    { total: total, achieved: achieved, percentage: percentage }
   end
 
   # アクション数ランキング（TOP 10内なら順位を返す、それ以外はnil）
@@ -157,13 +97,6 @@ class Post < ApplicationRecord
                .size + 1
 
     rank <= 10 ? rank : nil
-  end
-
-  # YouTubeチャンネルURL（外部リンク用）
-  def youtube_channel_url
-    return nil unless youtube_channel_id.present?
-
-    "https://www.youtube.com/channel/#{youtube_channel_id}"
   end
 
   # ===== セクション用クラスメソッド =====
@@ -201,19 +134,6 @@ class Post < ApplicationRecord
           youtube_url: youtube_url
         }
       end
-  end
-
-  # 急上昇（過去30日のアクション数が多い投稿）
-  # @param limit [Integer, nil] 取得数（nilでページネーション用）
-  def self.trending(limit: 20)
-    base = Post
-      .joins(:post_entries)
-      .where("post_entries.created_at >= ?", 30.days.ago)
-      .group("posts.id")
-      .order(Arel.sql("COUNT(post_entries.id) DESC"))
-      .select("posts.*")
-
-    limit ? base.limit(limit) : base
   end
 
   # アクション数ランキング（総アクション数順）

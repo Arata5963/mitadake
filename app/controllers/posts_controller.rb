@@ -1,7 +1,7 @@
 # app/controllers/posts_controller.rb
 class PostsController < ApplicationController
   before_action :authenticate_user!, except: [ :index, :show, :autocomplete, :youtube_search, :find_or_create, :recent, :convert_to_youtube_title, :suggest_action_plans ]
-  before_action :set_post, only: [ :show, :edit, :update, :destroy, :summarize ]
+  before_action :set_post, only: [ :show, :edit, :update, :destroy ]
   before_action :check_has_entries, only: [ :edit, :update, :destroy ]
 
   def index
@@ -257,25 +257,6 @@ class PostsController < ApplicationController
     end
 
     render json: results
-  end
-
-  # AI学習ガイドを生成
-  def summarize
-    result = GeminiService.summarize_video(@post)
-
-    respond_to do |format|
-      if result[:success]
-        @summary = result[:summary]
-        # 要約をDBに保存
-        @post.update(ai_summary: @summary)
-        format.turbo_stream
-        format.json { render json: { success: true, summary: @summary } }
-      else
-        @error = result[:error]
-        format.turbo_stream { render :summarize_error }
-        format.json { render json: { success: false, error: @error }, status: :unprocessable_entity }
-      end
-    end
   end
 
   # AIアクションプラン提案を生成（Post作成不要）

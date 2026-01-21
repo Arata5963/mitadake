@@ -6,31 +6,6 @@ class TranscriptService
   TIMEOUT = 30 # 秒
 
   class << self
-    # 動画IDから字幕テキストを取得
-    # @param video_id [String] YouTube動画ID
-    # @return [String, nil] 字幕テキスト（失敗時はnil）
-    def fetch(video_id)
-      return nil if video_id.blank?
-
-      result = execute_script(video_id)
-      return nil unless result&.dig("success")
-
-      # 字幕データをプレーンテキストに変換
-      transcript_to_text(result["transcript"])
-    end
-
-    # 動画IDから字幕データを取得（タイムスタンプ付き）
-    # @param video_id [String] YouTube動画ID
-    # @return [Array<Hash>, nil] 字幕データ配列（失敗時はnil）
-    def fetch_with_timestamps(video_id)
-      return nil if video_id.blank?
-
-      result = execute_script(video_id)
-      return nil unless result&.dig("success")
-
-      result["transcript"]
-    end
-
     # 動画IDから字幕取得を試み、結果を詳細に返す
     # @param video_id [String] YouTube動画ID
     # @return [Hash] { success: true/false, transcript: "...", error: "..." }

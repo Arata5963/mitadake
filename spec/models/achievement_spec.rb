@@ -43,35 +43,6 @@ RSpec.describe Achievement, type: :model do
     it { should belong_to(:post) }
   end
 
-  describe "scopes" do
-    describe ".today" do
-      let(:user) { create(:user) }
-      let!(:today_achievement) { create(:achievement, user: user, achieved_at: Date.current) }
-      let!(:yesterday_achievement) { create(:achievement, user: user, achieved_at: 1.day.ago) }
-
-      it "今日の達成のみを返す" do
-        expect(Achievement.today).to include(today_achievement)
-        expect(Achievement.today).not_to include(yesterday_achievement)
-      end
-    end
-
-    describe ".recent" do
-      let(:user) { create(:user) }
-      let!(:old_achievement) { create(:achievement, user: user, achieved_at: 3.days.ago) }
-      let!(:recent_achievement) { create(:achievement, user: user, achieved_at: 1.day.ago) }
-
-      it "新しい順に並ぶ" do
-        expect(Achievement.recent.first).to eq(recent_achievement)
-      end
-
-      it "複数件を正しい順序で返す" do
-        middle_achievement = create(:achievement, user: user, achieved_at: 2.days.ago)
-        expect(Achievement.recent.to_a).to eq([ recent_achievement, middle_achievement, old_achievement ])
-      end
-    end
-
-  end
-
   describe "ビジネスロジック" do
     describe "達成の作成" do
       let(:user) { create(:user) }

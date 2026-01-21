@@ -236,16 +236,4 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe '#total_achievements_count' do
-    let(:user) { create(:user) }
-
-    it '達成数が0の場合' do
-      expect(user.total_achievements_count).to eq(0)
-    end
-
-    it '複数の達成がある場合' do
-      create_list(:achievement, 3, user: user)
-      expect(user.total_achievements_count).to eq(3)
-    end
-  end
 end

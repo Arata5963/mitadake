@@ -13,18 +13,6 @@ FactoryBot.define do
     end
 
     # 関連データ付き
-    trait :with_achievements do
-      transient do
-        achievements_count { 3 }
-        achievement_user { nil }
-      end
-
-      after(:create) do |post, evaluator|
-        user = evaluator.achievement_user || create(:user)
-        create_list(:achievement, evaluator.achievements_count, post: post, user: user)
-      end
-    end
-
     trait :with_entries do
       transient do
         entry_user { nil }

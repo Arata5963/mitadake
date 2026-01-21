@@ -25,7 +25,7 @@ RSpec.describe ApplicationRecord, type: :model do
     it '既存モデルがApplicationRecordを継承している' do
       expect(User.superclass).to eq(ApplicationRecord)
       expect(Post.superclass).to eq(ApplicationRecord)
-      expect(Achievement.superclass).to eq(ApplicationRecord)
+      expect(PostEntry.superclass).to eq(ApplicationRecord)
     end
   end
 end

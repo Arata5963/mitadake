@@ -4,7 +4,6 @@
 class Post < ApplicationRecord
   # ===== アソシエーション =====
   belongs_to :user, optional: true
-  has_many :achievements, dependent: :destroy
   has_many :post_entries, dependent: :destroy
 
   # ===== バリデーション =====
@@ -30,7 +29,7 @@ class Post < ApplicationRecord
   end
 
   def self.ransackable_associations(_auth_object = nil)
-    %w[user achievements]
+    %w[user]
   end
 
   # ===== YouTube関連メソッド =====

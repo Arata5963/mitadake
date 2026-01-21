@@ -26,7 +26,6 @@ RSpec.describe Post, type: :model do
     it '検索可能なアソシエーションのリストを返す' do
       associations = Post.ransackable_associations
       expect(associations).to include('user')
-      expect(associations).to include('achievements')
     end
 
     it '検索可能なアソシエーションは配列である' do
@@ -43,14 +42,6 @@ RSpec.describe Post, type: :model do
   describe 'dependent destroy' do
     let(:user) { create(:user) }
     let(:post) { create(:post, user: user) }
-
-    it '投稿を削除すると達成記録も削除される' do
-      create(:achievement, user: user, post: post, achieved_at: Date.current)
-
-      expect {
-        post.destroy
-      }.to change(Achievement, :count).by(-1)
-    end
 
     it '投稿を削除するとアクションプランも削除される' do
       create(:post_entry, user: user, post: post, deadline: 1.week.from_now)

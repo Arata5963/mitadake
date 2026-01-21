@@ -9,7 +9,6 @@ class User < ApplicationRecord
 
   # ===== アソシエーション =====
   has_many :posts, dependent: :destroy
-  has_many :achievements, dependent: :destroy
   has_many :entry_likes, dependent: :destroy
   has_many :post_entries, dependent: :destroy
 

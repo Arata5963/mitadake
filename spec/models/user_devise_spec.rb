@@ -187,7 +187,6 @@ RSpec.describe User, type: :model do
 
     before do
       post = create(:post, user: user)
-      create(:achievement, user: user, post: post, achieved_at: Date.current)
       create(:post_entry, user: user, post: post, deadline: 1.week.from_now)
     end
 
@@ -196,7 +195,6 @@ RSpec.describe User, type: :model do
         user.destroy
       }.to change { User.count }.by(-1)
         .and change { Post.count }.by(-1)
-        .and change { Achievement.count }.by(-1)
         .and change { PostEntry.count }.by(-1)
     end
   end

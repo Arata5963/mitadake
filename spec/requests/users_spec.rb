@@ -237,7 +237,6 @@ RSpec.describe 'Users', type: :request do
     context '達成記録がある場合' do
       let!(:post_record) { create(:post) }
       let!(:entry) { create(:post_entry, :action, post: post_record, user: user, deadline: 1.week.from_now, achieved_at: Time.current) }
-      let!(:achievement) { create(:achievement, user: user, post: post_record) }
 
       it 'マイページに達成済みアクションプランが表示される' do
         get mypage_path

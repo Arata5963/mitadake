@@ -13,9 +13,6 @@ class UsersController < ApplicationController
         return
       end
 
-      # 統計
-      @total_achievements = @user.achievements.count
-
       # 他のユーザーの投稿一覧（そのユーザーがエントリーを持つPost）
       user_post_ids = PostEntry.where(user: @user).select(:post_id).distinct
       @user_posts = Post.where(id: user_post_ids)
@@ -27,8 +24,6 @@ class UsersController < ApplicationController
       @user = current_user
       @is_own_page = true
 
-      # 統計
-      @total_achievements = @user.achievements.count
       today = Date.current
 
       # ユーザーの投稿一覧（自分がエントリーを持つPost）

@@ -14,7 +14,6 @@ RSpec.describe Post, type: :model do
 
   describe "associations" do
     it { should belong_to(:user).optional }
-    it { should have_many(:achievements) }
     it { should have_many(:post_entries) }
   end
 

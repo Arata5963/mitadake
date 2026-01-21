@@ -30,16 +30,6 @@ RSpec.describe "Factory の動作確認", type: :model do
     end
   end
 
-  describe "Achievement Factory" do
-    it "基本的な Achievement を作成できる" do
-      achievement = create(:achievement)
-      expect(achievement).to be_persisted
-      expect(achievement.user).to be_present
-      expect(achievement.post).to be_present
-      expect(achievement.achieved_at).to eq(Date.current)
-    end
-  end
-
   describe "PostEntry Factory" do
     it "基本的な PostEntry を作成できる" do
       entry = create(:post_entry, deadline: 1.week.from_now)

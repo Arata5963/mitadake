@@ -23,7 +23,7 @@ class PostsController < ApplicationController
     end
 
     @q = Post.ransack(params[:q])
-    base_scope = @q.result(distinct: true).includes(:achievements, :post_entries)
+    base_scope = @q.result(distinct: true).includes(:post_entries)
 
     if params[:user_id].present?
       load_user_filtered_posts(base_scope)

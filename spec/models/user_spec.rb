@@ -102,7 +102,6 @@ RSpec.describe User, type: :model do
 
   describe "associations" do
     it { should have_many(:posts).dependent(:destroy) }
-    it { should have_many(:achievements).dependent(:destroy) }
     it { should have_many(:post_entries).dependent(:destroy) }
     it { should have_many(:entry_likes).dependent(:destroy) }
   end
@@ -111,14 +110,14 @@ RSpec.describe User, type: :model do
     it "ユーザー削除で関連レコードも削除される" do
       user = create(:user)
       post = create(:post, user: user)
-      create(:achievement, user: user, post: post, achieved_at: Date.current)
+      create(:post_entry, user: user, post: post, deadline: 1.week.from_now)
 
       expect {
         user.destroy
       }.to change {
         [
           Post.where(user_id: user.id).count,
-          Achievement.where(user_id: user.id).count
+          PostEntry.where(user_id: user.id).count
         ]
       }.from([ 1, 1 ]).to([ 0, 0 ])
     end

@@ -1,3 +1,31 @@
+# Gemfile
+# ==========================================
+# プロジェクトの依存ライブラリ一覧
+# ==========================================
+#
+# 【Gemfileとは？】
+# Rubyプロジェクトで使用する外部ライブラリ（Gem）を定義するファイル。
+# `bundle install` コマンドでこのファイルに書かれたGemが全てインストールされる。
+#
+# 【基本的な書き方】
+#   gem "ライブラリ名"           # 最新バージョン
+#   gem "ライブラリ名", "~> 1.0" # バージョン指定（1.0以上2.0未満）
+#   gem "ライブラリ名", ">= 1.0" # 1.0以上の任意のバージョン
+#
+# 【グループの意味】
+#   group :development       # 開発環境でのみ使用
+#   group :test              # テスト環境でのみ使用
+#   group :development, :test # 開発・テスト両方で使用
+#   group :production        # 本番環境でのみ使用
+#
+# 【よく使うコマンド】
+#   bundle install           # Gemfileに基づいてインストール
+#   bundle update            # Gemを最新版に更新
+#   bundle add gem名         # 新しいGemを追加
+#   bundle info gem名        # Gemの詳細情報を表示
+#
+# ==========================================
+
 # Gemの取得元を指定（RubyGemsの公式リポジトリ）
 source "https://rubygems.org"
 
@@ -28,8 +56,6 @@ gem "solid_cache"                  # 高速キャッシュシステム
 gem "solid_queue"                  # バックグラウンドジョブ処理
 gem "solid_cable"                  # WebSocket通信（リアルタイム機能）
 gem "bootsnap", require: false     # Rails起動高速化
-gem "sidekiq", "~> 7.2"            # バックグラウンドジョブ処理（Redis使用）
-gem "sidekiq-scheduler", "~> 5.0"  # 定期ジョブスケジューラ
 
 # ===== 画像アップロード機能 =====
 gem "carrierwave"                  # ファイルアップロード管理

@@ -442,8 +442,6 @@ GEM
       erb
       psych (>= 4.0.0)
     redcarpet (3.6.1)
-    redis-client (0.26.1)
-      connection_pool
     regexp_parser (2.11.2)
     reline (0.6.2)
       io-console (~> 0.5)
@@ -512,8 +510,6 @@ GEM
       ffi (~> 1.12)
       logger
     rubyzip (3.1.0)
-    rufus-scheduler (3.9.2)
-      fugit (~> 1.1, >= 1.11.1)
     securerandom (0.4.1)
     selenium-webdriver (4.35.0)
       base64 (~> 0.2)
@@ -523,16 +519,6 @@ GEM
       websocket (~> 1.0)
     shoulda-matchers (6.5.0)
       activesupport (>= 5.2.0)
-    sidekiq (7.3.9)
-      base64
-      connection_pool (>= 2.3.0)
-      logger
-      rack (>= 2.2.4)
-      redis-client (>= 0.22.2)
-    sidekiq-scheduler (5.0.6)
-      rufus-scheduler (~> 3.2)
-      sidekiq (>= 6, < 8)
-      tilt (>= 1.4.0, < 3)
     signet (0.21.0)
       addressable (~> 2.8)
       faraday (>= 0.17.5, < 3.a)
@@ -578,7 +564,6 @@ GEM
     tailwindcss-ruby (4.1.12-x86_64-linux-gnu)
     tailwindcss-ruby (4.1.12-x86_64-linux-musl)
     thor (1.4.0)
-    tilt (2.6.1)
     timeout (0.4.3)
     trailblazer-option (0.1.2)
     turbo-rails (2.0.16)
@@ -663,8 +648,6 @@ DEPENDENCIES
   ruby-lsp-rails
   selenium-webdriver
   shoulda-matchers (~> 6.4)
-  sidekiq (~> 7.2)
-  sidekiq-scheduler (~> 5.0)
   simplecov
   solid_cable
   solid_cache

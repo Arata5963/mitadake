@@ -1,14 +1,39 @@
-# This file is auto-generated from the current state of the database. Instead
-# of editing this file, please use the migrations feature of Active Record to
-# incrementally modify your database, and then regenerate this schema definition.
+# db/schema.rb
+# ==========================================
+# データベーススキーマ定義（自動生成）
+# ==========================================
 #
-# This file is the source Rails uses to define your schema when running `bin/rails
-# db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
-# be faster and is potentially less error prone than running all of your
-# migrations from scratch. Old migrations may fail to apply correctly if those
-# migrations use external dependencies or application code.
+# 【このファイルの役割】
+# データベースの現在の構造を Ruby コードで表現。
+# `rails db:schema:load` でこのファイルからDBを再構築できる。
 #
-# It's strongly recommended that you check this file into your version control system.
+# 【重要な注意点】
+#   - このファイルを直接編集しないこと！
+#   - マイグレーションを作成して `rails db:migrate` を実行する
+#   - 実行後、このファイルは自動的に更新される
+#
+# 【マイグレーションとの関係】
+#   db/migrate/*.rb → 変更履歴（差分）
+#   db/schema.rb    → 現在の最終状態（スナップショット）
+#
+# 【新規DB構築時】
+#   rails db:schema:load  # マイグレーション不要で高速
+#
+# 【よく使うコマンド】
+#   rails db:migrate         # 未実行のマイグレーションを適用
+#   rails db:migrate:status  # マイグレーション実行状況を確認
+#   rails db:rollback        # 直前のマイグレーションを取り消し
+#
+# 【テーブル一覧】
+#   - users:             ユーザー（Devise認証）
+#   - posts:             YouTube動画（1動画 = 1レコード）
+#   - post_entries:      アクションプラン（ユーザーの行動計画）
+#   - entry_likes:       いいね（アクションプランへの応援）
+#   - post_comparisons:  動画比較（関連動画の紐付け）
+#   - comments:          コメント（動画へのコメント）
+#   - solid_queue_*:     バックグラウンドジョブ用テーブル
+#
+# ==========================================
 
 ActiveRecord::Schema[7.2].define(version: 2026_01_21_040241) do
   # These are extensions that must be enabled in order to support this database

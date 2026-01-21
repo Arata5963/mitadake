@@ -1,3 +1,23 @@
+# db/migrate/20250911043444_devise_create_users.rb
+# ==========================================
+# Users テーブル作成（Devise認証）
+# ==========================================
+#
+# 【マイグレーションとは？】
+# データベースの構造を変更するためのスクリプト。
+# テーブル作成、カラム追加、インデックス作成などを行う。
+#
+# 【Deviseとは？】
+# Rails の認証ライブラリ。ログイン・新規登録・パスワードリセット等を提供。
+# このマイグレーションは `rails generate devise User` で自動生成された。
+#
+# 【よく使うコマンド】
+#   rails db:migrate          # マイグレーション実行
+#   rails db:rollback         # 直前のマイグレーションを取り消し
+#   rails db:migrate:status   # 実行状況を確認
+#
+# ==========================================
+
 class DeviseCreateUsers < ActiveRecord::Migration[7.2]
   def change
     create_table :users do |t|

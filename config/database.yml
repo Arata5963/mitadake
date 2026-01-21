@@ -1,16 +1,51 @@
-# PostgreSQL統一設定
+# config/database.yml
+# ==========================================
+# データベース接続設定
+# ==========================================
+#
+# 【このファイルの役割】
+# PostgreSQLデータベースへの接続情報を定義する。
+# 環境ごと（development/test/production）に異なる設定が可能。
+#
+# 【YAML アンカー（&）とエイリアス（*）】
+#   &default   # この設定に「default」という名前をつける（アンカー）
+#   <<: *default  # 「default」の設定を継承する（エイリアス）
+#
+# 【ERB記法】
+#   ENV.fetch("変数名") { デフォルト値 }
+#   環境変数から値を取得。未設定ならデフォルト値を使用。
+#
+# 【環境変数（本番環境）】
+#   DATABASE_URL: Renderなどのホスティングサービスが自動設定
+#   RAILS_MAX_THREADS: 同時接続数（プール数に使用）
+#
+# 【よく使うコマンド】
+#   docker compose exec web rails db:create   # DB作成
+#   docker compose exec web rails db:migrate  # マイグレーション実行
+#   docker compose exec web rails db:seed     # 初期データ投入
+#   docker compose exec web rails dbconsole   # DBに直接接続
+#
+# ==========================================
+
+# PostgreSQL共通設定（全環境で継承）
 default: &default
   adapter: postgresql
   encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
 
+# ==========================================
+# 開発環境（docker compose up で使用）
+# ==========================================
 development:
   <<: *default
   database: mitadake_development
-  host: db
+  host: db                    # docker-compose.yml で定義したサービス名
   username: postgres
   password: password
 
+# ==========================================
+# テスト環境（rspec 実行時に使用）
+# ==========================================
 test:
   <<: *default
   database: mitadake_test
@@ -18,6 +53,10 @@ test:
   username: postgres
   password: password
 
+# ==========================================
+# 本番環境（Render にデプロイ時に使用）
+# ==========================================
+# Solid Cache/Queue/Cable 用に複数データベース構成
 production:
   primary:
     <<: *default

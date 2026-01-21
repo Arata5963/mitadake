@@ -1,4 +1,30 @@
 #!/usr/bin/env ruby
+# bin/setup
+# ==========================================
+# 開発環境セットアップスクリプト
+# ==========================================
+#
+# 【このファイルの役割】
+# 新しい開発者がプロジェクトを始める際の初期設定を自動化する。
+# クローン後に `bin/setup` を実行するだけで開発開始できる。
+#
+# 【実行される処理】
+#   1. bundle install  (Gem インストール)
+#   2. db:prepare      (DB作成・マイグレーション)
+#   3. log:clear       (ログファイルクリア)
+#   4. tmp:clear       (一時ファイルクリア)
+#   5. bin/dev 起動    (開発サーバー)
+#
+# 【使い方】
+#   bin/setup              # セットアップ + サーバー起動
+#   bin/setup --skip-server # セットアップのみ（サーバー起動しない）
+#
+# 【idempotent（冪等性）】
+# このスクリプトは何度実行しても同じ結果になる。
+# 既にセットアップ済みでも安全に再実行可能。
+#
+# ==========================================
+
 require "fileutils"
 
 APP_ROOT = File.expand_path("..", __dir__)
@@ -8,9 +34,8 @@ def system!(*args)
 end
 
 FileUtils.chdir APP_ROOT do
-  # This script is a way to set up or update your development environment automatically.
-  # This script is idempotent, so that you can run it at any time and get an expectable outcome.
-  # Add necessary setup steps to this file.
+  # 開発環境を自動セットアップするスクリプト。
+  # 冪等性があるため、いつでも再実行可能。
 
   puts "== Installing dependencies =="
   system("bundle check") || system!("bundle install")

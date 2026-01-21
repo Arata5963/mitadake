@@ -1,2 +1,14 @@
-web: bin/rails server
-css: bin/rails tailwindcss:watch
+# Procfile.dev
+# ==========================================
+# bin/dev で同時起動するコマンドの一覧
+# ==========================================
+#
+# 【使い方】bin/dev → このファイルを読む → 下記が同時起動
+#
+# 【関連ファイル】
+#   - bin/dev → このファイルを呼び出す
+#
+# ==========================================
+
+web: bin/rails server              # Railsサーバー (localhost:3000)
+css: bin/rails tailwindcss:watch   # CSS変更を監視して自動反映

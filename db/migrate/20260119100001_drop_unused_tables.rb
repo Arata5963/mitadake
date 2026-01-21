@@ -1,4 +1,19 @@
 # db/migrate/20260119100001_drop_unused_tables.rb
+# ==========================================
+# 未使用テーブルを削除
+# ==========================================
+#
+# 【このマイグレーションの目的】
+# 機能の整理・廃止に伴い、使用されなくなったテーブルを削除する。
+# データベーススキーマを簡素化し、メンテナンス性を向上させる。
+#
+# 【削除されるテーブル】
+# - cheers: 投稿への応援（entry_likesに機能移行）
+# - favorite_videos: お気に入り動画（機能廃止）
+# - comment_bookmarks: コメントブックマーク（機能廃止）
+# - youtube_comments: YouTubeコメントキャッシュ（機能廃止）
+#
+# ==========================================
 class DropUnusedTables < ActiveRecord::Migration[7.2]
   def up
     drop_table :cheers, if_exists: true

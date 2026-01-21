@@ -1,7 +1,35 @@
+# config/storage.yml
+# ==========================================
+# Active Storage ファイル保存設定
+# ==========================================
+#
+# 【Active Storageとは？】
+# Rails 標準のファイルアップロード機能。
+# 画像・動画・ドキュメントなどをモデルに紐づけて保存できる。
+#
+# 【このプロジェクトでの使用状況】
+# Active Storage は使用していない。
+# 代わりに CarrierWave + AWS S3 を使用。
+# （config/initializers/carrierwave.rb を参照）
+#
+# 【サービスの種類】
+#   Disk:         ローカルファイルシステムに保存
+#   S3:           Amazon S3 に保存
+#   GCS:          Google Cloud Storage に保存
+#   AzureStorage: Microsoft Azure Blob Storage に保存
+#
+# 【設定の使い方】
+#   config/environments/development.rb で：
+#   config.active_storage.service = :local
+#
+# ==========================================
+
+# テスト環境: 一時フォルダに保存
 test:
   service: Disk
   root: <%= Rails.root.join("tmp/storage") %>
 
+# ローカル開発: storage/ フォルダに保存
 local:
   service: Disk
   root: <%= Rails.root.join("storage") %>

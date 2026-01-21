@@ -1,5 +1,31 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# ==========================================
+# YouTube 字幕取得スクリプト（Python）
+# ==========================================
+#
+# 【使い方】Rails の TranscriptService から呼び出される
+#
+#   TranscriptService.get_transcript(video_id)
+#       ↓
+#   python3 get_transcript.py <video_id>
+#       ↓
+#   JSON で字幕データを返す
+#
+# 【なぜ Python？】
+#   Ruby には YouTube 字幕取得の良いライブラリがない。
+#   Python の youtube-transcript-api が最も信頼性が高い。
+#
+# 【関連ファイル】
+#   - app/services/transcript_service.rb → このスクリプトを呼び出す
+#   - app/services/gemini_service.rb → 字幕を元に AI 分析
+#
+# 【字幕取得の優先順位】
+#   1. 日本語字幕（ja, ja-JP）
+#   2. 英語字幕（en, en-US）
+#   3. その他利用可能な字幕
+#
+# ==========================================
 """
 YouTube動画の字幕を取得するスクリプト
 Usage: python3 get_transcript.py <video_id>

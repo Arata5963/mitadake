@@ -1,3 +1,21 @@
+# db/migrate/20251008000119_create_comments.rb
+# ==========================================
+# Comments テーブル作成（コメント機能）
+# ==========================================
+#
+# 【このテーブルの役割】
+# 投稿（YouTube動画）へのコメントを管理する。
+# ユーザー同士のコミュニケーション機能。
+#
+# 【関連】
+#   User has_many :comments
+#   Post has_many :comments
+#
+# 【インデックス】
+#   [post_id, created_at]: 投稿ごとのコメント一覧を高速取得
+#
+# ==========================================
+
 class CreateComments < ActiveRecord::Migration[7.2]
   def change
     # commentsテーブルを新規作成

@@ -1,15 +1,41 @@
-# This file is copied to spec/ when you run 'rails generate rspec:install'
+# spec/rails_helper.rb
+# ==========================================
+# RSpec + Rails 統合設定ファイル
+# ==========================================
+#
+# 【このファイルの役割】
+# Rails 環境でのテストに必要な設定を定義する。
+# DB接続、Devise認証、FactoryBot等の設定を行う。
+#
+# 【設定されている機能】
+#   - SimpleCov:         テストカバレッジ計測
+#   - Shoulda Matchers:  モデルテストの DSL
+#   - FactoryBot:        テストデータ生成
+#   - Devise:            認証ヘルパー（sign_in 等）
+#   - DatabaseCleaner:   テスト間でのDB初期化
+#   - WebMock:           外部HTTPリクエストのモック
+#
+# 【テスト実行方法】
+#   docker compose exec web rspec              # 全テスト
+#   docker compose exec web rspec spec/models/ # モデルのみ
+#   docker compose exec web rspec --format doc # 詳細表示
+#
+# 【カバレッジ確認】
+#   テスト実行後に coverage/index.html を開く
+#
+# ==========================================
+
+# rails generate rspec:install で生成されたファイル
 require 'spec_helper'
 ENV['RAILS_ENV'] ||= 'test'
 require_relative '../config/environment'
-# Prevent database truncation if the environment is production
+
+# 本番環境では絶対にテストを実行しない（安全対策）
 abort("The Rails environment is running in production mode!") if Rails.env.production?
-# Uncomment the line below in case you have `--require rails_helper` in the `.rspec` file
-# that will avoid rails generators crashing because migrations haven't been run yet
-# return unless Rails.env.test?
+
 require 'rspec/rails'
 require 'webmock/rspec'
-# Add additional requires below this line. Rails is not loaded until this point!
+# この行より下に追加の require を記述（Rails はこの時点で読み込み済み）
 
 # WebMock設定: テスト中は外部HTTPリクエストを無効化（localhostは許可）
 WebMock.disable_net_connect!(allow_localhost: true)

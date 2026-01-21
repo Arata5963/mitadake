@@ -1,7 +1,37 @@
+# config/environments/production.rb
+# ==========================================
+# 本番環境の設定
+# ==========================================
+#
+# 【このファイルの役割】
+# 本番サーバー（Render）での動作を設定する。
+# セキュリティ・パフォーマンス・安定性を重視した設定。
+#
+# 【本番環境の特徴】
+#   - コードは起動時に全て読み込まれる（高速化）
+#   - エラー詳細はユーザーに表示されない
+#   - HTTPS が強制される
+#   - ログは STDOUT に出力される（Render が収集）
+#
+# 【デプロイ先】
+#   Render.com (https://www.mitadake.com)
+#
+# 【環境変数（Render で設定）】
+#   DATABASE_URL:    PostgreSQLの接続URL（自動設定）
+#   RAILS_LOG_LEVEL: ログレベル（デフォルト: info）
+#   SECRET_KEY_BASE: セッション暗号化キー
+#
+# 【デプロイ方法】
+#   1. GitHub の main ブランチにプッシュ
+#   2. Render が自動的にデプロイを開始
+#   3. bin/render-build.sh が実行される
+#
+# ==========================================
+
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
-  # Settings specified here will take precedence over those in config/application.rb.
+  # config/application.rb の設定よりこちらが優先される
 
   # Code is not reloaded between requests.
   config.enable_reloading = false

@@ -1,5 +1,32 @@
 # db/seeds.rb
-# 実際に使われそうなテストデータ
+# ==========================================
+# 初期データ投入スクリプト
+# ==========================================
+#
+# 【このファイルの役割】
+# 開発・テスト用のダミーデータをデータベースに投入する。
+# `rails db:seed` コマンドで実行される。
+#
+# 【実行方法】
+#   docker compose exec web rails db:seed      # データ投入
+#   docker compose exec web rails db:reset     # DB再作成 + seed実行
+#   docker compose exec web rails db:setup     # DB作成 + migrate + seed
+#
+# 【注意点】
+#   - このファイルを実行すると既存データは削除される
+#   - 本番環境では実行しないこと
+#   - YouTube動画IDは実在のものを使用（APIで情報取得可能）
+#
+# 【ログイン情報】
+#   Email:    test@example.com
+#   Password: password123
+#
+# 【作成されるデータ】
+#   - ユーザー: 8人（メインユーザー + 7人）
+#   - YouTube動画: 21本（中田敦彦、マコなり社長、TED等）
+#   - アクションプラン: 各ユーザーに3〜8個
+#
+# ==========================================
 
 puts "Seeding database..."
 

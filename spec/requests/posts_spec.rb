@@ -373,4 +373,183 @@ RSpec.describe "Posts", type: :request do
       expect(response).to have_http_status(:ok)
     end
   end
+
+  describe "GET /posts/youtube_search" do
+    before do
+      allow(YoutubeService).to receive(:search_videos).and_return([
+        { video_id: 'abc123', title: 'テスト動画', channel_name: 'テストチャンネル' }
+      ])
+    end
+
+    context 'クエリが2文字以上の場合' do
+      it 'YouTube検索結果をJSON形式で返す' do
+        get youtube_search_posts_path, params: { q: 'テスト' }, as: :json
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json).to be_an(Array)
+      end
+    end
+
+    context 'クエリが2文字未満の場合' do
+      it '空の配列を返す' do
+        get youtube_search_posts_path, params: { q: 'a' }, as: :json
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json).to eq([])
+      end
+    end
+  end
+
+  describe "GET /posts/search_posts" do
+    let!(:user) { create(:user) }
+    let!(:post_with_entry) { create(:post, user: user, youtube_title: 'プログラミング入門') }
+
+    before do
+      sign_in user
+      create(:post_entry, post: post_with_entry, user: user)
+    end
+
+    context 'クエリが2文字以上の場合' do
+      it '検索結果をJSON形式で返す' do
+        get search_posts_posts_path, params: { q: 'プログラミング' }
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json).to be_an(Array)
+      end
+    end
+
+    context 'クエリが2文字未満の場合' do
+      it '空の配列を返す' do
+        get search_posts_posts_path, params: { q: 'a' }
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json).to eq([])
+      end
+    end
+  end
+
+  describe "POST /posts/suggest_action_plans" do
+    before do
+      allow(GeminiService).to receive(:suggest_action_plans).and_return({
+        success: true,
+        action_plans: ['【やってみた】朝5時起きを実践した結果', '【検証】読書メモを記録してみた']
+      })
+    end
+
+    context 'video_idが指定されている場合' do
+      it 'アクションプランを返す' do
+        post suggest_action_plans_posts_path, params: { video_id: 'abc123', title: 'テスト動画' }, as: :json
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json['success']).to be true
+        expect(json['action_plans']).to be_an(Array)
+      end
+    end
+
+    context 'video_idが空の場合' do
+      it 'エラーを返す' do
+        post suggest_action_plans_posts_path, params: { video_id: '', title: 'テスト動画' }, as: :json
+        expect(response).to have_http_status(:unprocessable_entity)
+        json = JSON.parse(response.body)
+        expect(json['success']).to be false
+      end
+    end
+
+    context 'GeminiServiceがエラーを返した場合' do
+      before do
+        allow(GeminiService).to receive(:suggest_action_plans).and_return({
+          success: false,
+          error: 'AIが混み合っています'
+        })
+      end
+
+      it 'エラーを返す' do
+        post suggest_action_plans_posts_path, params: { video_id: 'abc123', title: 'テスト' }, as: :json
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+  end
+
+  describe "POST /posts/convert_to_youtube_title" do
+    before do
+      allow(GeminiService).to receive(:convert_to_youtube_title).and_return({
+        success: true,
+        title: '【やってみた】朝5時起きを実践した結果'
+      })
+    end
+
+    context 'アクションプランが指定されている場合' do
+      it '変換されたタイトルを返す' do
+        post convert_to_youtube_title_posts_path, params: { action_plan: '朝5時に起きる' }, as: :json
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json['success']).to be true
+        expect(json['title']).to be_present
+      end
+    end
+
+    context 'アクションプランが空の場合' do
+      it 'エラーを返す' do
+        post convert_to_youtube_title_posts_path, params: { action_plan: '' }, as: :json
+        expect(response).to have_http_status(:unprocessable_entity)
+        json = JSON.parse(response.body)
+        expect(json['success']).to be false
+      end
+    end
+
+    context 'GeminiServiceがエラーを返した場合' do
+      before do
+        allow(GeminiService).to receive(:convert_to_youtube_title).and_return({
+          success: false,
+          error: '変換に失敗しました'
+        })
+      end
+
+      it 'エラーを返す' do
+        post convert_to_youtube_title_posts_path, params: { action_plan: 'テスト' }, as: :json
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+  end
+
+  describe "POST /posts/create_with_action" do
+    let(:user) { create(:user) }
+
+    context 'youtube_urlが空の場合' do
+      before { sign_in user }
+
+      it 'エラーを返す' do
+        post create_with_action_posts_path, params: { youtube_url: '', action_plan: 'テスト' }, as: :json
+        expect(response).to have_http_status(:unprocessable_entity)
+        json = JSON.parse(response.body)
+        expect(json['error']).to eq('動画URLが必要です')
+      end
+    end
+
+    context 'action_planが空の場合' do
+      before { sign_in user }
+
+      it 'エラーを返す' do
+        post create_with_action_posts_path, params: { youtube_url: 'https://youtube.com/watch?v=test', action_plan: '' }, as: :json
+        expect(response).to have_http_status(:unprocessable_entity)
+        json = JSON.parse(response.body)
+        expect(json['error']).to eq('アクションプランが必要です')
+      end
+    end
+  end
+
+  describe "POST /posts/find_or_create" do
+    context '動画情報が取得できない場合' do
+      before do
+        allow(Post).to receive(:find_or_create_by_video).and_return(nil)
+      end
+
+      it 'エラーを返す' do
+        post find_or_create_posts_path, params: { youtube_url: 'https://youtube.com/watch?v=invalid' }, as: :json
+        expect(response).to have_http_status(:unprocessable_entity)
+        json = JSON.parse(response.body)
+        expect(json['error']).to include('取得できませんでした')
+      end
+    end
+  end
 end

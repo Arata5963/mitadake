@@ -236,4 +236,115 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe '.by_achieved_count' do
+    let!(:user1) { create(:user) }
+    let!(:user2) { create(:user) }
+    let!(:user3) { create(:user) }
+    let!(:post) { create(:post, user: user1) }
+
+    before do
+      # user1: 3件達成
+      3.times do
+        entry = create(:post_entry, post: post, user: user1)
+        entry.update!(achieved_at: Time.current)
+      end
+      # user2: 1件達成
+      entry = create(:post_entry, post: post, user: user2)
+      entry.update!(achieved_at: Time.current)
+      # user3: 0件達成
+    end
+
+    context '全期間（デフォルト）' do
+      it '達成数の多い順にユーザーを返す' do
+        result = User.by_achieved_count(limit: 10)
+        expect(result.first).to eq(user1)
+        expect(result.second).to eq(user2)
+      end
+
+      it '指定した件数に制限される' do
+        result = User.by_achieved_count(limit: 1)
+        expect(result.length).to eq(1)
+      end
+
+      it 'achieved_countが含まれる' do
+        result = User.by_achieved_count(limit: 10)
+        expect(result.first.achieved_count).to eq(3)
+      end
+    end
+
+    context '期間指定（today）' do
+      before do
+        # 過去の達成を追加
+        entry = create(:post_entry, post: post, user: user3)
+        entry.update!(achieved_at: 2.days.ago)
+      end
+
+      it '本日の達成のみカウントする' do
+        result = User.by_achieved_count(limit: 10, period: :today)
+        user_ids = result.map(&:id)
+        expect(user_ids).to include(user1.id)
+        expect(user_ids).to include(user2.id)
+      end
+    end
+
+    context '期間指定（week）' do
+      it '今週の達成をカウントする' do
+        result = User.by_achieved_count(limit: 10, period: :week)
+        expect(result).to be_present
+      end
+    end
+
+    context '期間指定（month）' do
+      it '今月の達成をカウントする' do
+        result = User.by_achieved_count(limit: 10, period: :month)
+        expect(result).to be_present
+      end
+    end
+  end
+
+  describe '#current_action_plan' do
+    let(:user) { create(:user) }
+    let(:post) { create(:post, user: user) }
+
+    context '未達成のアクションプランがある場合' do
+      let!(:entry) { create(:post_entry, post: post, user: user, achieved_at: nil) }
+
+      it '未達成のアクションプランを返す' do
+        expect(user.current_action_plan).to eq(entry)
+      end
+    end
+
+    context '全て達成済みの場合' do
+      let!(:entry) { create(:post_entry, post: post, user: user, achieved_at: Time.current) }
+
+      it 'nilを返す' do
+        expect(user.current_action_plan).to be_nil
+      end
+    end
+
+    context 'アクションプランがない場合' do
+      it 'nilを返す' do
+        expect(user.current_action_plan).to be_nil
+      end
+    end
+  end
+
+  describe '#current_video' do
+    let(:user) { create(:user) }
+    let(:post) { create(:post, user: user) }
+
+    context '未達成のアクションプランがある場合' do
+      let!(:entry) { create(:post_entry, post: post, user: user, achieved_at: nil) }
+
+      it '関連する動画を返す' do
+        expect(user.current_video).to eq(post)
+      end
+    end
+
+    context '未達成のアクションプランがない場合' do
+      it 'nilを返す' do
+        expect(user.current_video).to be_nil
+      end
+    end
+  end
 end

@@ -224,21 +224,21 @@ RSpec.describe PostEntry, type: :model do
     end
   end
 
-  describe '#extract_s3_key' do
+  describe '#extract_s3_key (private)' do
     let(:user) { create(:user) }
     let(:entry) { create(:post_entry, user: user) }
 
     it 'returns the same string for non-URL' do
-      expect(entry.extract_s3_key('user_thumbnails/123/image.jpg')).to eq('user_thumbnails/123/image.jpg')
+      expect(entry.send(:extract_s3_key, 'user_thumbnails/123/image.jpg')).to eq('user_thumbnails/123/image.jpg')
     end
 
     it 'extracts key from S3 URL' do
       url = 'https://bucket.s3.ap-northeast-1.amazonaws.com/user_thumbnails/123/image.jpg'
-      expect(entry.extract_s3_key(url)).to eq('user_thumbnails/123/image.jpg')
+      expect(entry.send(:extract_s3_key, url)).to eq('user_thumbnails/123/image.jpg')
     end
 
     it 'returns nil for invalid URI' do
-      expect(entry.extract_s3_key('http://invalid[url')).to be_nil
+      expect(entry.send(:extract_s3_key, 'http://invalid[url')).to be_nil
     end
   end
 

@@ -64,56 +64,16 @@ class PostEntry < ApplicationRecord
     entry_likes.exists?(user_id: user.id)
   end
 
-  # サムネイルURLを取得（署名付きURL）
-  # カスタム画像がある場合: S3署名付きURLを返す
-  # ない場合: nil（YouTubeサムネイルを使用）
+  # カスタムサムネイルの署名付きURLを取得
+  # @return [String, nil] S3署名付きURL、またはnil（YouTubeサムネイルを使用）
   def signed_thumbnail_url
-    return nil if thumbnail_url.blank?
-
-    # S3キーを取得（フルURLの場合はキーを抽出）
-    s3_key = extract_s3_key(thumbnail_url)
-    return nil if s3_key.blank?
-
-    # 署名付きURLを生成
-    s3 = Aws::S3::Resource.new(
-      region: ENV["AWS_REGION"],
-      access_key_id: ENV["AWS_ACCESS_KEY_ID"],
-      secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"]
-    )
-    obj = s3.bucket(ENV["AWS_BUCKET"]).object(s3_key)
-    obj.presigned_url(:get, expires_in: 600)
-  rescue Aws::S3::Errors::ServiceError
-    nil
-  end
-
-  # S3キーを抽出（フルURLの場合も対応）
-  def extract_s3_key(url)
-    return url unless url.start_with?("http://", "https://")
-
-    # S3 URLからキーを抽出
-    # 例: https://bucket.s3.region.amazonaws.com/path/to/file.png -> path/to/file.png
-    uri = URI.parse(url)
-    uri.path[1..] # 先頭の "/" を除去
-  rescue URI::InvalidURIError
-    nil
+    generate_signed_url(thumbnail_url)
   end
 
   # 達成記録画像の署名付きURLを取得
+  # @return [String, nil] S3署名付きURL
   def signed_result_image_url
-    return nil if result_image.blank?
-
-    s3_key = extract_s3_key(result_image)
-    return nil if s3_key.blank?
-
-    s3 = Aws::S3::Resource.new(
-      region: ENV["AWS_REGION"],
-      access_key_id: ENV["AWS_ACCESS_KEY_ID"],
-      secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"]
-    )
-    obj = s3.bucket(ENV["AWS_BUCKET"]).object(s3_key)
-    obj.presigned_url(:get, expires_in: 600)
-  rescue Aws::S3::Errors::ServiceError
-    nil
+    generate_signed_url(result_image)
   end
 
   # 達成記録表示用サムネイルURL（フォールバック付き）
@@ -146,6 +106,38 @@ class PostEntry < ApplicationRecord
   end
 
   private
+
+  # S3署名付きURLを生成（共通処理）
+  # @param url_or_key [String, nil] S3キーまたはフルURL
+  # @param expires_in [Integer] 有効期限（秒）
+  # @return [String, nil] 署名付きURL
+  def generate_signed_url(url_or_key, expires_in: 600)
+    return nil if url_or_key.blank?
+
+    s3_key = extract_s3_key(url_or_key)
+    return nil if s3_key.blank?
+
+    s3 = Aws::S3::Resource.new(
+      region: ENV["AWS_REGION"],
+      access_key_id: ENV["AWS_ACCESS_KEY_ID"],
+      secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"]
+    )
+    s3.bucket(ENV["AWS_BUCKET"]).object(s3_key).presigned_url(:get, expires_in: expires_in)
+  rescue Aws::S3::Errors::ServiceError
+    nil
+  end
+
+  # S3キーを抽出（フルURLの場合も対応）
+  # @param url [String] S3キーまたはフルURL
+  # @return [String, nil] S3キー
+  def extract_s3_key(url)
+    return url unless url.start_with?("http://", "https://")
+
+    # 例: https://bucket.s3.region.amazonaws.com/path/to/file.png -> path/to/file.png
+    URI.parse(url).path[1..]
+  rescue URI::InvalidURIError
+    nil
+  end
 
   # 期限を自動設定（作成日から7日後）
   def set_auto_deadline

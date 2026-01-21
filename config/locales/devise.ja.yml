@@ -1,4 +1,33 @@
 # config/locales/devise.ja.yml
+# ==========================================
+# Devise（認証）日本語ロケール
+# ==========================================
+#
+# 【このファイルの役割】
+# Devise認証ライブラリで使用される日本語メッセージを定義。
+# このファイルを設定することで、Deviseのエラーメッセージや
+# 成功メッセージが日本語で表示される。
+#
+# 【主なメッセージカテゴリ】
+#   confirmations: メール確認関連
+#   failure:       ログイン失敗（「パスワードが違います」等）
+#   mailer:        送信メールの件名
+#   omniauth:      Google/OAuth認証
+#   passwords:     パスワードリセット
+#   registrations: ユーザー登録完了、アカウント削除
+#   sessions:      「ログインしました」「ログアウトしました」
+#   unlocks:       アカウント凍結解除
+#
+# 【よく使われるメッセージ】
+#   devise.sessions.signed_in      → "ログインしました。"
+#   devise.sessions.signed_out     → "ログアウトしました。"
+#   devise.failure.invalid         → "メールアドレスまたはパスワードが違います。"
+#   devise.registrations.signed_up → "アカウント登録が完了しました。"
+#
+# 【日本語化の設定】
+# config/application.rb で以下を設定:
+#   config.i18n.default_locale = :ja
+#
 ja:
   devise:
     confirmations:

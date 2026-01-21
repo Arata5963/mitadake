@@ -1,5 +1,28 @@
-<%# app/views/posts/_form.html.erb %>
-<%# シンプルなYouTube URL入力フォーム %>
+<%#
+  app/views/posts/_form.html.erb
+  ==========================================
+  投稿フォーム（YouTube URL入力）
+  ==========================================
+
+  【このパーシャルの役割】
+  YouTube動画を登録/編集するためのフォーム。
+  URLを貼り付けるか、タイトルで検索して動画を選択。
+
+  【パラメータ】
+  - post: Postオブジェクト
+
+  【入力モード】
+  1. URLを貼り付け: YouTube URLを直接入力
+  2. タイトルで検索: YouTube Data APIで動画を検索
+
+  【Stimulusコントローラー】
+  - youtube-search: YouTube検索/URL入力の切り替え
+  - clipboard: クリップボードからURLを自動検出
+
+  【フォーム送信先】
+  - 新規: POST /posts → PostsController#create
+  - 更新: PATCH /posts/:id → PostsController#update
+%>
 <div class="min-h-screen py-8">
   <div class="max-w-2xl mx-auto px-4">
 

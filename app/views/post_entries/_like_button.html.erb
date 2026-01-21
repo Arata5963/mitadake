@@ -1,5 +1,29 @@
-<%# app/views/post_entries/_like_button.html.erb %>
-<%# いいねボタン（ハート） - toggle_like を使用 %>
+<%#
+  app/views/post_entries/_like_button.html.erb
+  ==========================================
+  いいねボタン（ハートアイコン）
+  ==========================================
+
+  【このパーシャルの役割】
+  アクションプラン（PostEntry）へのいいねボタン。
+  クリックでいいねのON/OFFを切り替え。
+
+  【パラメータ】
+  post_entry: PostEntryオブジェクト
+
+  【表示パターン】
+  1. ログイン済み + いいね済み → 赤いハート（塗りつぶし）
+  2. ログイン済み + 未いいね → グレーハート（枠線のみ）
+  3. 未ログイン → グレーハート（クリック不可）
+
+  【いいね切り替え】
+  POST /posts/:post_id/post_entries/:id/toggle_like
+  Turbo で画面遷移なしにボタンが更新される。
+
+  【liked_by?(user)】
+  PostEntryモデルのメソッド。
+  そのユーザーがいいね済みかどうかを判定。
+%>
 
 <div id="like_button_<%= post_entry.id %>" class="inline-flex items-center">
   <% if user_signed_in? %>

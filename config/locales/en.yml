@@ -1,31 +1,46 @@
-# Files in the config/locales directory are used for internationalization and
-# are automatically loaded by Rails. If you want to use locales other than
-# English, add the necessary files in this directory.
+# config/locales/en.yml
+# ==========================================
+# 英語ロケールファイル（i18n設定）
+# ==========================================
 #
-# To use the locales, use `I18n.t`:
+# 【このファイルの役割】
+# アプリケーション内の英語テキストを定義する。
+# Rails の国際化（i18n）機能で使用。
 #
-#     I18n.t "hello"
+# 【i18nとは？】
+# Internationalization（国際化）の略称。
+# i と n の間に18文字あるため i18n と呼ばれる。
+# 複数言語対応を実現する仕組み。
 #
-# In views, this is aliased to just `t`:
+# 【YAMLの構造】
+# 言語コード:
+#   カテゴリ:
+#     キー: "翻訳テキスト"
 #
-#     <%= t("hello") %>
+# 【使い方（ビューで）】
+#   t("hello")                    # → "Hello world"
+#   t("posts.not_found")          # → "Post not found"
+#   I18n.t("hello", locale: :en)  # 言語指定も可能
 #
-# To use a different locale, set it with `I18n.locale`:
+# 【変数の埋め込み】
+#   greeting: "Hello, %{name}!"
+#   t("greeting", name: "John")   # → "Hello, John!"
 #
-#     I18n.locale = :es
+# 【複数形対応】
+#   items:
+#     one: "1 item"
+#     other: "%{count} items"
+#   t("items", count: 5)          # → "5 items"
 #
-# This would use the information in config/locales/es.yml.
+# 【注意】
+# YAML では true, false, on, off, yes, no は
+# 真偽値として解釈されるため、文字列として使う場合は
+# クォートで囲む必要がある。
 #
-# To learn more about the API, please read the Rails Internationalization guide
-# at https://guides.rubyonrails.org/i18n.html.
+# 【関連ファイル】
+# - ja.yml: 日本語ロケール
+# - devise.en.yml: Devise（認証）の英語
+# - devise.ja.yml: Devise（認証）の日本語
 #
-# Be aware that YAML interprets the following case-insensitive strings as
-# booleans: `true`, `false`, `on`, `off`, `yes`, `no`. Therefore, these strings
-# must be quoted to be interpreted as strings. For example:
-#
-#     en:
-#       "yes": yup
-#       enabled: "ON"
-
 en:
   hello: "Hello world"

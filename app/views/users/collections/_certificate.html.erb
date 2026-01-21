@@ -1,5 +1,29 @@
-<%# 達成証明書風コレクション %>
-<%# 公式な達成証明書のようなデザイン %>
+<%#
+  app/views/users/collections/_certificate.html.erb
+  ==========================================
+  達成コレクション: 証明書デザイン
+  ==========================================
+
+  【このパーシャルの役割】
+  達成したアクションプランを「達成証明書」風に表示。
+  公式な証明書のような格式あるデザイン。
+
+  【パラメータ】
+  entry: 達成済みのPostEntryオブジェクト
+
+  【デザイン要素】
+  - 装飾ボーダー（額縁風）
+  - エンブレム（星マーク）
+  - 「CERTIFICATE OF ACHIEVEMENT」タイトル
+  - 動画サムネイル
+  - アクションプラン（引用形式）
+  - 達成日
+  - 認定シール
+
+  【CSSクラス】
+  .certificate__* で定義
+  app/assets/stylesheets/collections.css
+%>
 <% post = entry.post %>
 
 <article class="certificate">

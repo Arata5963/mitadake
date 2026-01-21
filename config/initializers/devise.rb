@@ -1,5 +1,33 @@
 # frozen_string_literal: true
 
+# config/initializers/devise.rb
+# ==========================================
+# Devise 認証設定ファイル
+# ==========================================
+#
+# 【このファイルの役割】
+# Devise（認証ライブラリ）のグローバル設定を定義する。
+# ログイン、サインアップ、パスワードリセットなどの動作を制御。
+#
+# 【Deviseとは？】
+# Railsで最もよく使われる認証ライブラリ。
+# ユーザー登録、ログイン、パスワードリセット、
+# OAuth連携などを簡単に実装できる。
+#
+# 【このアプリでの使用モジュール】
+#
+#   :database_authenticatable  → メール+パスワード認証
+#   :registerable              → ユーザー登録機能
+#   :recoverable               → パスワードリセット
+#   :rememberable              → 「ログイン状態を保持」
+#   :validatable               → メール・パスワードのバリデーション
+#   :omniauthable              → OAuth認証（Google）
+#
+# 【関連ファイル】
+# - app/models/user.rb: deviseマクロを使用
+# - app/controllers/users/omniauth_callbacks_controller.rb: OAuth処理
+# - config/routes.rb: devise_for :users
+#
 # Assuming you have not yet modified this file, each configuration option below
 # is set to its default value. Note that some are commented out while others
 # are not: uncommented lines are intended to protect your configuration from
@@ -9,6 +37,13 @@
 # Use this hook to configure devise mailer, warden hooks and so forth.
 # Many of these configuration options can be set straight in your model.
 Devise.setup do |config|
+
+  # ------------------------------------------
+  # シークレットキー設定
+  # ------------------------------------------
+  # Deviseがトークン生成に使用するシークレットキー。
+  # デフォルトではRailsのsecret_key_baseを使用。
+  #
   # The secret key used by Devise. Devise uses this key to generate
   # random tokens. Changing this key will render invalid all existing
   # confirmation, reset password and unlock tokens in the database.
@@ -20,6 +55,13 @@ Devise.setup do |config|
   # Configure the parent class to the devise controllers.
   # config.parent_controller = 'DeviseController'
 
+  # ------------------------------------------
+  # メール設定
+  # ------------------------------------------
+  # 【mailer_sender】
+  # Deviseから送信されるメールの送信元アドレス。
+  # パスワードリセットメールなどに使用。
+  #
   # ==> Mailer Configuration
   # Configure the e-mail address which will be shown in Devise::Mailer,
   # note that it will be overwritten if you use your own mailer class
@@ -32,12 +74,28 @@ Devise.setup do |config|
   # Configure the parent class responsible to send e-mails.
   # config.parent_mailer = 'ActionMailer::Base'
 
+  # ------------------------------------------
+  # ORM設定
+  # ------------------------------------------
+  # 【ORMとは？】
+  # Object-Relational Mapping（オブジェクト関係マッピング）
+  # RubyオブジェクトとDBを橋渡しする仕組み。
+  # RailsではActive Recordがデフォルト。
+  #
   # ==> ORM configuration
   # Load and configure the ORM. Supports :active_record (default) and
   # :mongoid (bson_ext recommended) by default. Other ORMs may be
   # available as additional gems.
   require "devise/orm/active_record"
 
+  # ------------------------------------------
+  # 認証キー設定
+  # ------------------------------------------
+  # 【authentication_keys】
+  # ログイン時に使用する識別子。
+  # デフォルトは :email（メールアドレス）。
+  # ユーザー名でログインしたい場合は [:username] に変更。
+  #
   # ==> Configuration for any authentication mechanism
   # Configure which keys are used when authenticating a user. The default is
   # just :email. You can configure it to use [:username, :subdomain], so for
@@ -55,11 +113,25 @@ Devise.setup do |config|
   # The same considerations mentioned for authentication_keys also apply to request_keys.
   # config.request_keys = []
 
+  # ------------------------------------------
+  # 大文字小文字の区別
+  # ------------------------------------------
+  # 【case_insensitive_keys】
+  # メールアドレスの大文字小文字を区別しない設定。
+  # "User@Example.com" と "user@example.com" を同一視。
+  #
   # Configure which authentication keys should be case-insensitive.
   # These keys will be downcased upon creating or modifying a user and when used
   # to authenticate or find a user. Default is :email.
   config.case_insensitive_keys = [ :email ]
 
+  # ------------------------------------------
+  # 空白除去設定
+  # ------------------------------------------
+  # 【strip_whitespace_keys】
+  # メールアドレスの前後の空白を自動除去。
+  # " user@example.com " → "user@example.com"
+  #
   # Configure which authentication keys should have whitespace stripped.
   # These keys will have whitespace before and after removed upon creating or
   # modifying a user and when used to authenticate or find a user. Default is :email.
@@ -92,6 +164,13 @@ Devise.setup do |config|
   # Does not affect registerable.
   # config.paranoid = true
 
+  # ------------------------------------------
+  # セッション保存設定
+  # ------------------------------------------
+  # 【skip_session_storage】
+  # HTTP認証時はセッションに保存しない設定。
+  # API利用時にセッションを使わないためのオプション。
+  #
   # By default Devise will store the user in session. You can skip storage for
   # particular strategies by setting this option.
   # Notice that if you are skipping storage for all authentication paths, you
@@ -111,6 +190,17 @@ Devise.setup do |config|
   # won't boot properly.
   # config.reload_routes = true
 
+  # ------------------------------------------
+  # パスワードハッシュ強度（bcrypt）
+  # ------------------------------------------
+  # 【stretchesとは？】
+  # パスワードハッシュの計算回数。
+  # 数値が大きいほど安全だが、処理時間も増える。
+  #
+  # 【なぜテスト環境だけ1？】
+  # テストの実行速度を上げるため。
+  # 本番では12が推奨（十分なセキュリティ）。
+  #
   # ==> Configuration for :database_authenticatable
   # For bcrypt, this is the cost for hashing the password and defaults to 12. If
   # using other algorithms, it sets how many times you want the password to be hashed.
@@ -134,6 +224,13 @@ Devise.setup do |config|
   # Send a notification email when the user's password is changed.
   # config.send_password_change_notification = false
 
+  # ------------------------------------------
+  # メール確認設定（Confirmable）
+  # ------------------------------------------
+  # 【現在の状態】
+  # このアプリではメール確認機能を使用していない。
+  # 将来的に有効化する場合の設定例。
+  #
   # ==> Configuration for :confirmable
   # A period that the user is allowed to access the website even without
   # confirming their account. For instance, if set to 2.days, the user will be
@@ -153,6 +250,13 @@ Devise.setup do |config|
   # before confirming their account.
   # config.confirm_within = 3.days
 
+  # ------------------------------------------
+  # メール変更時の再確認
+  # ------------------------------------------
+  # 【reconfirmableとは？】
+  # メールアドレス変更時に新しいアドレスに確認メールを送る設定。
+  # trueの場合、確認するまで元のメールアドレスが使われる。
+  #
   # If true, requires any email changes to be confirmed (exactly the same way as
   # initial account confirmation) to be applied. Requires additional unconfirmed_email
   # db field (see migrations). Until confirmed, new email is stored in
@@ -162,6 +266,13 @@ Devise.setup do |config|
   # Defines which key will be used when confirming an account
   # config.confirmation_keys = [:email]
 
+  # ------------------------------------------
+  # 「ログイン状態を保持」設定（Rememberable）
+  # ------------------------------------------
+  # 【expire_all_remember_me_on_sign_out】
+  # ログアウト時に全てのremember meトークンを無効化。
+  # セキュリティのため true を推奨。
+  #
   # ==> Configuration for :rememberable
   # The time the user will be remembered without asking for credentials again.
   # config.remember_for = 2.weeks
@@ -176,6 +287,17 @@ Devise.setup do |config|
   # secure: true in order to force SSL only cookies.
   # config.rememberable_options = {}
 
+  # ------------------------------------------
+  # パスワードバリデーション設定（Validatable）
+  # ------------------------------------------
+  # 【password_length】
+  # パスワードの長さ制限。
+  # 6文字以上、128文字以下を許可。
+  #
+  # 【email_regexp】
+  # メールアドレスの形式チェック用正規表現。
+  # シンプルなチェック（@が1つ含まれること）のみ。
+  #
   # ==> Configuration for :validatable
   # Range for password length.
   config.password_length = 6..128
@@ -216,6 +338,13 @@ Devise.setup do |config|
   # Warn on the last attempt before the account is locked.
   # config.last_attempt_warning = true
 
+  # ------------------------------------------
+  # パスワードリセット設定（Recoverable）
+  # ------------------------------------------
+  # 【reset_password_within】
+  # パスワードリセットトークンの有効期限。
+  # 6時間以内にリセットしないと無効になる。
+  #
   # ==> Configuration for :recoverable
   #
   # Defines which key will be used when recovering the password for an account
@@ -254,6 +383,14 @@ Devise.setup do |config|
   # only the current scope. By default, Devise signs out all scopes.
   # config.sign_out_all_scopes = true
 
+  # ------------------------------------------
+  # ナビゲーション設定
+  # ------------------------------------------
+  # 【navigational_formats】
+  # リダイレクトを行うフォーマットを指定。
+  # HTMLとTurbo Streamはリダイレクト、
+  # JSONやXMLは401エラーを返す。
+  #
   # ==> Navigation configuration
   # Lists the formats that should be treated as navigational. Formats like
   # :html should redirect to the sign in page when the user does not have
@@ -265,6 +402,13 @@ Devise.setup do |config|
   # The "*/*" below is required to match Internet Explorer requests.
   config.navigational_formats = ['*/*', :html, :turbo_stream]
 
+  # ------------------------------------------
+  # ログアウト方法
+  # ------------------------------------------
+  # 【sign_out_via】
+  # ログアウトに使用するHTTPメソッド。
+  # :delete が推奨（セキュリティのため）。
+  #
   # The default HTTP method used to sign out a resource. Default is :delete.
   config.sign_out_via = :delete
 
@@ -296,6 +440,22 @@ Devise.setup do |config|
   # so you need to do it manually. For the users scope, it would be:
   # config.omniauth_path_prefix = '/my_engine/users/auth'
 
+  # ------------------------------------------
+  # Hotwire/Turbo対応設定
+  # ------------------------------------------
+  # 【error_status と redirect_status】
+  # Hotwire/Turboと連携するためのHTTPステータス設定。
+  #
+  # 従来のRails:
+  #   エラー時 → 200 OK + エラーHTML
+  #   リダイレクト時 → 302 Found
+  #
+  # Turbo対応:
+  #   エラー時 → 422 Unprocessable Entity
+  #   リダイレクト時 → 303 See Other
+  #
+  # Turboはこのステータスコードを見て動作を決定する。
+  #
   # ==> Hotwire/Turbo configuration
   # When using Devise with Hotwire/Turbo, the http status for error responses
   # and some redirects must match the following. The default in Devise for existing
@@ -310,13 +470,74 @@ Devise.setup do |config|
   # When set to false, does not sign a user in automatically after their password is
   # changed. Defaults to true, so a user is signed in automatically after changing a password.
   # config.sign_in_after_change_password = true
+
+  # ------------------------------------------
+  # Google OAuth2 設定
+  # ------------------------------------------
+  # 【OmniAuthとは？】
+  # 複数の認証プロバイダー（Google, Facebook, Twitter等）を
+  # 統一的に扱うためのライブラリ。
+  #
+  # 【認証フロー】
+  #
+  #   1. ユーザーが「Googleでログイン」をクリック
+  #      ↓
+  #   2. Googleの認証ページにリダイレクト
+  #      ↓
+  #   3. ユーザーがGoogleで認証
+  #      ↓
+  #   4. コールバックURLに戻る（認証コード付き）
+  #      ↓
+  #   5. Deviseがトークンを取得
+  #      ↓
+  #   6. ユーザー情報を取得してログイン/登録
+  #
+  # 【必要な環境変数】
+  # - GOOGLE_CLIENT_ID: Google Cloud Consoleで取得
+  # - GOOGLE_CLIENT_SECRET: Google Cloud Consoleで取得
+  #
+  # 【取得方法】
+  # 1. Google Cloud Console にアクセス
+  # 2. プロジェクト作成/選択
+  # 3. 「APIとサービス」→「認証情報」
+  # 4. 「OAuth 2.0 クライアント ID」を作成
+  # 5. 承認済みリダイレクト URI を設定
+  #    例: https://mitadake.example.com/users/auth/google_oauth2/callback
+  #
+  # 【関連ファイル】
+  # - app/controllers/users/omniauth_callbacks_controller.rb: コールバック処理
+  # - app/models/user.rb: from_omniauth メソッド
+  #
   config.omniauth :google_oauth2,              # Google OAuth2を使う
                 ENV["GOOGLE_CLIENT_ID"],      # クライアントID（環境変数から取得）
                 ENV["GOOGLE_CLIENT_SECRET"],  # クライアントシークレット（環境変数から取得）
                 {
-                  scope: "email,profile",     # 取得する情報（メールとプロフィール）
-                  prompt: "select_account",   # アカウント選択画面を表示
-                  image_aspect_ratio: "square", # プロフィール画像を正方形に
-                  image_size: 50              # 画像サイズ50px
+                  # ------------------------------------------
+                  # スコープ設定
+                  # ------------------------------------------
+                  # 取得を許可する情報の範囲。
+                  # email: メールアドレス
+                  # profile: 名前、プロフィール画像など
+                  #
+                  scope: "email,profile",
+
+                  # ------------------------------------------
+                  # プロンプト設定
+                  # ------------------------------------------
+                  # select_account: 毎回アカウント選択画面を表示
+                  # （複数のGoogleアカウントを持つユーザー向け）
+                  #
+                  prompt: "select_account",
+
+                  # ------------------------------------------
+                  # プロフィール画像設定
+                  # ------------------------------------------
+                  # square: 正方形にトリミング
+                  # （アバター表示に使いやすい形式）
+                  #
+                  image_aspect_ratio: "square",
+
+                  # 画像サイズ（ピクセル）
+                  image_size: 50
                 }
 end

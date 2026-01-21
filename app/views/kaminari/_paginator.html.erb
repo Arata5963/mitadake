@@ -1,4 +1,37 @@
-<%# Kaminariページネーションの全体構造 %>
+<%#
+  app/views/kaminari/_paginator.html.erb
+  ==========================================
+  Kaminariページネーション（全体構造）
+  ==========================================
+
+  【このファイルの役割】
+  ページネーション（ページ送り）UIの全体構造を定義。
+  「前へ」「1 2 3 ...」「次へ」のようなナビゲーション。
+
+  【Kaminariとは？】
+  Railsのページネーションライブラリ。
+  大量のデータを複数ページに分割して表示する機能を提供。
+
+  【使い方（コントローラー）】
+    @posts = Post.page(params[:page]).per(10)
+
+  【使い方（ビュー）】
+    paginate @posts
+
+  【構成パーシャル】
+  - _first_page: 最初のページへ
+  - _prev_page: 前のページへ
+  - _page: 各ページ番号
+  - _gap: 省略記号（...）
+  - _next_page: 次のページへ
+  - _last_page: 最後のページへ
+
+  【表示ロジック】
+  - left_outer?: 左端付近のページ
+  - right_outer?: 右端付近のページ
+  - inside_window?: 現在のページ付近
+  - was_truncated?: 省略されたかどうか
+%>
 <%= paginator.render do %>
   <nav class="flex justify-center items-center gap-2" role="navigation" aria-label="ページネーション">
     <%= first_page_tag unless current_page.first? %>

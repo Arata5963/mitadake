@@ -1,4 +1,26 @@
 # spec/system/interactions_spec.rb
+# ==========================================
+# インタラクションのシステムテスト
+# ==========================================
+#
+# 【このファイルの役割】
+# 達成記録など、ユーザーインタラクションの
+# 基本的な画面表示をテストする。
+#
+# 【テストの実行方法】
+#   docker compose exec web rspec spec/system/interactions_spec.rb
+#
+# 【テスト対象】
+# - 達成記録の表示
+#   - 自分のエントリー（挑戦中）
+#   - 達成済みエントリー
+# - 未ログイン時の閲覧制御
+#
+# 【注意】
+# 達成ボタンなどJavaScriptで動作する機能は
+# request spec でテストする。
+# このファイルでは画面表示の確認のみ。
+#
 require 'rails_helper'
 
 RSpec.describe "Interactions", type: :system do

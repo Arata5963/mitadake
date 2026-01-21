@@ -1,4 +1,15 @@
-<%# app/views/posts/edit.html.erb %>
+<%#
+  app/views/posts/edit.html.erb
+  ==========================================
+  投稿編集ページ
+  ==========================================
+
+  【このページの役割】
+  投稿を編集するフォーム。パーシャル _form.html.erb を使用。
+
+  【コントローラー】
+  PostsController#edit, PostsController#update
+%>
 <% content_for :title, "動画を編集" %>
 
 <%= render 'form', post: @post %>

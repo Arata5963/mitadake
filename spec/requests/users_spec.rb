@@ -1,3 +1,28 @@
+# spec/requests/users_spec.rb
+# ==========================================
+# Users コントローラーのリクエストテスト
+# ==========================================
+#
+# 【このファイルの役割】
+# ユーザー関連のエンドポイント（マイページ、プロフィール）を
+# テストする。
+#
+# 【テストの実行方法】
+#   docker compose exec web rspec spec/requests/users_spec.rb
+#
+# 【テスト対象】
+# - GET /mypage（自分のマイページ）
+# - GET /users/:id（他ユーザーのプロフィール）
+# - GET /edit_profile（プロフィール編集フォーム）
+# - PATCH /mypage（プロフィール更新）
+# - プロフィール画像アップロード
+# - 統計情報表示
+#
+# 【ルーティングの特徴】
+# - /mypage → 自分のプロフィール（ログイン必須）
+# - /users/:id → 他ユーザーのプロフィール（公開）
+# - 自分のIDでアクセス → /mypage にリダイレクト
+#
 require 'rails_helper'
 
 RSpec.describe 'Users', type: :request do
@@ -237,7 +262,6 @@ RSpec.describe 'Users', type: :request do
     context '達成記録がある場合' do
       let!(:post_record) { create(:post) }
       let!(:entry) { create(:post_entry, :action, post: post_record, user: user, deadline: 1.week.from_now, achieved_at: Time.current) }
-      let!(:achievement) { create(:achievement, user: user, post: post_record) }
 
       it 'マイページに達成済みアクションプランが表示される' do
         get mypage_path

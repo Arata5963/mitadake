@@ -1,5 +1,38 @@
-<%# app/views/users/designs/_mypage_vertical_compact.html.erb %>
-<%# デザイン: 投稿一覧と同じヒーロービデオスタイル %>
+<%#
+  app/views/users/designs/_mypage_vertical_compact.html.erb
+  ==========================================
+  マイページ（縦型コンパクトデザイン）
+  ==========================================
+
+  【このパーシャルの役割】
+  ユーザーのマイページを表示するメインコンポーネント。
+  投稿一覧と同じヒーロービデオスタイルを使用。
+
+  【パラメータ】
+  - user: ユーザーオブジェクト
+  - is_own_page: 自分のページかどうか（デフォルト: true）
+
+  【ページ構成】
+  1. プロフィールセクション
+     - アバター、名前、編集リンク
+     - 引用（お気に入りのフレーズ）
+
+  2. きっかけの動画（現在のアクションプラン）
+     - YouTube埋め込み（自動再生・ミュート）
+     - タイトルクリックでYouTubeへ
+
+  3. 私のアクション
+     - 現在取り組み中のアクションプラン
+     - 達成ボタン、編集・削除メニュー
+
+  4. コレクション
+     - 達成済みアクションプランのカード一覧
+
+  【Stimulusコントローラー】
+  - hero-video: YouTube埋め込みの制御
+  - entry-card: エントリーカードの操作
+  - collection-card: 達成記録モーダル表示
+%>
 
 <% is_own_page = local_assigns[:is_own_page].nil? ? true : is_own_page %>
 <% current_action = user.current_action_plan %>

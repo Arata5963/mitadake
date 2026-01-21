@@ -1,4 +1,31 @@
-<%# app/views/shared/_header.html.erb %>
+<%#
+  app/views/shared/_header.html.erb
+  ==========================================
+  共通ヘッダー
+  ==========================================
+
+  【このパーシャルの役割】
+  全ページ共通のヘッダーナビゲーション。
+  layouts/application.html.erb からレンダリングされる。
+
+  【構成要素】
+  - 左側: ロゴ（posts_path へリンク）
+  - 右側: ナビゲーションアイコン
+    - 投稿ボタン（ログイン時のみ）
+    - プロフィール/サイドバートリガー
+
+  【Stimulusコントローラー】
+  sidebar: サイドバーの開閉を制御
+
+  【レンダリングされるパーシャル】
+  - shared/avatar: アバター画像
+  - shared/sidebar: サイドバーメニュー
+
+  【スタイル】
+  - スティッキーヘッダー（sticky top-0）
+  - 最大幅 max-w-screen-xl
+  - 高さ h-14
+%>
 <header class="bg-white border-b border-gray-200 sticky top-0 z-40">
   <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
     <div class="flex h-14 items-center justify-between gap-4">

@@ -1,5 +1,36 @@
-<%# app/views/users/designs/_action_plan_card.html.erb %>
-<%# アクションプランカード（共通パーシャル） %>
+<%#
+  app/views/users/designs/_action_plan_card.html.erb
+  ==========================================
+  アクションプランカード（マイページ用）
+  ==========================================
+
+  【このパーシャルの役割】
+  マイページで現在取り組み中のアクションプランを表示するカード。
+  達成ボタンを押すと達成モーダルが開く。
+
+  【パラメータ】
+  - current_video: Postオブジェクト（動画情報）
+  - current_action: PostEntryオブジェクト（アクションプラン）
+  - display_thumbnail: 表示するサムネイルURL
+  - user: Userオブジェクト
+  - is_own_page: 自分のページかどうか
+
+  【自分のページの場合の追加機能】
+  - 3点リーダーメニュー（右上）
+    - 編集リンク
+    - 削除リンク
+
+  【Stimulusコントローラー】
+  achievement-card: 達成処理を制御
+  mode="input" → 入力モード（達成画像アップロード可能）
+
+  【detailsタグのメニュー】
+  HTML標準のdetails/summaryでドロップダウンを実装。
+  JavaScriptなしでクリックで開閉できる。
+
+  【いいねボタン】
+  post_entries/like_button パーシャルを使用
+%>
 
 <article style="max-width: 320px; position: relative;"
          data-controller="achievement-card"

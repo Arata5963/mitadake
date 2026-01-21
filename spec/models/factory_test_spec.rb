@@ -1,4 +1,28 @@
 # spec/models/factory_test_spec.rb
+# ==========================================
+# Factory（テストデータ生成）の動作確認テスト
+# ==========================================
+#
+# 【このファイルの役割】
+# FactoryBotで定義したファクトリが正しく動作することを確認する。
+# ファクトリに問題があると、他のテストが全て失敗するため重要。
+#
+# 【テストの実行方法】
+#   docker compose exec web rspec spec/models/factory_test_spec.rb
+#
+# 【テスト対象】
+# - User Factory（基本作成、メール重複なし）
+# - Post Factory（基本作成、ユーザー付き作成）
+# - PostEntry Factory（基本作成、関連付け確認）
+#
+# 【FactoryBotとは？】
+# テストデータを簡単に作成できるgem。
+# spec/factories/ にファクトリ定義ファイルがある。
+#
+#   create(:user)              # DBに保存
+#   build(:user)               # DBに保存しない
+#   create(:post, :with_user)  # trait（オプション）付き
+#
 require 'rails_helper'
 
 RSpec.describe "Factory の動作確認", type: :model do
@@ -27,16 +51,6 @@ RSpec.describe "Factory の動作確認", type: :model do
       post = create(:post, :with_user)
       expect(post).to be_persisted
       expect(post.user).to be_present
-    end
-  end
-
-  describe "Achievement Factory" do
-    it "基本的な Achievement を作成できる" do
-      achievement = create(:achievement)
-      expect(achievement).to be_persisted
-      expect(achievement.user).to be_present
-      expect(achievement.post).to be_present
-      expect(achievement.achieved_at).to eq(Date.current)
     end
   end
 

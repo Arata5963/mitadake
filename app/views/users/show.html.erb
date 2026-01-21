@@ -1,4 +1,24 @@
-<%# app/views/users/show.html.erb %>
+<%#
+  app/views/users/show.html.erb
+  ==========================================
+  ユーザープロフィールページ（マイページ共用）
+  ==========================================
+
+  【このページの役割】
+  ユーザーのプロフィールとアクションプラン実績を表示する。
+  自分の場合は「マイページ」、他人の場合は「プロフィール」。
+
+  【表示の切り替え】
+  @is_own_page で自分/他人を判定。
+  - 自分: 編集リンクあり、非公開情報表示
+  - 他人: 公開情報のみ表示
+
+  【レンダリングされるパーシャル】
+  users/designs/mypage_vertical_compact: メイン表示コンポーネント
+
+  【コントローラー】
+  UsersController#show（マイページ・プロフィール兼用）
+%>
 <% content_for :title, @is_own_page ? "マイページ" : "#{@user.name}のプロフィール" %>
 
 <div class="min-h-screen bg-white">

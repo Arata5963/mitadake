@@ -1,4 +1,25 @@
-<%# 案D: カード左に大きな数字（YouTube Music風） %>
+<%#
+  app/views/posts/_ranking_item_d.html.erb
+  ==========================================
+  ランキングアイテム（デザインD）
+  ==========================================
+
+  【デザインパターン】
+  案D: カード左に大きな数字（YouTube Music風）
+
+  【特徴】
+  - 順位をカード左側に大きな数字で表示
+  - YouTube Musicのチャートに似たデザイン
+
+  【パラメータ】
+  - post: Postオブジェクト
+  - rank: 順位（1, 2, 3...）
+
+  【サイズ】
+  カード全体: 240px
+  順位部分: 40px
+  サムネイル: 190px
+%>
 <article class="flex-shrink-0 group flex items-start gap-2" style="width: 240px; min-width: 240px; max-width: 240px;">
   <div class="flex-shrink-0 w-10 flex items-center justify-center pt-8">
     <span class="text-3xl font-black text-gray-900"><%= rank %></span>

@@ -1,4 +1,37 @@
-<%# app/views/devise/registrations/edit.html.erb %>
+<%#
+  app/views/devise/registrations/edit.html.erb
+  ==========================================
+  アカウント設定ページ
+  ==========================================
+
+  【このページの役割】
+  ログイン済みユーザーがアカウント情報を変更するページ。
+  メールアドレス変更、パスワード変更、アカウント削除が可能。
+
+  【アクセス方法】
+  マイページ → 設定アイコン など
+
+  【フォーム送信先】
+  PUT /users → Devise::RegistrationsController#update
+
+  【セクション構成】
+  1. メールアドレス変更
+  2. パスワード変更（任意）
+  3. 現在のパスワード入力（必須）
+  4. アカウント削除
+
+  【使用されるパーシャル】
+  - devise/shared/_error_messages: エラー表示
+  - shared/_password_field: パスワード入力（表示切替付き）
+
+  【現在のパスワード】
+  セキュリティのため、変更を保存するには
+  現在のパスワードの入力が必要。
+
+  【アカウント削除】
+  button_to + method: :delete で DELETE リクエスト送信。
+  data: { confirm: "..." } で確認ダイアログ表示。
+%>
 <% content_for :title, "アカウント設定" %>
 
 <div class="min-h-screen bg-gray-50">

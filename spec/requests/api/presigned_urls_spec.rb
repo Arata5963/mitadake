@@ -1,3 +1,33 @@
+# spec/requests/api/presigned_urls_spec.rb
+# ==========================================
+# Presigned URLs API のリクエストテスト
+# ==========================================
+#
+# 【このファイルの役割】
+# S3 署名付きURLを生成するAPIエンドポイントをテストする。
+# フロントエンドから直接S3にアップロードするための事前署名URL。
+#
+# 【テストの実行方法】
+#   docker compose exec web rspec spec/requests/api/presigned_urls_spec.rb
+#
+# 【テスト対象】
+# - POST /api/presigned_urls
+#   - 認証チェック（ログイン必須）
+#   - 許可されたファイル形式（jpeg, png, webp）
+#   - 不許可のファイル形式（gif, html等）
+#   - 生成されるS3キーにユーザーIDが含まれる
+#
+# 【Presigned URL とは？】
+# S3バケットへの一時的なアクセス権を付与するURL。
+# サーバー経由せずクライアントから直接S3にアップロードできる。
+#
+#   POST /api/presigned_urls
+#   { filename: 'image.jpg', content_type: 'image/jpeg' }
+#   → { upload_url: 'https://s3.../...?signature=...', s3_key: 'user_thumbnails/123/...' }
+#
+# 【AWS SDK モック】
+# Aws::S3::Presigner をモック化してテスト。
+#
 require 'rails_helper'
 
 RSpec.describe 'Api::PresignedUrls', type: :request do

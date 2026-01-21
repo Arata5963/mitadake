@@ -1,3 +1,22 @@
+<%#
+  app/views/layouts/mailer.html.erb
+  ==========================================
+  メール用HTMLレイアウト
+  ==========================================
+
+  【このファイルの役割】
+  ActionMailerで送信するHTMLメールの共通レイアウト。
+  Deviseのパスワードリセット等のメールで使用。
+
+  【メールHTMLの注意点】
+  - CSSはインラインスタイルで記述（メールクライアント互換性）
+  - JavaScriptは使用不可
+  - 画像は絶対URLで指定
+
+  【使用例】
+  devise/mailer/reset_password_instructions.html.erb
+  devise/mailer/confirmation_instructions.html.erb
+%>
 <!DOCTYPE html>
 <html>
   <head>

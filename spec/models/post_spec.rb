@@ -1,23 +1,62 @@
+# spec/models/post_spec.rb
+# ==========================================
+# Post モデルのテスト
+# ==========================================
+#
+# 【このファイルの役割】
+# Postモデル（YouTube動画）のバリデーション、
+# アソシエーション、メソッドが正しく動作することを検証する。
+#
+# 【テストの実行方法】
+#   docker compose exec web rspec spec/models/post_spec.rb
+#
+# 【テスト対象】
+# - バリデーション（youtube_url, action_plan）
+# - アソシエーション（user, post_entries）
+# - YouTube URL処理メソッド
+# - 動画情報の自動取得
+#
+# 【allow/receive】
+# 外部サービス（YouTube API）をモック化して
+# テストの独立性を保つ。
+#
+#   allow(YoutubeService).to receive(:fetch_video_info)
+#     .and_return({ title: "Test" })
+#
+
 require 'rails_helper'
 
 RSpec.describe Post, type: :model do
+  # ==========================================
+  # バリデーションのテスト
+  # ==========================================
   describe "validations" do
     it { should validate_presence_of(:youtube_url) }
     it { should validate_length_of(:action_plan).is_at_most(100) }
 
-    # YouTube URL検証
+    # ------------------------------------------
+    # YouTube URL形式の検証
+    # ------------------------------------------
+    # youtube.com/watch と youtu.be の両形式を許可
+    #
     it { should allow_value('https://www.youtube.com/watch?v=dQw4w9WgXcQ').for(:youtube_url) }
     it { should allow_value('https://youtu.be/dQw4w9WgXcQ').for(:youtube_url) }
     it { should_not allow_value('https://example.com').for(:youtube_url) }
     it { should_not allow_value('invalid-url').for(:youtube_url) }
   end
 
+  # ==========================================
+  # アソシエーションのテスト
+  # ==========================================
   describe "associations" do
+    # user は optional（動画は複数ユーザーで共有されるため）
     it { should belong_to(:user).optional }
-    it { should have_many(:achievements) }
     it { should have_many(:post_entries) }
   end
 
+  # ==========================================
+  # スコープのテスト
+  # ==========================================
   describe ".recent" do
     it "新しい順に並ぶ" do
       old_post = create(:post, created_at: 3.days.ago)
@@ -28,6 +67,12 @@ RSpec.describe Post, type: :model do
     end
   end
 
+  # ==========================================
+  # YouTube動画ID抽出のテスト
+  # ==========================================
+  # 【何をテストしている？】
+  # 様々な形式のYouTube URLから動画IDを正しく抽出できるか。
+  #
   describe "#youtube_video_id" do
     context "youtube.com/watch形式のURL" do
       let(:post) { build(:post, youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ') }
@@ -54,6 +99,9 @@ RSpec.describe Post, type: :model do
     end
   end
 
+  # ==========================================
+  # サムネイルURL生成のテスト
+  # ==========================================
   describe "#youtube_thumbnail_url" do
     let(:post) { build(:post, youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ') }
 
@@ -66,6 +114,9 @@ RSpec.describe Post, type: :model do
     end
   end
 
+  # ==========================================
+  # 埋め込みURL生成のテスト
+  # ==========================================
   describe "#youtube_embed_url" do
     context "有効なYouTube URLの場合" do
       let(:post) { build(:post, youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ') }
@@ -94,6 +145,9 @@ RSpec.describe Post, type: :model do
     end
   end
 
+  # ==========================================
+  # ユーザー別エントリー取得のテスト
+  # ==========================================
   describe "#entries_by_user" do
     let(:post) { create(:post) }
     let(:user) { create(:user) }
@@ -111,6 +165,9 @@ RSpec.describe Post, type: :model do
     end
   end
 
+  # ==========================================
+  # エントリー存在確認のテスト
+  # ==========================================
   describe "#has_entries_by?" do
     let(:post) { create(:post) }
     let(:user) { create(:user) }
@@ -129,10 +186,18 @@ RSpec.describe Post, type: :model do
     end
   end
 
+  # ==========================================
+  # 動画検索/作成のテスト
+  # ==========================================
+  # 【何をテストしている？】
+  # 同じ動画の重複登録を防ぐ機能。
+  # 既存の動画があれば再利用する。
+  #
   describe ".find_or_create_by_video" do
     let(:youtube_url) { 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }
 
     before do
+      # YouTube API をモック
       allow(YoutubeService).to receive(:fetch_video_info).and_return({
         title: 'Test Video Title',
         channel_name: 'Test Channel'
@@ -163,6 +228,13 @@ RSpec.describe Post, type: :model do
     end
   end
 
+  # ==========================================
+  # YouTube情報自動取得のテスト
+  # ==========================================
+  # 【何をテストしている？】
+  # Post作成時にYouTube APIから動画情報を自動取得する機能。
+  # before_save コールバックの動作確認。
+  #
   describe "YouTube情報自動取得" do
     let(:youtube_url) { 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }
 

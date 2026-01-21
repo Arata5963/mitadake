@@ -1,7 +1,47 @@
+# config/initializers/assets.rb
+# ==========================================
+# アセットパイプライン設定
+# ==========================================
+#
+# 【このファイルの役割】
+# Railsのアセットパイプライン（CSS, JS, 画像の管理）を設定する。
+#
+# 【アセットパイプラインとは？】
+# CSS、JavaScript、画像などの静的ファイルを
+# 効率的に配信するためのRailsの仕組み。
+#
+# 主な機能:
+# - ファイルの結合（複数ファイル → 1ファイル）
+# - 圧縮（ファイルサイズ削減）
+# - フィンガープリント（キャッシュ制御）
+#
+# 【Rails 7以降の変化】
+# Rails 7からはimportmap、esbuild、Propshaftなどの
+# 新しいアセット管理方法が推奨されている。
+# このアプリではTailwind CSS + esbuildを使用。
+#
 # Be sure to restart your server when you modify this file.
 
-# Version of your assets, change this if you want to expire all your assets.
+# ------------------------------------------
+# アセットバージョン
+# ------------------------------------------
+# 【何のための設定？】
+# この値を変更すると、全てのアセットのキャッシュが無効になる。
+# 大きな変更を加えた時に使用。
+#
+# 【使用例】
+# "1.0" → "1.1" に変更
+# → ブラウザに古いCSS/JSがキャッシュされていても
+#   新しいバージョンが読み込まれる
+#
 Rails.application.config.assets.version = "1.0"
 
-# Add additional assets to the asset load path.
+# ------------------------------------------
+# 追加のアセットパス（オプション）
+# ------------------------------------------
+# 【何のための設定？】
+# アセットを検索するパスを追加できる。
+# gem が提供するアセットを使う場合などに設定。
+#
+# 例: Emoji gem の画像パスを追加
 # Rails.application.config.assets.paths << Emoji.images_path

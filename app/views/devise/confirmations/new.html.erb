@@ -1,3 +1,25 @@
+<%#
+  app/views/devise/confirmations/new.html.erb
+  ==========================================
+  確認メール再送信ページ
+  ==========================================
+
+  【このページの役割】
+  メールアドレス確認メールを再送信するためのフォーム。
+  登録後にメールが届かなかった場合に使用。
+
+  【Devise Confirmable モジュール】
+  ユーザー登録後、メールアドレスの確認を必須にする機能。
+  確認リンクをクリックするまでログインできない。
+
+  【使用されるパーシャル】
+  - devise/shared/_error_messages: エラー表示
+  - devise/shared/_links: 関連リンク集
+
+  【このアプリでは】
+  現在 Confirmable は無効化されているため、
+  このページは通常表示されない。
+%>
 <h2>Resend confirmation instructions</h2>
 
 <%= form_for(resource, as: resource_name, url: confirmation_path(resource_name), html: { method: :post }) do |f| %>

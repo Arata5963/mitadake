@@ -1,5 +1,46 @@
 // app/javascript/controllers/achievement_card_controller.js
-// カードクリックで達成記録モーダルを開く
+// ==========================================
+// 達成カードコントローラー
+// ==========================================
+//
+// 【このコントローラーの役割】
+// 達成済みアクションプランのカードをクリックした時に
+// 達成記録モーダルを開く。
+//
+// 【2つのモード】
+// 1. input モード: 達成ボタンをクリック → 感想・画像入力モーダル
+// 2. display モード: 達成済みカードをクリック → 閲覧用モーダル
+//
+// 【achievement_modal_controller との関係】
+// このコントローラーがモーダルのHTMLを生成して
+// #achievement_modal 要素に挿入する。
+// その後、achievement_modal_controller が動作を制御する。
+//
+// 【処理フロー】
+//
+//   1. カードがクリックされる（open メソッド）
+//      ↓
+//   2. モードを判定（input / display）
+//      ↓
+//   3. モードに応じたHTMLを生成
+//      - buildInputModalHtml(): 入力用
+//      - buildDisplayModalHtml(): 表示用
+//      ↓
+//   4. #achievement_modal に挿入
+//      ↓
+//   5. achievement_modal_controller が起動
+//
+// 【HTML側の使い方】
+//   <div data-controller="achievement-card"
+//        data-achievement-card-entry-id-value="123"
+//        data-achievement-card-post-id-value="456"
+//        data-achievement-card-mode-value="display"
+//        data-achievement-card-show-url-value="/posts/456/entries/123/show_achievement"
+//        data-action="click->achievement-card#open">
+//     カードの内容
+//   </div>
+//
+
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {

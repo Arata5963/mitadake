@@ -1,5 +1,34 @@
-<%# app/views/posts/index.html.erb %>
-<%# YouTube風セクション表示 %>
+<%#
+  app/views/posts/index.html.erb
+  ==========================================
+  投稿一覧ページ（YouTube風セクション表示）
+  ==========================================
+
+  【このページの役割】
+  ログイン後のメインページ。動画一覧を表示する。
+
+  【表示モード】
+  1. @filter_user 指定時: 特定ユーザーの投稿のみ表示
+  2. @filter_channel 指定時: 特定チャンネルの投稿のみ表示
+  3. フィルターなし: YouTube風セクション表示
+     - フィーチャー動画（自動再生ヒーロー）
+     - 人気のチャンネル
+     - 人気の動画ランキング
+     - アクティブユーザー
+     - 最近の投稿
+
+  【Stimulusコントローラー】
+  - index-search: 統合検索バー（インクリメンタル検索）
+  - load-more: 無限スクロール・もっと見る機能
+
+  【レンダリングされるパーシャル】
+  - posts/post_card_note: 投稿カード（ノート風）
+  - posts/load_more_button: もっと見るボタン
+  - posts/section_*: 各セクション
+
+  【コントローラー】
+  PostsController#index
+%>
 
 <div class="min-h-screen bg-white">
   <%# ===== 統合検索バー ===== %>

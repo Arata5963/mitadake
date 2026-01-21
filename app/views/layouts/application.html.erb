@@ -1,3 +1,29 @@
+<%#
+  app/views/layouts/application.html.erb
+  ==========================================
+  メインレイアウト（ログイン後のページ用）
+  ==========================================
+
+  【このファイルの役割】
+  アプリケーションの共通レイアウト。ヘッダー、メタタグ、
+  フラッシュメッセージ、モーダルコンテナを含む。
+
+  【主な構成要素】
+  1. <head>: メタタグ、CSS、JavaScript
+  2. <header>: 共通ヘッダー（shared/_header）
+  3. <main>: 各ページのコンテンツ（yield）
+  4. モーダルコンテナ: recommendation_modal, achievement_modal
+
+  【外部ライブラリ】
+  - Tailwind CSS: ユーティリティファーストCSSフレームワーク
+  - Flatpickr: 日付選択ライブラリ
+  - Chart.js: グラフ描画ライブラリ
+  - Google Analytics: アクセス解析
+
+  【yield の仕組み】
+  - yield :head → 各ページの<head>内追加コンテンツ
+  - yield（引数なし）→ 各ページのメインコンテンツ
+%>
 <!DOCTYPE html>
 <html lang="ja">
 

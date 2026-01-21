@@ -1,4 +1,30 @@
-<%# app/views/post_entries/achieve.turbo_stream.erb %>
+<%#
+  app/views/post_entries/achieve.turbo_stream.erb
+  ==========================================
+  達成処理後のTurbo Streamレスポンス
+  ==========================================
+
+  【このファイルの役割】
+  アクションプランの「達成」ボタンを押した後のレスポンス。
+  フラッシュメッセージを画面に追加する。
+
+  【Turbo Streamとは？】
+  ページ全体をリロードせずに、特定のDOM要素だけを
+  操作するRailsの機能。
+
+  【turbo_stream.append】
+  指定したIDの要素の末尾に新しい要素を追加。
+  ここでは flash-messages にフラッシュを追加。
+
+  【フラッシュメッセージの色分け】
+  - notice/success: 緑（成功）
+  - alert/error: 赤（エラー）
+  - その他: 青（情報）
+
+  【flash コントローラー】
+  Stimulusコントローラーで5秒後に自動削除。
+  ×ボタンで即時削除も可能。
+%>
 
 <%# フラッシュメッセージを追加 %>
 <%= turbo_stream.append "flash-messages" do %>

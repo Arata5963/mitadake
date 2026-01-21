@@ -1,4 +1,36 @@
 # config/locales/ja.yml
+# ==========================================
+# 日本語ロケールファイル（i18n設定）
+# ==========================================
+#
+# 【このファイルの役割】
+# アプリケーション内の日本語テキストを定義する。
+# エラーメッセージ、フラッシュメッセージ、日時フォーマットなど。
+#
+# 【構造】
+# ja:
+#   datetime:        → 相対時間（「3日前」など）
+#   time/date:       → 日時フォーマット
+#   errors:          → バリデーションエラー
+#   activerecord:    → モデル名・属性名
+#   enums:           → Enumの翻訳
+#   posts:           → PostsController用メッセージ
+#   achievements:    → AchievementsController用
+#   users:           → UsersController用
+#   comments:        → CommentsController用
+#   entry_likes:     → いいね機能用
+#   post_entries:    → アクションプラン用
+#   notifications:   → 通知機能用
+#
+# 【使い方】
+#   t("posts.create.success")  # → "投稿しました！"
+#   t("errors.messages.blank") # → "を入力してください"
+#   l(Time.current)            # → "2026年01月21日 10:30"
+#
+# 【ActiveRecordの翻訳】
+#   モデル: User.model_name.human → "ユーザー"
+#   属性: User.human_attribute_name(:email) → "メールアドレス"
+#
 ja:
   # ===== 相対時間表示（time_ago_in_words用） =====
   datetime:

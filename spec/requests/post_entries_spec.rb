@@ -1,4 +1,33 @@
 # spec/requests/post_entries_spec.rb
+# ==========================================
+# PostEntries コントローラーのリクエストテスト
+# ==========================================
+#
+# 【このファイルの役割】
+# アクションプラン（PostEntry）関連のAPIエンドポイントをテストする。
+# 作成、編集、削除、達成、いいねなど。
+#
+# 【テストの実行方法】
+#   docker compose exec web rspec spec/requests/post_entries_spec.rb
+#
+# 【テスト対象】
+# - POST /posts/:post_id/post_entries（作成）
+# - GET /posts/:post_id/post_entries/:id/edit（編集フォーム）
+# - PATCH /posts/:post_id/post_entries/:id（更新）
+# - DELETE /posts/:post_id/post_entries/:id（削除）
+# - PATCH /posts/:post_id/post_entries/:id/achieve（達成トグル）
+# - GET /posts/:post_id/post_entries/:id/show_achievement（達成詳細）
+# - PATCH /posts/:post_id/post_entries/:id/update_reflection（振り返り更新）
+# - POST /posts/:post_id/post_entries/:id/toggle_like（いいねトグル）
+#
+# 【認可テスト】
+# 自分のエントリーのみ編集・削除できることを確認。
+# 他ユーザーのエントリーを操作しようとするとリダイレクト。
+#
+# 【レスポンス形式】
+# HTML（フォーム送信）とJSON（Ajax）の両方をテスト。
+# Turbo Stream形式もサポート。
+#
 require 'rails_helper'
 
 RSpec.describe 'PostEntries', type: :request do

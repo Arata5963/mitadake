@@ -1,3 +1,23 @@
+<%#
+  app/views/devise/mailer/confirmation_instructions.html.erb
+  ==========================================
+  メールアドレス確認メール
+  ==========================================
+
+  【このテンプレートの役割】
+  ユーザー登録後に送信されるメールアドレス確認メール。
+  リンクをクリックするとアカウントが有効化される。
+
+  【使用可能な変数】
+  - @email: ユーザーのメールアドレス
+  - @resource: Userオブジェクト
+  - @token: 確認用トークン（URLに含める）
+
+  【送信タイミング】
+  - 新規ユーザー登録時
+  - メールアドレス変更時
+  - 確認メール再送信時
+%>
 <p>Welcome <%= @email %>!</p>
 
 <p>You can confirm your account email through the link below:</p>

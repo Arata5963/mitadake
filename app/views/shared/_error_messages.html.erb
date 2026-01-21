@@ -1,5 +1,25 @@
-<%# app/views/shared/_error_messages.html.erb %>
-<%# 全モデル共通のエラーメッセージ表示コンポーネント %>
+<%#
+  app/views/shared/_error_messages.html.erb
+  ==========================================
+  エラーメッセージ表示パーシャル
+  ==========================================
+
+  【このパーシャルの役割】
+  バリデーションエラーを統一的なデザインで表示する。
+  フォーム送信失敗時に使用。
+
+  【パラメータ】
+  - object: エラーを持つActiveRecordオブジェクト（User, Post等）
+
+  【使用例】
+    <%= render "shared/error_messages", object: @user %>
+    <%= render "shared/error_messages", object: @post %>
+
+  【スタイル】
+  - 赤い背景（bg-red-50）
+  - 赤いボーダー（border-red-200）
+  - エラー件数とメッセージリストを表示
+%>
 <% if object.errors.any? %>
   <div class="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
     <div class="text-sm text-red-800">

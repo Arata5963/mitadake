@@ -1,4 +1,20 @@
-<%# 次のページへのリンク %>
+<%#
+  app/views/kaminari/_next_page.html.erb
+  ==========================================
+  Kaminari: 次のページへのリンク
+  ==========================================
+
+  【役割】
+  「次へ >」ボタン。クリックすると次のページに移動。
+
+  【rel="next"】
+  SEO用の属性。検索エンジンにページの関係性を伝える。
+  prev/next を設定すると、ページネーションが
+  正しく認識される。
+
+  【表示条件】
+  最終ページ以外で表示される。
+%>
 <%= link_to url, rel: 'next', class: "h-10 px-4 flex items-center justify-center border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg transition-colors" do %>
   次へ
   <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -1,4 +1,20 @@
-<%# 案G: タイトル横にインライン %>
+<%#
+  app/views/posts/_ranking_item_g.html.erb
+  ==========================================
+  ランキングアイテム（デザインG）
+  ==========================================
+
+  【デザインパターン】
+  案G: タイトル横にインライン
+
+  【特徴】
+  - 順位をタイトルの左に「#1」形式で表示
+  - SNSのハッシュタグ風デザイン
+
+  【パラメータ】
+  - post: Postオブジェクト
+  - rank: 順位（1, 2, 3...）
+%>
 <article class="flex-shrink-0 group" style="width: 200px; min-width: 200px; max-width: 200px;">
   <%= link_to post_path(post), class: "block" do %>
     <div class="rounded-lg overflow-hidden bg-gray-100" style="width: 200px; height: 112px;">

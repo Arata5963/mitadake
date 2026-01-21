@@ -1,3 +1,21 @@
+<%#
+  app/views/devise/unlocks/new.html.erb
+  ==========================================
+  アカウントロック解除メール再送信ページ
+  ==========================================
+
+  【このページの役割】
+  アカウントロック解除メールを再送信するためのフォーム。
+  ロック解除メールが届かなかった場合に使用。
+
+  【Devise Lockable モジュール】
+  ログイン失敗が一定回数を超えるとアカウントをロックする機能。
+  ブルートフォース攻撃（総当たり攻撃）を防止する。
+
+  【このアプリでは】
+  Lockableモジュールの設定により、このページが表示される
+  かどうかが決まる。
+%>
 <h2>Resend unlock instructions</h2>
 
 <%= form_for(resource, as: resource_name, url: unlock_path(resource_name), html: { method: :post }) do |f| %>

@@ -1,28 +1,79 @@
-databases:
-  - name: mitadake-postgres
-    databaseName: mitadake_production
-    user: mitadake_user
-    plan: free
+# render.yaml
+# ==========================================
+# Render.com インフラ設定ファイル
+# ==========================================
+#
+# 【このファイルの役割】
+# Render.com にデプロイする際のインフラ構成を定義する。
+# GitHubリポジトリと連携し、このファイルを元に自動でインフラを構築。
+# （Infrastructure as Code: IaC）
+#
+# 【Render.com とは？】
+# Heroku の代替として人気のホスティングサービス。
+# 無料プランでも PostgreSQL が使える。
+#
+# 【デプロイの流れ】
+#   1. GitHub に push
+#   2. Render が自動検知
+#   3. buildCommand（bin/render-build.sh）を実行
+#   4. startCommand でサーバー起動
+#   5. postDeploy でマイグレーション実行
+#
+# 【設定変更時】
+# このファイルを変更して push すると、
+# Render ダッシュボードで「Sync」ボタンを押して反映。
+#
+# 【公式ドキュメント】
+# https://render.com/docs/yaml-spec
+#
+# ==========================================
 
+# ------------------------------------------
+# データベース設定
+# ------------------------------------------
+databases:
+  - name: mitadake-postgres       # Renderで表示される名前
+    databaseName: mitadake_production  # 実際のDB名
+    user: mitadake_user           # DBユーザー名
+    plan: free                    # 無料プラン（90日で自動削除に注意）
+
+# ------------------------------------------
+# Webサービス設定
+# ------------------------------------------
 services:
-  - type: web
-    name: mitadake
-    runtime: ruby
-    buildCommand: "./bin/render-build.sh"
-    startCommand: "bundle exec puma -C config/puma.rb"
-    plan: free
+  - type: web                     # Webサービスとしてデプロイ
+    name: mitadake                # サービス名（URLの一部になる）
+    runtime: ruby                 # Ruby ランタイムを使用
+    buildCommand: "./bin/render-build.sh"  # ビルド時に実行するスクリプト
+    startCommand: "bundle exec puma -C config/puma.rb"  # サーバー起動コマンド
+    plan: free                    # 無料プラン（15分無操作でスリープ）
+
+    # デプロイ後に実行するコマンド
     postDeploy:
-      - bundle exec rails db:migrate
+      - bundle exec rails db:migrate  # マイグレーション自動実行
+
+    # ------------------------------------------
+    # 環境変数
+    # ------------------------------------------
     envVars:
+      # DATABASE_URL: PostgreSQL接続文字列（自動設定）
       - key: DATABASE_URL
         fromDatabase:
-          name: mitadake-postgres
-          property: connectionString
+          name: mitadake-postgres      # 上で定義したDB名を参照
+          property: connectionString   # 接続文字列を取得
+
+      # RAILS_MASTER_KEY: 暗号化キー（Renderダッシュボードで手動設定）
       - key: RAILS_MASTER_KEY
-        sync: false
+        sync: false                    # YAMLからは同期しない（セキュリティ）
+
+      # RAILS_ENV: 本番環境を指定
       - key: RAILS_ENV
         value: production
+
+      # BUNDLE_WITHOUT: 本番では不要なGemをスキップ
       - key: BUNDLE_WITHOUT
         value: "development:test"
+
+      # RAILS_MAX_THREADS: Pumaのスレッド数（無料プランは少なめ）
       - key: RAILS_MAX_THREADS
         value: "2"

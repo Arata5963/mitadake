@@ -1,90 +1,33 @@
 <%# app/views/posts/_section_user_ranking.html.erb %>
 <%# ユーザー達成数ランキングセクション（横スクロール） %>
 
-<section class="mb-8">
-  <%# セクションヘッダー %>
-  <div class="flex items-center justify-between mb-4">
-    <h2 class="text-lg font-bold text-gray-900">アクティブユーザー</h2>
-  </div>
-
-  <% if users.any? %>
-    <%# 横スクロールコンテナ %>
-    <div class="relative overflow-hidden" data-controller="horizontal-scroll">
-      <%# 左スクロールボタン %>
-      <button type="button"
-              data-horizontal-scroll-target="leftBtn"
-              data-action="click->horizontal-scroll#scrollLeft"
-              class="hidden absolute z-10 w-10 h-10 bg-white rounded-full shadow-lg items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200"
-              style="left: 8px; top: 40px; transform: translateY(-50%);">
-        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-        </svg>
-      </button>
-
-      <%# ユーザーリスト %>
-      <div data-horizontal-scroll-target="container"
-           data-action="scroll->horizontal-scroll#onScroll"
-           class="flex gap-4 overflow-x-auto scrollbar-hide pb-2 pr-12"
-           style="scroll-behavior: smooth; -ms-overflow-style: none; scrollbar-width: none;">
-        <% users.each_with_index do |user, index| %>
-          <% rank = index + 1 %>
-          <div class="flex-shrink-0 flex items-start gap-1" style="width: 100px; min-width: 100px;">
-            <%# 大きなランキング番号 %>
-            <div class="flex-shrink-0 w-6 flex items-center justify-center pt-6">
-              <span class="text-2xl font-black text-gray-900">
-                <%= rank %>
-              </span>
-            </div>
-            <%# ユーザーカード %>
-            <%= link_to user_profile_path(user),
-               class: "flex-1 flex flex-col items-center group [-webkit-tap-highlight-color:transparent]",
-               data: { turbo_frame: "_top" } do %>
-              <%# アバター %>
-              <div class="w-20 h-20 rounded-full overflow-hidden bg-gray-100 ring-2 ring-transparent group-hover:ring-gray-300 transition-all mb-2">
-                <% if user.avatar.present? %>
-                  <%= image_tag user.avatar.url,
-                        alt: user.name,
-                        class: "w-full h-full object-cover",
-                        loading: "lazy" %>
-                <% else %>
-                  <div class="w-full h-full flex items-center justify-center bg-gray-200">
-                    <span class="text-xl font-bold text-gray-400"><%= user.name&.first&.upcase || '?' %></span>
-                  </div>
-                <% end %>
-              </div>
-              <%# ユーザー名 %>
-              <span class="text-xs text-gray-700 text-center max-w-[80px] truncate group-hover:text-gray-900 transition-colors">
-                <%= user.name %>
-              </span>
-              <%# アクション数 %>
-              <span class="text-[10px] text-gray-400">
-                <%= user.achieved_count %>アクション
-              </span>
-            <% end %>
-          </div>
-        <% end %>
+<%= render layout: "shared/horizontal_scroll_section", locals: {
+  title: "アクティブユーザー",
+  button_top: "40px",
+  show_content: users.any?,
+  empty_message: "まだ達成者はいません"
+} do %>
+  <% users.each_with_index do |user, index| %>
+    <% rank = index + 1 %>
+    <div class="flex-shrink-0 flex items-start gap-1" style="width: 100px; min-width: 100px;">
+      <%# 大きなランキング番号 %>
+      <div class="flex-shrink-0 w-6 flex items-center justify-center pt-6">
+        <span class="text-2xl font-black text-gray-900"><%= rank %></span>
       </div>
-
-      <%# 右スクロールボタン %>
-      <button type="button"
-              data-horizontal-scroll-target="rightBtn"
-              data-action="click->horizontal-scroll#scrollRight"
-              class="flex absolute z-10 w-10 h-10 bg-white rounded-full shadow-lg items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200 cursor-pointer"
-              style="right: 8px; top: 40px; transform: translateY(-50%);">
-        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-        </svg>
-      </button>
-    </div>
-  <% else %>
-    <div class="text-center py-8 text-gray-500 text-sm">
-      まだ達成者はいません
+      <%# ユーザーカード %>
+      <%= link_to user_profile_path(user),
+         class: "flex-1 flex flex-col items-center group [-webkit-tap-highlight-color:transparent]",
+         data: { turbo_frame: "_top" } do %>
+        <div class="mb-2">
+          <%= render "shared/avatar", user: user, size: :xxl, fallback: :initial, lazy: true %>
+        </div>
+        <span class="text-xs text-gray-700 text-center max-w-[80px] truncate group-hover:text-gray-900 transition-colors">
+          <%= user.name %>
+        </span>
+        <span class="text-[10px] text-gray-400">
+          <%= user.achieved_count %>アクション
+        </span>
+      <% end %>
     </div>
   <% end %>
-</section>
-
-<style>
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-</style>
+<% end %>

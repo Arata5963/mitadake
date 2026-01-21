@@ -1,0 +1,29 @@
+<%# 案D: カード左に大きな数字（YouTube Music風） %>
+<article class="flex-shrink-0 group flex items-start gap-2" style="width: 240px; min-width: 240px; max-width: 240px;">
+  <div class="flex-shrink-0 w-10 flex items-center justify-center pt-8">
+    <span class="text-3xl font-black text-gray-900"><%= rank %></span>
+  </div>
+  <div class="flex-1" style="width: 190px;">
+    <%= link_to post_path(post), class: "block" do %>
+      <div class="rounded-lg overflow-hidden bg-gray-100" style="width: 190px; height: 107px;">
+        <%= image_tag post.youtube_thumbnail_url(size: :mqdefault),
+              alt: post.youtube_title,
+              class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-200",
+              loading: "lazy" %>
+      </div>
+    <% end %>
+    <div class="pt-2" style="height: 72px;">
+      <%= link_to post_path(post), class: "block" do %>
+        <h3 class="text-sm font-medium text-gray-900 group-hover:text-gray-700 transition-colors line-clamp-2">
+          <%= post.youtube_title %>
+        </h3>
+      <% end %>
+      <div class="flex items-center gap-1 mt-1">
+        <% if post.youtube_channel_thumbnail_url.present? %>
+          <%= image_tag post.youtube_channel_thumbnail_url, class: "w-4 h-4 rounded-full flex-shrink-0", loading: "lazy" %>
+        <% end %>
+        <p class="text-xs text-gray-500 truncate"><%= post.youtube_channel_name %></p>
+      </div>
+    </div>
+  </div>
+</article>

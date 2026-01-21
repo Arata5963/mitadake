@@ -96,19 +96,6 @@
         <% end %>
       </div>
 
-      <style>
-        .action-plan-grid {
-          display: grid;
-          grid-template-columns: 1fr;
-          gap: 16px;
-        }
-        @media (min-width: 640px) {
-          .action-plan-grid {
-            grid-template-columns: repeat(3, 1fr);
-          }
-        }
-      </style>
-
       <% if current_tab == 'achieved' %>
         <%# 達成タブ %>
         <% if achieved_entries.any? %>

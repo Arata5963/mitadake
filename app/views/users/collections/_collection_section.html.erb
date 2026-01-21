@@ -14,19 +14,6 @@
   current_design_info = designs.find { |d| d[:key] == current_design }
 %>
 
-<style>
-  .collection-grid-youtube {
-    display: grid !important;
-    gap: 1rem !important;
-    grid-template-columns: 1fr !important;
-  }
-  @media (min-width: 768px) {
-    .collection-grid-youtube {
-      grid-template-columns: repeat(3, 1fr) !important;
-    }
-  }
-</style>
-
 <section class="mt-8" data-controller="collection-design">
   <%# セクションヘッダー %>
   <div class="flex items-center gap-2 mb-4">

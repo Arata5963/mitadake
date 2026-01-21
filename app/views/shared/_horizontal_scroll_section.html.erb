@@ -1,0 +1,45 @@
+<section class="mb-8">
+  <div class="flex items-center justify-between mb-4 flex-nowrap">
+    <h2 class="text-lg font-bold text-gray-900 whitespace-nowrap"><%= title %></h2>
+    <% if local_assigns[:link_path].present? %>
+      <%= link_to local_assigns[:link_path], data: { turbo: false }, class: "text-sm text-gray-500 hover:text-gray-700 whitespace-nowrap flex-shrink-0" do %>
+        <%= local_assigns[:link_text] || "全てを表示 →" %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <% if local_assigns.fetch(:show_content, true) %>
+    <div class="relative overflow-hidden" data-controller="horizontal-scroll">
+      <button type="button"
+              data-horizontal-scroll-target="leftBtn"
+              data-action="click->horizontal-scroll#scrollLeft"
+              class="hidden absolute z-10 w-10 h-10 bg-white rounded-full shadow-lg items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200"
+              style="left: 8px; top: <%= local_assigns[:button_top] || '56px' %>; transform: translateY(-50%);">
+        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </button>
+
+      <div data-horizontal-scroll-target="container"
+           data-action="scroll->horizontal-scroll#onScroll"
+           class="flex gap-4 overflow-x-auto scrollbar-hide pb-2 pr-12"
+           style="scroll-behavior: smooth; -ms-overflow-style: none; scrollbar-width: none;">
+        <%= yield %>
+      </div>
+
+      <button type="button"
+              data-horizontal-scroll-target="rightBtn"
+              data-action="click->horizontal-scroll#scrollRight"
+              class="flex absolute z-10 w-10 h-10 bg-white rounded-full shadow-lg items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200 cursor-pointer"
+              style="right: 8px; top: <%= local_assigns[:button_top] || '56px' %>; transform: translateY(-50%);">
+        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </button>
+    </div>
+  <% elsif local_assigns[:empty_message].present? %>
+    <div class="text-center py-8 text-gray-500 text-sm">
+      <%= local_assigns[:empty_message] %>
+    </div>
+  <% end %>
+</section>

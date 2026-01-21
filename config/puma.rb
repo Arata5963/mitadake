@@ -1,29 +1,36 @@
-# This configuration file will be evaluated by Puma. The top-level methods that
-# are invoked here are part of Puma's configuration DSL. For more information
-# about methods provided by the DSL, see https://puma.io/puma/Puma/DSL.html.
+# config/puma.rb
+# ==========================================
+# Puma Webサーバー設定
+# ==========================================
 #
-# Puma starts a configurable number of processes (workers) and each process
-# serves each request in a thread from an internal thread pool.
+# 【Pumaとは？】
+# Railsアプリケーションを動かすWebサーバー。
+# ブラウザからのリクエストを受け取り、Railsに渡す役割を持つ。
 #
-# You can control the number of workers using ENV["WEB_CONCURRENCY"]. You
-# should only set this value when you want to run 2 or more workers. The
-# default is already 1.
+# 【重要な概念】
 #
-# The ideal number of threads per worker depends both on how much time the
-# application spends waiting for IO operations and on how much you wish to
-# prioritize throughput over latency.
+#   スレッド（threads）:
+#   - 1つのプロセス内で複数のリクエストを同時に処理
+#   - スレッド数を増やすと同時処理能力が上がる
+#   - ただし、メモリ使用量も増える
 #
-# As a rule of thumb, increasing the number of threads will increase how much
-# traffic a given process can handle (throughput), but due to CRuby's
-# Global VM Lock (GVL) it has diminishing returns and will degrade the
-# response time (latency) of the application.
+#   ワーカー（workers）:
+#   - 独立したプロセス（より強い分離）
+#   - 本番環境で複数ワーカーを使うとより安定する
+#   - WEB_CONCURRENCY 環境変数で制御
 #
-# The default is set to 3 threads as it's deemed a decent compromise between
-# throughput and latency for the average Rails application.
+# 【設定の調整】
+#   RAILS_MAX_THREADS=5 ./bin/rails s  # スレッド数を5に設定
+#   WEB_CONCURRENCY=2 ./bin/rails s    # ワーカー数を2に設定
 #
-# Any libraries that use a connection pool or another resource pool should
-# be configured to provide at least as many connections as the number of
-# threads. This includes Active Record's `pool` parameter in `database.yml`.
+# 【本番環境（Render）での注意】
+#   - Free プラン（512MB）ではメモリ不足に注意
+#   - スレッド数・ワーカー数は控えめに設定
+#
+# ==========================================
+
+# スレッド数の設定
+# RAILS_MAX_THREADS 環境変数で制御可能（デフォルト: 3）
 threads_count = ENV.fetch("RAILS_MAX_THREADS", 3)
 threads threads_count, threads_count
 

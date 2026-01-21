@@ -1,7 +1,31 @@
-# The test environment is used exclusively to run your application's
-# test suite. You never need to work with it otherwise. Remember that
-# your test database is "scratch space" for the test suite and is wiped
-# and recreated between test runs. Don't rely on the data there!
+# config/environments/test.rb
+# ==========================================
+# テスト環境の設定
+# ==========================================
+#
+# 【このファイルの役割】
+# RSpec テスト実行時の動作を設定する。
+# テストが高速かつ安定して実行されるように最適化。
+#
+# 【テスト環境の特徴】
+#   - データベースは毎回クリーンな状態にリセットされる
+#   - メールは実際に送信されず、配列に蓄積される
+#   - キャッシュは無効化される（副作用を防ぐ）
+#   - 外部HTTPリクエストはブロックされる（WebMock）
+#
+# 【テスト実行方法】
+#   docker compose exec web rspec          # 全テスト実行
+#   docker compose exec web rspec spec/models/  # モデルテストのみ
+#   docker compose exec web rspec --format doc  # 詳細表示
+#
+# 【テストで使用可能なメソッド】
+#   ActionMailer::Base.deliveries  # 送信されたメールの配列
+#   assigns(:変数名)               # コントローラのインスタンス変数
+#
+# ==========================================
+
+# テスト環境はテストスイート専用。
+# テストデータベースはテスト実行ごとにリセットされる。
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.

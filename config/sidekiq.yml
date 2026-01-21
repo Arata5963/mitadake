@@ -1,4 +1,30 @@
-# Sidekiq設定ファイル
+# config/sidekiq.yml
+# ==========================================
+# Sidekiq（バックグラウンドジョブ）設定
+# ==========================================
+#
+# 【Sidekiqとは？】
+# Redis を使ったバックグラウンドジョブ処理ライブラリ。
+# メール送信、画像処理など時間のかかる処理を非同期で実行。
+#
+# 【Solid Queue との違い】
+#   Sidekiq:      Redis が必要、高パフォーマンス
+#   Solid Queue:  DB のみで動作、シンプル
+#
+# 【このプロジェクトでの使用】
+# 開発環境: Sidekiq（docker-compose で Redis を起動）
+# 本番環境: Solid Queue（Redis不要でコスト削減）
+#
+# 【設定項目の意味】
+#   concurrency: 同時実行するスレッド数
+#   queues:      ジョブキュー（上から優先度が高い）
+#   scheduler:   定期実行ジョブ（sidekiq-scheduler）
+#
+# 【cron式の読み方】
+#   "* * * * *" = 分 時 日 月 曜日
+#   例: "0 9 * * *" = 毎日9時0分
+#
+# ==========================================
 
 # ワーカースレッド数
 # 本番環境（Render Free 512MB）ではメモリ不足を防ぐため1に制限
@@ -6,14 +32,19 @@
 :concurrency: <%= ENV.fetch("SIDEKIQ_CONCURRENCY", 2).to_i %>
 
 # ジョブキュー優先順位（上から高い順）
+# critical: 緊急のジョブ（決済処理など）
+# default:  通常のジョブ（メール送信など）
+# low:      優先度の低いジョブ（レポート生成など）
 :queues:
   - critical
   - default
   - low
 
-# sidekiq-scheduler設定
+# sidekiq-scheduler設定（定期実行ジョブ）
 :scheduler:
   :schedule:
+    # リマインダーチェックジョブ
+    # 毎分実行して、リマインダー対象のユーザーにメール送信
     reminder_check_job:
       cron: "* * * * *"           # 毎分実行
       class: ReminderCheckJob

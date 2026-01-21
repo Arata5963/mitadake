@@ -1,14 +1,38 @@
 #!/bin/bash -e
+# bin/docker-entrypoint
+# ==========================================
+# Docker コンテナ起動時のエントリーポイント
+# ==========================================
+#
+# 【このファイルの役割】
+# Docker コンテナ起動時に最初に実行されるスクリプト。
+# 環境の初期化とメインプロセスの起動を行う。
+#
+# 【実行される処理】
+#   1. jemalloc の有効化（メモリ効率化）
+#   2. DB準備（rails server 起動時のみ）
+#   3. メインコマンドの実行
+#
+# 【jemalloc とは？】
+# メモリアロケータの一種。Ruby のメモリ使用量を削減し、
+# パフォーマンスを向上させる。
+#
+# 【db:prepare とは？】
+# DB未作成なら作成、未実行のマイグレーションがあれば実行。
+# 冪等性があるため、毎回実行しても安全。
+#
+# ==========================================
 
-# Enable jemalloc for reduced memory usage and latency.
+# jemalloc を有効化してメモリ使用量とレイテンシを削減
 if [ -z "${LD_PRELOAD+x}" ]; then
     LD_PRELOAD=$(find /usr/lib -name libjemalloc.so.2 -print -quit)
     export LD_PRELOAD
 fi
 
-# If running the rails server then create or migrate existing database
+# Rails サーバー起動時はDBの準備を行う
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
   ./bin/rails db:prepare
 fi
 
+# メインコマンドを実行
 exec "${@}"

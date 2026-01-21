@@ -1,3 +1,31 @@
+# db/queue_schema.rb
+# ==========================================
+# Solid Queue 用データベーススキーマ
+# ==========================================
+#
+# 【このファイルの役割】
+# Solid Queue（バックグラウンドジョブ処理）専用のスキーマ定義。
+# このファイルは Solid Queue gem が自動生成したもの。
+#
+# 【Solid Queue のテーブル構成】
+#   solid_queue_jobs:                ジョブ本体
+#   solid_queue_ready_executions:    実行待ちのジョブ
+#   solid_queue_claimed_executions:  実行中のジョブ
+#   solid_queue_blocked_executions:  ブロック中のジョブ
+#   solid_queue_failed_executions:   失敗したジョブ
+#   solid_queue_scheduled_executions: 予約済みジョブ
+#   solid_queue_recurring_executions: 定期実行ジョブ
+#   solid_queue_recurring_tasks:      定期タスク定義
+#   solid_queue_processes:            ワーカープロセス
+#   solid_queue_pauses:               一時停止キュー
+#   solid_queue_semaphores:           同時実行制御
+#
+# 【注意点】
+#   - このファイルを直接編集しないこと
+#   - Solid Queue のアップデート時に再生成される可能性あり
+#
+# ==========================================
+
 ActiveRecord::Schema[7.1].define(version: 1) do
   create_table "solid_queue_blocked_executions", force: :cascade do |t|
     t.bigint "job_id", null: false

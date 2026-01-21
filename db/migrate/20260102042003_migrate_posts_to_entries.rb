@@ -1,3 +1,24 @@
+# db/migrate/20260102042003_migrate_posts_to_entries.rb
+# ==========================================
+# 投稿データをエントリー形式に移行
+# ==========================================
+#
+# 【このマイグレーションの目的】
+# postsテーブルのaction_planデータをpost_entriesテーブルに移行する。
+# 「1動画 = 1投稿」から「1動画 = 複数エントリー」のデータ構造へ変更。
+# これにより、同じ動画に複数人がアクションプランを投稿できる。
+#
+# 【処理内容】
+# 1. youtube_urlからyoutube_video_idを抽出・設定
+# 2. 重複投稿（同じuser_id + youtube_video_id）をマージ
+#    - コメント、応援、達成記録を古い投稿に集約
+# 3. user_id + youtube_video_id のユニーク制約を追加
+# 4. 既存のaction_planをPostEntryに変換
+#
+# 【注意】
+# - 重複データはマージされるため、一部データが削除される
+#
+# ==========================================
 class MigratePostsToEntries < ActiveRecord::Migration[7.2]
   # マイグレーション内で使用する一時的なモデル
   class Post < ApplicationRecord

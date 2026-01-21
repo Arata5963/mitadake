@@ -1,16 +1,45 @@
 #!/usr/bin/env sh
+# bin/dev
+# ==========================================
+# 開発サーバー起動スクリプト
+# ==========================================
+#
+# 【このファイルの役割】
+# Foreman を使って複数のプロセスを同時に起動する。
+# Procfile.dev に定義されたサービスが全て起動する。
+#
+# 【起動されるプロセス（Procfile.dev）】
+#   web:    Rails サーバー（Puma）
+#   css:    Tailwind CSS ウォッチャー
+#   worker: Sidekiq ワーカー
+#
+# 【Foreman とは？】
+# 複数プロセスを1つのコマンドで管理するツール。
+# 1つのターミナルで全サービスのログを確認できる。
+#
+# 【使い方】
+#   bin/dev          # 開発サーバー起動
+#   bin/dev -p 4000  # ポート4000で起動
+#
+# 【Docker環境との違い】
+#   ローカル開発: bin/dev を使用
+#   Docker開発:   docker compose up を使用
+#
+# ==========================================
 
+# Foreman がインストールされていなければインストール
 if ! gem list foreman -i --silent; then
   echo "Installing foreman..."
   gem install foreman
 fi
 
-# Default to port 3000 if not specified
+# デフォルトポートを3000に設定
 export PORT="${PORT:-3000}"
 
-# Let the debug gem allow remote connections,
-# but avoid loading until `debugger` is called
+# デバッグ gem の設定
+# リモートデバッグを許可、debugger 呼び出しまで遅延ロード
 export RUBY_DEBUG_OPEN="true"
 export RUBY_DEBUG_LAZY="true"
 
+# Procfile.dev に従って全プロセスを起動
 exec foreman start -f Procfile.dev "$@"

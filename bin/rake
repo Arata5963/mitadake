@@ -1,4 +1,25 @@
 #!/usr/bin/env ruby
+# bin/rake
+# ==========================================
+# Rake タスク実行スクリプト
+# ==========================================
+#
+# 【このファイルの役割】
+# `rake` コマンドのエントリーポイント。
+# lib/tasks/ 内のカスタムタスクや Rails 標準タスクを実行する。
+#
+# 【よく使うコマンド】
+#   bin/rake -T                # 利用可能なタスク一覧
+#   bin/rake db:migrate        # マイグレーション実行
+#   bin/rake db:seed           # 初期データ投入
+#   bin/rake assets:precompile # アセットのプリコンパイル
+#
+# 【bin/rails との違い】
+# Rails では多くの rake タスクが rails コマンドでも実行可能。
+# `bin/rails db:migrate` と `bin/rake db:migrate` は同じ動作。
+#
+# ==========================================
+
 require_relative "../config/boot"
 require "rake"
 Rake.application.run

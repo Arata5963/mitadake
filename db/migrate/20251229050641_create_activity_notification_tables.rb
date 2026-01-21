@@ -1,3 +1,30 @@
+# db/migrate/20251229050641_create_activity_notification_tables.rb
+# ==========================================
+# activity_notificationの通知テーブルを作成
+# ==========================================
+#
+# 【このマイグレーションの目的】
+# activity_notification gemで使用する通知関連テーブルを作成する。
+# ユーザーへの通知（応援、コメントなど）を管理するための基盤。
+#
+# 【notifications テーブルのカラム】
+# - target: 通知の宛先（polymorphic、通常はUser）
+# - notifiable: 通知の対象（polymorphic、Post/Cheer/Commentなど）
+# - key: 通知の種類を識別するキー
+# - group: 通知のグループ化用（polymorphic）
+# - group_owner_id: グループの親通知ID
+# - notifier: 通知を発生させたユーザー（polymorphic）
+# - parameters: 追加パラメータ（JSON形式）
+# - opened_at: 既読日時
+#
+# 【subscriptions テーブルのカラム】
+# - target: 購読者（polymorphic、通常はUser）
+# - key: 購読対象の通知種類
+# - subscribing: 購読中かどうか
+# - subscribing_to_email: メール通知購読中かどうか
+# - subscribed_at / unsubscribed_at: 購読・解除日時
+#
+# ==========================================
 # Migration responsible for creating a table with notifications
 class CreateActivityNotificationTables < ActiveRecord::Migration[7.2]
   # Create tables

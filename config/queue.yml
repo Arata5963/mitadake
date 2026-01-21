@@ -1,26 +1,55 @@
+# config/queue.yml
+# ==========================================
+# Solid Queue（バックグラウンドジョブ）設定
+# ==========================================
+#
+# 【Solid Queueとは？】
+# Rails 標準のバックグラウンドジョブ処理システム。
+# データベースをキューとして使用（Redisが不要）。
+#
+# 【主な用語】
+#   dispatchers: ジョブを取り出してワーカーに渡す役割
+#   workers:     実際にジョブを実行する役割
+#   queues:      ジョブの待ち行列（"*" は全キューを処理）
+#
+# 【設定項目の意味】
+#   polling_interval: キューをチェックする間隔（秒）
+#   batch_size:       一度に取り出すジョブ数
+#   threads:          同時実行するスレッド数
+#   processes:        ワーカープロセス数
+#
+# 【本番環境での注意】
+# Render Free プラン（512MB）ではメモリ不足になりやすい。
+# スレッド数を1に制限してメモリ使用量を抑える。
+#
+# ==========================================
+
+# 共通設定（開発・テスト環境で使用）
 default: &default
   dispatchers:
-    - polling_interval: 1
-      batch_size: 500
+    - polling_interval: 1    # 1秒ごとにキューをチェック
+      batch_size: 500        # 一度に最大500件取り出し
   workers:
-    - queues: "*"
-      threads: 3
+    - queues: "*"            # 全てのキューを処理
+      threads: 3             # 3スレッドで並列処理
       processes: <%= ENV.fetch("JOB_CONCURRENCY", 1) %>
-      polling_interval: 0.1
+      polling_interval: 0.1  # 0.1秒ごとにジョブをチェック
 
+# 開発環境
 development:
   <<: *default
 
+# テスト環境
 test:
   <<: *default
 
-# 本番環境（Render Free 512MB）ではメモリ不足を防ぐためスレッド数を1に制限
+# 本番環境（メモリ制限のため軽量設定）
 production:
   dispatchers:
     - polling_interval: 1
       batch_size: 500
   workers:
     - queues: "*"
-      threads: <%= ENV.fetch("SOLID_QUEUE_THREADS", 1) %>
+      threads: <%= ENV.fetch("SOLID_QUEUE_THREADS", 1) %>  # 1スレッドに制限
       processes: <%= ENV.fetch("JOB_CONCURRENCY", 1) %>
       polling_interval: 0.1

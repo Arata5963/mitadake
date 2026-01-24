@@ -109,7 +109,13 @@
 
       <%# ===== アカウント設定セクション ===== %>
       <div class="pt-6 mt-6">
-        <h2 class="text-sm font-bold text-gray-900 mb-6">アカウント設定</h2>
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-sm font-bold text-gray-900">アカウント設定</h2>
+          <%= button_to "アカウントを削除", registration_path(:user),
+                method: :delete,
+                data: { turbo: false, turbo_confirm: "本当にアカウントを削除しますか？この操作は取り消せません。" },
+                class: "text-sm text-red-500 hover:text-red-700 transition-colors" %>
+        </div>
 
         <div class="space-y-6">
           <%# メールアドレス %>
@@ -142,14 +148,6 @@
                 placeholder: "変更時は必須",
                 autocomplete: "current-password" %>
         </div>
-      </div>
-
-      <%# アカウント削除 %>
-      <div class="pt-6 text-center">
-        <%= button_to "アカウントを削除", registration_path(:user),
-              method: :delete,
-              data: { turbo: false, turbo_confirm: "本当にアカウントを削除しますか？この操作は取り消せません。" },
-              class: "text-sm text-red-500 hover:text-red-700 transition-colors" %>
       </div>
 
       <%# 更新ボタン %>

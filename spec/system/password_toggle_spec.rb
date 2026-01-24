@@ -119,7 +119,7 @@ RSpec.describe 'パスワード表示/非表示機能', type: :system do
 
     before do
       sign_in user
-      visit edit_user_registration_path
+      visit edit_profile_path
     end
 
     it 'パスワードフィールドに表示/非表示ボタンが存在する（新×2 + 現在×1）' do

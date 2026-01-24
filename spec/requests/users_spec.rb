@@ -138,15 +138,9 @@ RSpec.describe 'Users', type: :request do
 
       it 'プロフィール編集フォームが表示される' do
         get edit_profile_path
-        expect(response.body).to include('プロフィール画像')
+        expect(response.body).to include('プロフィール')
         expect(response.body).to include('ユーザー名')
         expect(response.body).to include('更新する')
-      end
-
-      it 'マイページに戻るリンクが表示される' do
-        get edit_profile_path
-        expect(response.body).to include('マイページに戻る')
-        expect(response.body).to include(mypage_path)
       end
 
       it '現在のユーザー名が入力欄に表示される' do

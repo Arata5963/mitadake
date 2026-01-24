@@ -128,7 +128,7 @@
           <% achieved_entries.each do |entry| %>
             <% post = entry.post %>
             <% entry_user = entry.user %>
-            <% entry_thumbnail = entry.signed_result_image_url || entry.signed_thumbnail_url || "https://i.ytimg.com/vi/#{post.youtube_video_id}/mqdefault.jpg" %>
+            <% entry_thumbnail = entry.signed_thumbnail_url || "https://i.ytimg.com/vi/#{post.youtube_video_id}/mqdefault.jpg" %>
 
             <article class="group"
                      data-controller="achievement-card"

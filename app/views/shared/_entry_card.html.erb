@@ -42,14 +42,9 @@
   user = entry.user
 
   # サムネイル画像の優先順位
-  # 達成済み: 達成記録画像 > 投稿時サムネ > YouTubeサムネ
-  # 未達成: 投稿時サムネ > YouTubeサムネ
+  # カード表示: 投稿時サムネ > YouTubeサムネ（達成記念画像はモーダルで表示）
   youtube_thumbnail = "https://i.ytimg.com/vi/#{post.youtube_video_id}/mqdefault.jpg"
-  if entry.achieved?
-    display_thumbnail = entry.signed_result_image_url || entry.signed_thumbnail_url || youtube_thumbnail
-  else
-    display_thumbnail = entry.signed_thumbnail_url || youtube_thumbnail
-  end
+  display_thumbnail = entry.signed_thumbnail_url || youtube_thumbnail
 %>
 
 <article class="group max-w-xs relative"

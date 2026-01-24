@@ -25,7 +25,6 @@
         <div class="space-y-6">
           <%# プロフィール画像 %>
           <div data-controller="image-preview">
-            <label class="block text-xs text-gray-500 mb-3">プロフィール画像</label>
             <div class="flex items-center gap-4">
               <div class="flex-shrink-0">
                 <% if @user.avatar.present? %>
@@ -145,20 +144,20 @@
         </div>
       </div>
 
+      <%# アカウント削除 %>
+      <div class="pt-6 text-center">
+        <%= button_to "アカウントを削除", registration_path(:user),
+              method: :delete,
+              data: { turbo: false, turbo_confirm: "本当にアカウントを削除しますか？この操作は取り消せません。" },
+              class: "text-sm text-red-500 hover:text-red-700 transition-colors" %>
+      </div>
+
       <%# 更新ボタン %>
       <div class="pt-6">
         <%= form.submit "更新する",
               class: "w-full bg-gray-900 text-white py-3 text-sm font-medium hover:bg-gray-800 transition-colors cursor-pointer" %>
       </div>
     <% end %>
-
-    <%# アカウント削除 %>
-    <div class="mt-12 text-center">
-      <%= button_to "アカウントを削除", registration_path(:user),
-            method: :delete,
-            data: { turbo: false, turbo_confirm: "本当にアカウントを削除しますか？この操作は取り消せません。" },
-            class: "text-sm text-red-500 hover:text-red-700 transition-colors" %>
-    </div>
 
   </div>
 </div>

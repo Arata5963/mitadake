@@ -277,13 +277,6 @@ class PostEntriesController < ApplicationController
         redirect_url = params[:from] == "mypage" ? mypage_path : post_path(@post)
         render json: { success: true, redirect_url: redirect_url }
       end
-      format.turbo_stream do
-        render turbo_stream: turbo_stream.replace(
-          dom_id(@entry),
-          partial: "post_entries/entry_card",
-          locals: { entry: @entry }
-        )
-      end
       format.html do
         redirect_path = params[:from] == "mypage" ? mypage_path : @post
         redirect_to redirect_path, notice: "アクションプランを更新しました"

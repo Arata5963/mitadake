@@ -129,6 +129,13 @@
           <%# パスワード %>
           <%= render 'shared/password_field',
                 form: form,
+                field_name: :current_password,
+                label_text: "現在のパスワード",
+                placeholder: "変更時は必須",
+                autocomplete: "current-password" %>
+
+          <%= render 'shared/password_field',
+                form: form,
                 field_name: :password,
                 label_text: "新しいパスワード",
                 placeholder: "変更しない場合は空欄",
@@ -140,13 +147,6 @@
                 label_text: "新しいパスワード（確認）",
                 placeholder: "変更しない場合は空欄",
                 autocomplete: "new-password" %>
-
-          <%= render 'shared/password_field',
-                form: form,
-                field_name: :current_password,
-                label_text: "現在のパスワード",
-                placeholder: "変更時は必須",
-                autocomplete: "current-password" %>
         </div>
       </div>
 

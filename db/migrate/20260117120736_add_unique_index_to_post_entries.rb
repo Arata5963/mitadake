@@ -38,7 +38,7 @@ class AddUniqueIndexToPostEntries < ActiveRecord::Migration[7.2]
     end
 
     # ユニークインデックスを追加
-    add_index :post_entries, [:user_id, :post_id], unique: true, name: 'index_post_entries_on_user_and_post_unique'
+    add_index :post_entries, [ :user_id, :post_id ], unique: true, name: 'index_post_entries_on_user_and_post_unique'
   end
 
   def down

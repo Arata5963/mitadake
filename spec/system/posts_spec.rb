@@ -102,8 +102,8 @@ RSpec.describe "Posts", type: :system do
       visit post_path(post_record)
       # 動画タイトルが表示される
       expect(page).to have_content("詳細テスト動画")
-      # エントリーが「挑戦中」タブにあることを確認
-      expect(page).to have_content("挑戦中 (1)")
+      # 達成したアクションセクションが表示される
+      expect(page).to have_content("達成したアクション")
     end
   end
 

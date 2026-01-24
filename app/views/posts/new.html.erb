@@ -44,20 +44,11 @@
        data-post-create-convert-url-value="<%= convert_to_youtube_title_posts_path %>">
 
     <%# ヘッダー部分 %>
-    <div class="flex items-center justify-between mb-8">
-      <h1 class="text-lg font-semibold text-gray-900">投稿を作成</h1>
-      <button type="button"
-              data-post-create-target="submitButton"
-              data-action="click->post-create#submitForm"
-              disabled
-              class="px-5 py-2 rounded-full bg-gray-300 text-white text-sm font-semibold border-none cursor-not-allowed transition-all duration-200">
-        投稿
-      </button>
-    </div>
+    <h1 class="text-xl font-bold text-gray-900 mb-8">投稿を作成</h1>
 
     <%# 動画選択セクション %>
     <div class="mb-6">
-      <label class="block text-sm font-semibold text-gray-900 mb-3">動画を選択</label>
+      <label class="block text-xs text-gray-500 mb-1">動画を選択</label>
 
       <%# 検索入力 %>
       <div class="relative">
@@ -66,7 +57,7 @@
                data-action="input->post-create#handleInput keydown->post-create#handleKeydown"
                placeholder="YouTubeで検索..."
                autofocus
-               class="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 outline-none focus:border-gray-900 transition-colors">
+               class="w-full px-0 py-2 border-0 border-b border-gray-300 text-gray-900 placeholder-gray-300 focus:border-gray-900 focus:ring-0 focus:outline-none transition-colors bg-transparent">
 
         <%# 検索結果ドロップダウン %>
         <div data-post-create-target="results"
@@ -93,8 +84,8 @@
 
     <%# アクションプラン入力セクション %>
     <div class="mb-6">
-      <div class="flex items-center justify-between mb-3">
-        <label class="text-sm font-semibold text-gray-900">アクションプラン</label>
+      <div class="flex items-center justify-between mb-1">
+        <label class="text-xs text-gray-500">アクションプラン</label>
 
         <div class="flex gap-2 items-center">
           <%# YouTubeタイトル風に変換ボタン %>
@@ -120,23 +111,21 @@
       <%# AI提案リスト %>
       <div data-post-create-target="suggestionsContainer" class="mb-3"></div>
 
-      <%# テキストエリア %>
-      <div class="border border-gray-200 rounded-lg transition-colors duration-200 focus-within:border-gray-900" data-post-create-target="inputWrapper">
-        <textarea
-          data-post-create-target="actionPlanInput"
-          data-action="input->post-create#handleActionPlanInput focus->post-create#focusInput blur->post-create#blurInput"
-          placeholder="例：【実践】1日スマホなしで過ごしてみた"
-          rows="3"
-          class="w-full border-none bg-transparent px-4 py-3 text-base text-gray-900 resize-none outline-none leading-relaxed"
-        ></textarea>
-      </div>
+      <%# テキストエリア（1行から自動拡張） %>
+      <textarea
+        data-post-create-target="actionPlanInput"
+        data-action="input->post-create#handleActionPlanInput"
+        placeholder="例：【実践】1日スマホなしで過ごしてみた"
+        rows="1"
+        class="w-full px-0 py-2 border-0 border-b border-gray-300 text-gray-900 placeholder-gray-300 focus:border-gray-900 focus:ring-0 focus:outline-none transition-colors bg-transparent resize-none overflow-hidden"
+      ></textarea>
 
-      <p class="text-xs text-gray-500 mt-2">※ YouTubeのタイトル風にアクションプランを設定しよう</p>
+      <p class="text-xs text-gray-400 mt-2">※ YouTubeのタイトル風にアクションプランを設定しよう</p>
     </div>
 
-    <%# 達成コレクションプレビュー（サムネイルクリックでアップロード） %>
+    <%# サムネイル画像セクション %>
     <div data-post-create-target="collectionPreview" class="hidden mb-6">
-      <label class="block text-sm font-semibold text-gray-900 mb-3">サムネイル画像</label>
+      <label class="block text-xs text-gray-500 mb-1">サムネイル画像</label>
       <div>
         <div class="max-w-xs">
           <%# サムネイル部分（クリックでアップロード） %>
@@ -177,6 +166,17 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <%# 投稿ボタン（一番下） %>
+    <div class="pt-4">
+      <button type="button"
+              data-post-create-target="submitButton"
+              data-action="click->post-create#submitForm"
+              disabled
+              class="w-full bg-gray-300 text-white py-3 text-sm font-medium cursor-not-allowed transition-colors">
+        投稿
+      </button>
     </div>
 
   </div>

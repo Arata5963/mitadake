@@ -23,7 +23,6 @@
 # - GET /posts/suggest_action_plans → suggest_action_plans（AI提案）
 #
 class PostsController < ApplicationController
-
   # ==========================================
   # before_action（各アクションの前に実行）
   # ==========================================
@@ -107,7 +106,7 @@ class PostsController < ApplicationController
     # Kaminari（ページネーションgem）のメソッド。
     # page(params[:page]) で現在のページを指定
     # per(20) で1ページあたりの件数を指定
-    @posts = Post.with_entries.recent.page(params[:page]).per(20)
+    @posts = Post.with_achieved_entries.recent.page(params[:page]).per(20)
   end
 
   # ------------------------------------------
@@ -200,7 +199,7 @@ class PostsController < ApplicationController
     @entry = build_post_entry(@post)
 
     if @entry.save
-      render json: { success: true, post_id: @post.id, entry_id: @entry.id, url: post_path(@post) }
+      render json: { success: true, post_id: @post.id, entry_id: @entry.id, url: mypage_path }
     else
       render json: { success: false, error: @entry.errors.full_messages.join(", ") }, status: :unprocessable_entity
     end
@@ -510,13 +509,13 @@ class PostsController < ApplicationController
 
   # セクション表示用データを取得
   def load_section_data
-    posts_with_entries_ids = Post.with_entries.pluck(:id)
-    @featured_post = Post.find(posts_with_entries_ids.sample) if posts_with_entries_ids.present?
+    posts_with_achieved_ids = Post.with_achieved_entries.pluck(:id)
+    @featured_post = Post.find(posts_with_achieved_ids.sample) if posts_with_achieved_ids.present?
 
     @popular_channels = Post.popular_channels(limit: 10)
     @ranking_posts = Post.by_action_count(limit: 10)
     @user_ranking = User.by_achieved_count(limit: 10)
-    @recent_posts = Post.with_entries.recent.includes(:post_entries).limit(20)
+    @recent_posts = Post.with_achieved_entries.recent.includes(:post_entries).limit(20)
   end
 
   # Turbo Stream用のレスポンス
@@ -538,11 +537,7 @@ class PostsController < ApplicationController
     return { message: "アクションプランが必要です", status: :unprocessable_entity } if params[:action_plan].blank?
     return { message: "ログインが必要です", status: :unauthorized } unless user_signed_in?
 
-    # 未達成のアクションプランがあるかチェック
-    existing = PostEntry.not_achieved.where(user: current_user).first
-    if existing.present?
-      return { message: "未達成のアクションプランがあります。達成してから新しいプランを投稿してください。", status: :unprocessable_entity }
-    end
+    # 複数アクションプラン対応により、未達成チェックは不要
 
     nil  # エラーなし
   end

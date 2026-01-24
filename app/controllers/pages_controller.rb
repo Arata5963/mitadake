@@ -20,7 +20,6 @@
 # - privacy → app/views/pages/privacy.html.erb
 #
 class PagesController < ApplicationController
-
   # ------------------------------------------
   # 利用規約ページ
   # ------------------------------------------

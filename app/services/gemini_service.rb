@@ -34,7 +34,6 @@
 # - Net::HTTP（HTTP通信用、Ruby標準ライブラリ）
 #
 class GeminiService
-
   # APIタイムアウト設定（秒）
   # 生成AIは応答に時間がかかることがあるため、60秒と長めに設定
   TEXT_TIMEOUT = 60
@@ -43,7 +42,6 @@ class GeminiService
   # クラスメソッドの定義ブロック
   # ==========================================
   class << self
-
     # ------------------------------------------
     # アクションプランの提案を生成
     # ------------------------------------------
@@ -216,9 +214,9 @@ class GeminiService
       max_chars = 30_000
       truncated_transcript = if transcript.length > max_chars
                                 transcript[0, max_chars] + "\n\n（字幕が長いため一部省略）"
-                              else
+      else
                                 transcript
-                              end
+      end
 
       # ヒアドキュメント（複数行の文字列を書く方法）
       # <<~PROMPT で始まり、PROMPT で終わる

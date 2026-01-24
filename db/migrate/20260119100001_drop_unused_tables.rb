@@ -28,7 +28,7 @@ class DropUnusedTables < ActiveRecord::Migration[7.2]
       t.references :post, null: false, foreign_key: true
       t.timestamps
     end
-    add_index :cheers, [:user_id, :post_id], unique: true
+    add_index :cheers, [ :user_id, :post_id ], unique: true
 
     create_table :favorite_videos do |t|
       t.references :user, null: false, foreign_key: true
@@ -44,7 +44,7 @@ class DropUnusedTables < ActiveRecord::Migration[7.2]
       t.references :youtube_comment, null: false, foreign_key: true
       t.timestamps
     end
-    add_index :comment_bookmarks, [:user_id, :youtube_comment_id], unique: true
+    add_index :comment_bookmarks, [ :user_id, :youtube_comment_id ], unique: true
 
     create_table :youtube_comments do |t|
       t.references :post, null: false, foreign_key: true

@@ -32,7 +32,6 @@
 # これはDeviseが提供するOAuth用の基底クラス。
 #
 class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
-
   # ------------------------------------------
   # Google OAuth2認証成功時のコールバック
   # ------------------------------------------

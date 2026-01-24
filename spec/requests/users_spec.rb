@@ -59,11 +59,11 @@ RSpec.describe 'Users', type: :request do
 
       context '投稿がある場合' do
         let!(:post_record) { create(:post) }
-        let!(:entry) { create(:post_entry, :action, post: post_record, user: user, deadline: 1.week.from_now) }
+        let!(:entry) { create(:post_entry, :action, post: post_record, user: user, content: '私のアクションプラン', deadline: 1.week.from_now) }
 
         it 'アクションプランが表示される' do
           get mypage_path
-          expect(response.body).to include('私のアクション')
+          expect(response.body).to include('私のアクションプラン')
         end
       end
 

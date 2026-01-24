@@ -230,14 +230,15 @@ RSpec.describe "Posts", type: :request do
           create(:post_entry, user: user, achieved_at: nil)
         end
 
-        it "エラーを返す" do
-          post create_with_action_posts_path, params: {
-            youtube_url: valid_url,
-            action_plan: "新しいアクション"
-          }
-          expect(response).to have_http_status(:unprocessable_entity)
+        it "別の投稿にもエントリーを作成できる" do
+          expect {
+            post create_with_action_posts_path, params: {
+              youtube_url: valid_url,
+              action_plan: "新しいアクション"
+            }
+          }.to change(PostEntry, :count).by(1)
           json = JSON.parse(response.body)
-          expect(json['error']).to include("未達成のアクションプラン")
+          expect(json['success']).to be true
         end
       end
     end
@@ -566,7 +567,7 @@ RSpec.describe "Posts", type: :request do
     before do
       allow(GeminiService).to receive(:suggest_action_plans).and_return({
         success: true,
-        action_plans: ['【やってみた】朝5時起きを実践した結果', '【検証】読書メモを記録してみた']
+        action_plans: [ '【やってみた】朝5時起きを実践した結果', '【検証】読書メモを記録してみた' ]
       })
     end
 

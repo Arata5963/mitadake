@@ -11,7 +11,7 @@
 #   docker compose exec web rspec spec/models/post_entry_spec.rb
 #
 # 【テスト対象】
-# - バリデーション（content必須、1ユーザー1未達成制限）
+# - バリデーション（content必須）
 # - アソシエーション（post, user, entry_likes）
 # - スコープ（recent, achieved, not_achieved, expired）
 # - 達成機能（achieve!, achieved?）
@@ -21,8 +21,7 @@
 # - 振り返り機能（achieve_with_reflection!, update_reflection!）
 #
 # 【ビジネスルール】
-# ユーザーは未達成のアクションプランを1つしか持てない。
-# 達成するか削除してから、新しいプランを作成できる。
+# ユーザーは複数の未達成アクションプランを持つことができる。
 #
 require 'rails_helper'
 
@@ -36,7 +35,7 @@ RSpec.describe PostEntry, type: :model do
   describe 'validations' do
     it { should validate_presence_of(:content) }
 
-    describe 'one_incomplete_action_per_user' do
+    describe 'multiple_action_plans' do
       let(:user) { create(:user) }
       let(:post1) { create(:post) }
       let(:post2) { create(:post) }
@@ -53,16 +52,9 @@ RSpec.describe PostEntry, type: :model do
           create(:post_entry, post: post1, user: user, achieved_at: nil)
         end
 
-        it 'rejects creating another entry on the same post' do
-          entry = build(:post_entry, post: post1, user: user)
-          expect(entry).not_to be_valid
-          expect(entry.errors[:base]).to include("未達成のアクションプランがあります。達成してから新しいプランを投稿してください")
-        end
-
-        it 'rejects creating another entry on a different post' do
+        it 'allows creating another entry on a different post' do
           entry = build(:post_entry, post: post2, user: user)
-          expect(entry).not_to be_valid
-          expect(entry.errors[:base]).to include("未達成のアクションプランがあります。達成してから新しいプランを投稿してください")
+          expect(entry).to be_valid
         end
       end
 

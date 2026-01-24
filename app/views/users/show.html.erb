@@ -14,10 +14,10 @@
   - 他人: 公開情報のみ表示
 
   【ページ構成】
-  1. プロフィールセクション
-  2. きっかけの動画（現在のアクションプラン）
-  3. 私のアクション
-  4. 達成コレクション
+  1. プロフィールセクション（名前・お気に入りの言葉）
+  2. 引用元動画（favorite_quote_url から自動再生）
+  3. 挑戦中のアクション（横スクロール・複数表示）
+  4. 達成したアクション（グリッド表示）
 
   【コントローラー】
   UsersController#show（マイページ・プロフィール兼用）
@@ -27,8 +27,14 @@
 <%
   user = @user
   is_own_page = @is_own_page
-  current_action = user.current_action_plan
-  current_video = user.current_video
+  pending_actions = user.post_entries.not_achieved.includes(:post).order(created_at: :desc)
+
+  # favorite_quote_url から YouTube video ID を抽出
+  quote_video_id = nil
+  if user.favorite_quote_url.present?
+    match = user.favorite_quote_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/)
+    quote_video_id = match[1] if match
+  end
 %>
 
 <div class="min-h-screen bg-white">
@@ -59,107 +65,145 @@
       </div>
     </div>
 
-    <% if current_video && current_action %>
-      <%
-        custom_thumbnail = current_action.signed_thumbnail_url
-        youtube_thumbnail = "https://i.ytimg.com/vi/#{current_video.youtube_video_id}/mqdefault.jpg"
-        display_thumbnail = custom_thumbnail.presence || youtube_thumbnail
-      %>
-
-      <%# ステップバッジデザイン %>
+    <%# 引用元動画（favorite_quote_url から取得） %>
+    <% if quote_video_id.present? %>
       <section class="mb-6">
         <div class="flex items-center gap-2 mb-3">
-          <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-900 text-white text-xs font-bold">1</span>
-          <span class="text-sm font-semibold text-gray-900">きっかけの動画</span>
+          <span class="text-sm font-semibold text-gray-900">引用元動画</span>
         </div>
-        <div data-controller="hero-video" data-hero-video-video-id-value="<%= current_video.youtube_video_id %>" class="mb-6">
+        <div data-controller="hero-video" data-hero-video-video-id-value="<%= quote_video_id %>" class="mb-6">
           <div class="group relative rounded-xl overflow-hidden bg-black cursor-pointer aspect-video">
-            <iframe id="hero-player-<%= current_video.youtube_video_id %>" data-hero-video-target="iframe" src="https://www.youtube.com/embed/<%= current_video.youtube_video_id %>?autoplay=1&mute=1&loop=1&playlist=<%= current_video.youtube_video_id %>&controls=0&playsinline=1&rel=0&modestbranding=1&showinfo=0&enablejsapi=1" class="absolute inset-0 w-full h-full pointer-events-none" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-            <div class="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300" data-action="click->hero-video#toggle">
+            <iframe id="hero-player-<%= quote_video_id %>" data-hero-video-target="iframe" src="https://www.youtube.com/embed/<%= quote_video_id %>?autoplay=1&mute=1&loop=1&playlist=<%= quote_video_id %>&controls=0&playsinline=1&rel=0&modestbranding=1&showinfo=0&enablejsapi=1" class="absolute inset-0 w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <%# ホバーオーバーレイ（再生/一時停止ボタンのみ・背景はクリック透過） %>
+            <div class="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
               <div class="absolute inset-0 bg-black/30"></div>
-              <button type="button" class="relative z-10 w-14 h-14 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-lg">
+              <button type="button" class="relative z-10 w-14 h-14 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-lg pointer-events-auto" data-action="click->hero-video#toggle">
                 <svg data-hero-video-target="playButton" class="w-6 h-6 text-black ml-1 hidden" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                 <svg data-hero-video-target="pauseButton" class="w-6 h-6 text-black" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
               </button>
             </div>
           </div>
-          <%= link_to post_path(current_video), class: "block mt-3" do %>
-            <p class="text-base font-bold text-gray-900 line-clamp-2 leading-snug"><%= current_video.youtube_title %></p>
-            <div class="flex items-center gap-2 mt-1.5">
-              <% if current_video.youtube_channel_thumbnail_url.present? %>
-                <%= image_tag current_video.youtube_channel_thumbnail_url, class: "w-5 h-5 rounded-full", alt: current_video.youtube_channel_name %>
-              <% end %>
-              <span class="text-sm text-gray-500"><%= current_video.youtube_channel_name %></span>
-            </div>
-          <% end %>
         </div>
-
-        <div class="flex items-center gap-2 mb-3">
-          <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-900 text-white text-xs font-bold">2</span>
-          <span class="text-sm font-semibold text-gray-900">私のアクション</span>
-        </div>
-        <%= render 'shared/entry_card', entry: current_action, post: current_video, mode: :input, show_menu: is_own_page %>
       </section>
-    <% else %>
-      <%# Empty State %>
-      <% if is_own_page %>
-        <div class="bg-gray-50 rounded-xl py-6 px-4 text-center">
-          <p class="text-sm text-gray-600 mb-3">アクションプランがありません</p>
-          <%= link_to posts_path, class: "inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm rounded-full font-medium hover:bg-gray-700 transition-colors" do %>
-            動画を探す
+    <% end %>
+
+    <%# 挑戦中のアクション（横スクロール） %>
+    <%= render layout: "shared/horizontal_scroll_section", locals: {
+      title: "挑戦中のアクション",
+      link_path: (pending_actions_path if is_own_page && pending_actions.present?),
+      link_text: "全てを表示 →",
+      button_top: "56px",
+      show_content: pending_actions.present?,
+      empty_message: "挑戦中のアクションプランがありません"
+    } do %>
+      <% pending_actions.each do |entry| %>
+        <% post = entry.post %>
+        <% entry_thumbnail = entry.signed_thumbnail_url || "https://i.ytimg.com/vi/#{post.youtube_video_id}/mqdefault.jpg" %>
+        <article class="flex-shrink-0 group relative" style="width: 200px; min-width: 200px; max-width: 200px;"
+                 data-controller="achievement-card"
+                 data-achievement-card-entry-id-value="<%= entry.id %>"
+                 data-achievement-card-post-id-value="<%= post.id %>"
+                 data-achievement-card-achieve-url-value="<%= achieve_post_post_entry_path(post, entry) %>"
+                 data-achievement-card-mode-value="input"
+                 data-achievement-card-video-thumbnail-value="<%= post.youtube_thumbnail_url %>"
+                 data-achievement-card-video-url-value="<%= post_path(post) %>"
+                 data-achievement-card-video-title-value="<%= post.youtube_title %>">
+          <% if is_own_page %>
+            <details class="absolute top-2 right-2 z-10">
+              <summary class="w-7 h-7 rounded-full bg-white/90 flex items-center justify-center shadow cursor-pointer list-none hover:bg-white">
+                <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                  <circle cx="12" cy="5" r="2"/>
+                  <circle cx="12" cy="12" r="2"/>
+                  <circle cx="12" cy="19" r="2"/>
+                </svg>
+              </summary>
+              <div class="absolute top-8 right-0 bg-white rounded-lg shadow-lg min-w-[120px] overflow-hidden">
+                <%= link_to edit_post_post_entry_path(post, entry, from: 'mypage'),
+                      class: "flex items-center gap-2 px-3.5 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors" do %>
+                  <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                  </svg>
+                  編集
+                <% end %>
+                <%= link_to post_post_entry_path(post, entry),
+                      method: :delete,
+                      data: { turbo_method: :delete, turbo_confirm: "このアクションプランを削除しますか？" },
+                      class: "flex items-center gap-2 px-3.5 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors" do %>
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                  削除
+                <% end %>
+              </div>
+            </details>
           <% end %>
-        </div>
-      <% else %>
-        <div class="bg-gray-50 rounded-xl py-6 px-4 text-center">
-          <p class="text-sm text-gray-600">挑戦中のアクションプランはありません</p>
-        </div>
+          <div class="rounded-lg overflow-hidden bg-gray-100 aspect-video cursor-pointer"
+               data-action="click->achievement-card#open">
+            <%= image_tag entry_thumbnail,
+                  alt: entry.content,
+                  class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-200",
+                  loading: "lazy" %>
+          </div>
+          <div class="pt-2" style="height: 72px;">
+            <p class="text-sm font-medium text-gray-900 leading-tight line-clamp-2 cursor-pointer"
+               data-action="click->achievement-card#open">
+              <%= entry.content %>
+            </p>
+            <div class="flex items-center justify-between mt-1">
+              <%= link_to user_profile_path(entry.user), class: "flex items-center gap-1 no-underline" do %>
+                <%= render "shared/avatar", user: entry.user, size: :sm, lazy: true %>
+                <span class="text-xs text-gray-500 truncate"><%= entry.user.name.presence || "名無しさん" %></span>
+              <% end %>
+              <%= render 'post_entries/like_button', post_entry: entry %>
+            </div>
+          </div>
+        </article>
       <% end %>
     <% end %>
 
-    <%# 達成コレクション %>
+    <%# 達成したアクション（横スクロール） %>
     <% achieved_entries = user.post_entries.achieved.includes(:post).order(achieved_at: :desc) %>
     <% if achieved_entries.present? %>
-      <section class="mt-8">
-        <div class="flex items-center gap-2 mb-4">
-          <h2 class="text-lg font-bold text-gray-900">達成したアクション</h2>
-        </div>
+      <%= render layout: "shared/horizontal_scroll_section", locals: {
+        title: "達成したアクション",
+        link_path: (achieved_actions_path if is_own_page),
+        link_text: "全てを表示 →",
+        button_top: "56px"
+      } do %>
+        <% achieved_entries.each do |entry| %>
+          <% post = entry.post %>
+          <% entry_user = entry.user %>
+          <% entry_thumbnail = entry.signed_thumbnail_url || "https://i.ytimg.com/vi/#{post.youtube_video_id}/mqdefault.jpg" %>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <% achieved_entries.each do |entry| %>
-            <% post = entry.post %>
-            <% entry_user = entry.user %>
-            <% entry_thumbnail = entry.signed_thumbnail_url || "https://i.ytimg.com/vi/#{post.youtube_video_id}/mqdefault.jpg" %>
-
-            <article class="group"
-                     data-controller="achievement-card"
-                     data-achievement-card-entry-id-value="<%= entry.id %>"
-                     data-achievement-card-post-id-value="<%= post.id %>"
-                     data-achievement-card-show-url-value="<%= show_achievement_post_post_entry_path(post, entry) %>"
-                     data-achievement-card-mode-value="display">
-              <div class="rounded-lg overflow-hidden bg-gray-100 aspect-video relative cursor-pointer"
-                   data-action="click->achievement-card#open">
-                <%= image_tag entry_thumbnail,
-                      alt: entry.content,
-                      class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-200",
-                      loading: "lazy" %>
+          <article class="flex-shrink-0 group" style="width: 200px; min-width: 200px; max-width: 200px;"
+                   data-controller="achievement-card"
+                   data-achievement-card-entry-id-value="<%= entry.id %>"
+                   data-achievement-card-post-id-value="<%= post.id %>"
+                   data-achievement-card-show-url-value="<%= show_achievement_post_post_entry_path(post, entry) %>"
+                   data-achievement-card-mode-value="display">
+            <div class="rounded-lg overflow-hidden bg-gray-100 cursor-pointer" style="width: 200px; height: 112px;"
+                 data-action="click->achievement-card#open">
+              <%= image_tag entry_thumbnail,
+                    alt: entry.content,
+                    class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-200",
+                    loading: "lazy" %>
+            </div>
+            <div class="pt-2" style="height: 72px;">
+              <h3 class="text-sm font-medium text-gray-900 group-hover:text-gray-700 transition-colors line-clamp-2 cursor-pointer"
+                  data-action="click->achievement-card#open">
+                <%= entry.content %>
+              </h3>
+              <div class="flex items-center justify-between mt-1">
+                <%= link_to user_profile_path(entry_user), class: "flex items-center gap-1 no-underline" do %>
+                  <%= render "shared/avatar", user: entry_user, size: :sm, lazy: true %>
+                  <span class="text-xs text-gray-500 truncate"><%= entry_user.name.presence || "名無しさん" %></span>
+                <% end %>
+                <%= render 'post_entries/like_button', post_entry: entry %>
               </div>
-              <div class="pt-2">
-                <h3 class="text-sm font-medium text-gray-900 group-hover:text-gray-700 transition-colors line-clamp-2 cursor-pointer"
-                    data-action="click->achievement-card#open">
-                  <%= entry.content %>
-                </h3>
-                <div class="flex items-center justify-between mt-2">
-                  <%= link_to user_profile_path(entry_user), class: "flex items-center gap-1.5 no-underline" do %>
-                    <%= render "shared/avatar", user: entry_user, size: :sm, lazy: true %>
-                    <span class="text-xs text-gray-500"><%= entry_user.name.presence || "名無しさん" %></span>
-                  <% end %>
-                  <%= render 'post_entries/like_button', post_entry: entry %>
-                </div>
-              </div>
-            </article>
-          <% end %>
-        </div>
-      </section>
+            </div>
+          </article>
+        <% end %>
+      <% end %>
     <% end %>
   </div>
 </div>

@@ -31,7 +31,6 @@
 # - app/models/user.rb: mount_uploader :avatar
 #
 CarrierWave.configure do |config|
-
   # ------------------------------------------
   # 環境別ストレージ設定
   # ------------------------------------------

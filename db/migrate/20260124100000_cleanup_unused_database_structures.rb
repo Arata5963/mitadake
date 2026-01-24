@@ -87,8 +87,8 @@ class CleanupUnusedDatabaseStructures < ActiveRecord::Migration[7.2]
       t.timestamps
     end
     add_index :subscriptions, :key
-    add_index :subscriptions, [:target_type, :target_id, :key], unique: true
-    add_index :subscriptions, [:target_type, :target_id]
+    add_index :subscriptions, [ :target_type, :target_id, :key ], unique: true
+    add_index :subscriptions, [ :target_type, :target_id ]
 
     create_table :notifications do |t|
       t.string :target_type, null: false
@@ -106,17 +106,17 @@ class CleanupUnusedDatabaseStructures < ActiveRecord::Migration[7.2]
       t.timestamps
     end
     add_index :notifications, :group_owner_id
-    add_index :notifications, [:group_type, :group_id]
-    add_index :notifications, [:notifiable_type, :notifiable_id]
-    add_index :notifications, [:notifier_type, :notifier_id]
-    add_index :notifications, [:target_type, :target_id]
+    add_index :notifications, [ :group_type, :group_id ]
+    add_index :notifications, [ :notifiable_type, :notifiable_id ]
+    add_index :notifications, [ :notifier_type, :notifier_id ]
+    add_index :notifications, [ :target_type, :target_id ]
 
     create_table :recommendation_clicks do |t|
       t.references :post, null: false, foreign_key: true
       t.references :user, null: false, foreign_key: true
       t.timestamps
     end
-    add_index :recommendation_clicks, [:post_id, :user_id], unique: true
+    add_index :recommendation_clicks, [ :post_id, :user_id ], unique: true
 
     create_table :post_comparisons do |t|
       t.bigint :source_post_id, null: false
@@ -124,7 +124,7 @@ class CleanupUnusedDatabaseStructures < ActiveRecord::Migration[7.2]
       t.text :reason
       t.timestamps
     end
-    add_index :post_comparisons, [:source_post_id, :target_post_id], unique: true
+    add_index :post_comparisons, [ :source_post_id, :target_post_id ], unique: true
     add_index :post_comparisons, :source_post_id
     add_index :post_comparisons, :target_post_id
     add_foreign_key :post_comparisons, :posts, column: :source_post_id
@@ -136,6 +136,6 @@ class CleanupUnusedDatabaseStructures < ActiveRecord::Migration[7.2]
       t.string :content, null: false
       t.timestamps
     end
-    add_index :comments, [:post_id, :created_at]
+    add_index :comments, [ :post_id, :created_at ]
   end
 end

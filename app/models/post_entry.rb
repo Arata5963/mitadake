@@ -29,11 +29,9 @@
 #          └─ 他のユーザーからの応援
 #
 # 【重要なルール】
-# 1ユーザーにつき、未達成のアクションプランは1つまで。
-# 達成してから次のプランを作成できる。
+# ユーザーは複数のアクションプランを同時に持つことができる。
 #
 class PostEntry < ApplicationRecord
-
   # ==========================================
   # アソシエーション（他テーブルとの関連）
   # ==========================================
@@ -69,6 +67,13 @@ class PostEntry < ApplicationRecord
   #
   before_validation :set_auto_deadline, on: :create
 
+  # エントリー削除後、Postにエントリーがなくなったら自動削除
+  after_destroy :cleanup_empty_post
+
+  # エントリーが別の動画に移動された場合、元のPostをクリーンアップ
+  before_update :track_old_post
+  after_update :cleanup_old_post
+
   # ==========================================
   # バリデーション（データの検証ルール）
   # ==========================================
@@ -79,10 +84,8 @@ class PostEntry < ApplicationRecord
   # 振り返りコメントは500文字まで（空でもOK）
   validates :reflection, length: { maximum: 500 }, allow_blank: true
 
-  # 【カスタムバリデーション】
-  # 1ユーザーにつき未達成のプランは1つまで
-  # on: :create により新規作成時のみチェック
-  validate :one_incomplete_action_per_user, on: :create
+  # 【注意】複数アクションプラン対応により、以下のバリデーションは無効化
+  # validate :one_incomplete_action_per_user, on: :create
 
   # ==========================================
   # スコープ（よく使う検索条件をメソッド化）
@@ -463,5 +466,55 @@ class PostEntry < ApplicationRecord
     if existing.present?
       errors.add(:base, "未達成のアクションプランがあります。達成してから新しいプランを投稿してください")
     end
+  end
+
+  # ------------------------------------------
+  # 空のPostを自動削除
+  # ------------------------------------------
+  # 【何をするメソッド？】
+  # PostEntryが削除された後、関連するPostに
+  # 他のエントリーがなければ、そのPostも削除する。
+  #
+  # 【なぜこのルールがあるか？】
+  # エントリーのないPostは意味がないため、
+  # 空のデータが残らないようにクリーンアップする。
+  #
+  def cleanup_empty_post
+    return if post.blank?
+
+    # Postに他のエントリーがなければ削除
+    if post.post_entries.count == 0
+      post.destroy
+    end
+  end
+
+  # ------------------------------------------
+  # 更新前の元のPostを記録
+  # ------------------------------------------
+  # 【何をするメソッド？】
+  # post_idが変更される場合、元のPostを記録しておく。
+  # 更新後に元のPostをクリーンアップするため。
+  #
+  def track_old_post
+    if post_id_changed?
+      @old_post_id = post_id_was
+    end
+  end
+
+  # ------------------------------------------
+  # 元のPostをクリーンアップ
+  # ------------------------------------------
+  # 【何をするメソッド？】
+  # エントリーが別のPostに移動された後、
+  # 元のPostにエントリーがなければ削除する。
+  #
+  def cleanup_old_post
+    return unless @old_post_id
+
+    old_post = Post.find_by(id: @old_post_id)
+    if old_post && old_post.post_entries.count == 0
+      old_post.destroy
+    end
+    @old_post_id = nil
   end
 end

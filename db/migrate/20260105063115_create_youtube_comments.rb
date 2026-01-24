@@ -43,6 +43,6 @@ class CreateYoutubeComments < ActiveRecord::Migration[7.2]
 
     add_index :youtube_comments, :youtube_comment_id, unique: true
     add_index :youtube_comments, :category
-    add_index :youtube_comments, [:post_id, :category]
+    add_index :youtube_comments, [ :post_id, :category ]
   end
 end

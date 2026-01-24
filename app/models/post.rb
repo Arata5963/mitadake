@@ -32,7 +32,6 @@
 # - YouTube APIから動画情報を自動取得（タイトル、チャンネル名など）
 #
 class Post < ApplicationRecord
-
   # ==========================================
   # アソシエーション（他テーブルとの関連）
   # ==========================================
@@ -127,6 +126,14 @@ class Post < ApplicationRecord
   # アクションプランが1つ以上ある動画のみ取得
   # distinct により重複を除去（JOINすると重複する可能性があるため）
   scope :with_entries, -> { joins(:post_entries).distinct }
+
+  # 達成したアクションが1つ以上ある動画のみ取得
+  # 未達成のみの動画は一覧に表示しない
+  scope :with_achieved_entries, -> {
+    joins(:post_entries)
+      .where.not(post_entries: { achieved_at: nil })
+      .distinct
+  }
 
   # ==========================================
   # Ransack設定（検索機能用）
@@ -385,6 +392,7 @@ class Post < ApplicationRecord
     Post
       .where.not(youtube_channel_name: [ nil, "" ])  # チャンネル名があるもののみ
       .joins(:post_entries)                          # アクションプランと結合
+      .where.not(post_entries: { achieved_at: nil }) # 達成済みのみ
       .group(:youtube_channel_name)                  # チャンネルごとにグループ化
       .having("COUNT(DISTINCT posts.id) >= 1")       # 動画が1つ以上
       .order("COUNT(post_entries.id) DESC")          # アクション数が多い順
@@ -394,7 +402,7 @@ class Post < ApplicationRecord
         Arel.sql("(array_agg(youtube_channel_id))[1]"),
         Arel.sql("(array_agg(youtube_channel_thumbnail_url))[1]"),
         Arel.sql("COUNT(DISTINCT posts.id)"),        # 動画数
-        Arel.sql("COUNT(post_entries.id)")           # アクション数
+        Arel.sql("COUNT(post_entries.id)")           # アクション数（達成済みのみ）
       )
       .map do |name, channel_id, thumbnail, post_count, action_count|
         # pluckの結果を扱いやすいHashに変換
@@ -422,8 +430,9 @@ class Post < ApplicationRecord
   def self.by_action_count(limit: 20)
     base = Post
       .joins(:post_entries)                             # post_entriesと結合
+      .where.not(post_entries: { achieved_at: nil })    # 達成済みのみ
       .group("posts.id")                                # 動画ごとにグループ化
-      .order(Arel.sql("COUNT(post_entries.id) DESC"))   # アクション数が多い順
+      .order(Arel.sql("COUNT(post_entries.id) DESC"))   # アクション数が多い順（達成済みのみ）
       .select("posts.*")                                # 全カラムを取得
 
     limit ? base.limit(limit) : base

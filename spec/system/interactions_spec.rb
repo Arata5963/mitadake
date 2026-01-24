@@ -42,13 +42,13 @@ RSpec.describe "Interactions", type: :system do
         sign_in user
       end
 
-      it "詳細ページでエントリーが存在することが確認できる" do
+      it "詳細ページで動画情報が表示される" do
         visit post_path(post_record)
 
         # 動画タイトルが表示される
         expect(page).to have_content "テスト動画"
-        # 挑戦中タブにエントリーがあることを確認
-        expect(page).to have_content "挑戦中 (1)"
+        # 達成したアクションセクションが表示される
+        expect(page).to have_content "達成したアクション"
       end
 
       # Note: 達成ボタンはJavaScriptで動作するため、request specでテスト

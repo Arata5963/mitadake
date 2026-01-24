@@ -43,7 +43,6 @@
 #
 module Api
   class PresignedUrlsController < ApplicationController
-
     # ログイン必須（署名付きURLの発行は認証ユーザーのみ）
     before_action :authenticate_user!
 

@@ -218,6 +218,11 @@ export default class extends Controller {
       return
     }
 
+    // 送信前の確認
+    if (!confirm("達成を記録しますか？")) {
+      return
+    }
+
     this.showLoading()
 
     try {

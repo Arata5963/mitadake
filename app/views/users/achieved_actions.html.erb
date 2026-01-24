@@ -1,0 +1,60 @@
+<%#
+  app/views/users/achieved_actions.html.erb
+  ==========================================
+  達成したアクション一覧ページ
+  ==========================================
+
+  【このページの役割】
+  ユーザーの達成したアクションプラン一覧を表示する。
+
+  【コントローラー】
+  UsersController#achieved_actions
+%>
+<% content_for :title, "達成したアクション" %>
+
+<div class="min-h-screen bg-white">
+  <div class="max-w-5xl mx-auto px-5 pt-4 pb-6">
+    <h1 class="text-xl font-bold text-gray-900 mb-6">達成したアクション</h1>
+
+    <% if @entries.present? %>
+      <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
+        <% @entries.each do |entry| %>
+          <% post = entry.post %>
+          <% entry_thumbnail = entry.signed_thumbnail_url || "https://i.ytimg.com/vi/#{post.youtube_video_id}/mqdefault.jpg" %>
+
+          <article class="group"
+                   data-controller="achievement-card"
+                   data-achievement-card-entry-id-value="<%= entry.id %>"
+                   data-achievement-card-post-id-value="<%= post.id %>"
+                   data-achievement-card-show-url-value="<%= show_achievement_post_post_entry_path(post, entry) %>"
+                   data-achievement-card-mode-value="display">
+            <div class="rounded-lg overflow-hidden bg-gray-100 aspect-video cursor-pointer"
+                 data-action="click->achievement-card#open">
+              <%= image_tag entry_thumbnail,
+                    alt: entry.content,
+                    class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-200",
+                    loading: "lazy" %>
+            </div>
+            <div class="pt-2">
+              <h3 class="text-sm font-medium text-gray-900 group-hover:text-gray-700 transition-colors line-clamp-2 cursor-pointer"
+                  data-action="click->achievement-card#open">
+                <%= entry.content %>
+              </h3>
+              <div class="flex items-center justify-between mt-1">
+                <%= link_to user_profile_path(entry.user), class: "flex items-center gap-1 no-underline" do %>
+                  <%= render "shared/avatar", user: entry.user, size: :sm, lazy: true %>
+                  <span class="text-xs text-gray-500 truncate"><%= entry.user.name.presence || "名無しさん" %></span>
+                <% end %>
+                <%= render 'post_entries/like_button', post_entry: entry %>
+              </div>
+            </div>
+          </article>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="bg-gray-50 rounded-xl py-12 px-4 text-center">
+        <p class="text-sm text-gray-600">達成したアクションプランがありません</p>
+      </div>
+    <% end %>
+  </div>
+</div>

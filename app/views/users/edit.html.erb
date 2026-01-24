@@ -111,9 +111,8 @@
       <div class="pt-6 mt-6">
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-sm font-bold text-gray-900">アカウント設定</h2>
-          <%= button_to "アカウントを削除", registration_path(:user),
-                method: :delete,
-                data: { turbo: false, turbo_confirm: "本当にアカウントを削除しますか？この操作は取り消せません。" },
+          <%= link_to "アカウントを削除", registration_path(:user),
+                data: { turbo_method: :delete, turbo_confirm: "本当にアカウントを削除しますか？この操作は取り消せません。" },
                 class: "text-sm text-red-500 hover:text-red-700 transition-colors" %>
         </div>
 

@@ -5,11 +5,167 @@
   ==========================================
 
   【このページの役割】
-  投稿を編集するフォーム。パーシャル _form.html.erb を使用。
+  YouTube動画とアクションプランを編集するフォーム。
+  新規投稿ページと同じUIで、既存データを初期表示する。
 
-  【コントローラー】
-  PostsController#edit, PostsController#update
+  【編集フロー】
+  1. 既存の動画情報が表示される（変更可能）
+  2. 既存のアクションプランが表示される（編集可能）
+  3. AI提案機能も使用可能
+  4. 更新ボタンで送信
+
+  【Stimulusコントローラー】
+  post-edit: post-createと同様の機能 + 編集用の初期化
 %>
-<% content_for :title, "動画を編集" %>
+<% content_for :title, "投稿を編集" %>
+<% entry = @post.entries_by_user(current_user).first %>
 
-<%= render 'form', post: @post %>
+<div class="min-h-[calc(100vh-56px)] bg-white">
+  <div class="max-w-5xl mx-auto px-5 py-6"
+       data-controller="post-edit"
+       data-post-edit-youtube-url-value="<%= youtube_search_posts_path %>"
+       data-post-edit-update-url-value="<%= update_with_action_post_path(@post) %>"
+       data-post-edit-suggest-url-value="<%= suggest_action_plans_posts_path %>"
+       data-post-edit-convert-url-value="<%= convert_to_youtube_title_posts_path %>"
+       data-post-edit-initial-video-id-value="<%= @post.youtube_video_id %>"
+       data-post-edit-initial-title-value="<%= @post.youtube_title %>"
+       data-post-edit-initial-channel-value="<%= @post.youtube_channel_name %>"
+       data-post-edit-initial-thumbnail-value="<%= @post.youtube_thumbnail_url %>"
+       data-post-edit-initial-action-plan-value="<%= entry&.content %>">
+
+    <%# ヘッダー部分 %>
+    <div class="flex items-center justify-between mb-8">
+      <h1 class="text-lg font-semibold text-gray-900">投稿を編集</h1>
+      <button type="button"
+              data-post-edit-target="submitButton"
+              data-action="click->post-edit#submitForm"
+              class="px-5 py-2 rounded-full bg-gray-900 text-white text-sm font-semibold border-none cursor-pointer transition-all duration-200 hover:bg-gray-800">
+        更新
+      </button>
+    </div>
+
+    <%# 動画選択セクション %>
+    <div class="mb-6">
+      <label class="block text-sm font-semibold text-gray-900 mb-3">動画を選択</label>
+
+      <%# 検索入力 %>
+      <div class="relative">
+        <input type="text"
+               data-post-edit-target="input"
+               data-action="input->post-edit#handleInput keydown->post-edit#handleKeydown"
+               placeholder="YouTubeで検索..."
+               class="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 outline-none focus:border-gray-900 transition-colors">
+
+        <%# 検索結果ドロップダウン %>
+        <div data-post-edit-target="results"
+             class="hidden absolute z-20 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-[300px] overflow-y-auto">
+        </div>
+      </div>
+
+      <%# 動画プレビュー（初期表示あり） %>
+      <div data-post-edit-target="preview" class="mt-3">
+        <div class="flex gap-3 p-3 bg-gray-50 rounded-lg">
+          <img data-post-edit-target="previewThumbnail" src="<%= @post.youtube_thumbnail_url %>" alt="" class="w-[120px] h-[68px] object-cover rounded flex-shrink-0">
+          <div class="flex-1 min-w-0">
+            <p data-post-edit-target="previewTitle" class="text-sm font-medium text-gray-900 mb-1 leading-snug line-clamp-2"><%= @post.youtube_title %></p>
+            <p data-post-edit-target="previewChannel" class="text-xs text-gray-500"><%= @post.youtube_channel_name %></p>
+          </div>
+          <button type="button"
+                  data-action="click->post-edit#clearSelection"
+                  class="flex-shrink-0 px-2 py-1 bg-transparent border-none text-gray-500 text-xs cursor-pointer hover:text-gray-700">
+            ✕
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <%# アクションプラン入力セクション %>
+    <div class="mb-6">
+      <div class="flex items-center justify-between mb-3">
+        <label class="text-sm font-semibold text-gray-900">アクションプラン</label>
+
+        <div class="flex gap-2 items-center">
+          <%# YouTubeタイトル風に変換ボタン %>
+          <button type="button"
+                  data-post-edit-target="convertButton"
+                  data-action="click->post-edit#convertToYouTubeTitle"
+                  class="hidden items-center gap-1 px-3 py-1.5 bg-white border border-gray-900 rounded-full text-gray-900 text-xs font-medium cursor-pointer">
+            タイトル風に変換
+          </button>
+
+          <%# AI提案ボタン %>
+          <div data-post-edit-target="suggestions" class="inline">
+            <button type="button"
+                    data-post-edit-target="suggestButton"
+                    data-action="click->post-edit#fetchAiSuggestions"
+                    class="inline-flex items-center gap-1 px-3 py-1.5 bg-white border border-gray-900 rounded-full text-gray-900 text-xs font-medium cursor-pointer">
+              AI提案
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <%# AI提案リスト %>
+      <div data-post-edit-target="suggestionsContainer" class="mb-3"></div>
+
+      <%# テキストエリア（初期値あり） %>
+      <div class="border border-gray-200 rounded-lg transition-colors duration-200 focus-within:border-gray-900" data-post-edit-target="inputWrapper">
+        <textarea
+          data-post-edit-target="actionPlanInput"
+          data-action="input->post-edit#handleActionPlanInput focus->post-edit#focusInput blur->post-edit#blurInput"
+          placeholder="例：【実践】1日スマホなしで過ごしてみた"
+          rows="3"
+          class="w-full border-none bg-transparent px-4 py-3 text-base text-gray-900 resize-none outline-none leading-relaxed"
+        ><%= entry&.content %></textarea>
+      </div>
+
+      <p class="text-xs text-gray-500 mt-2">※ YouTubeのタイトル風にアクションプランを設定しよう</p>
+    </div>
+
+    <%# 達成コレクションプレビュー（サムネイルクリックでアップロード） %>
+    <div data-post-edit-target="collectionPreview" class="mb-6">
+      <label class="block text-sm font-semibold text-gray-900 mb-3">サムネイル画像</label>
+      <div>
+        <div class="max-w-xs">
+          <%# サムネイル部分（クリックでアップロード） %>
+          <div class="relative">
+            <label data-post-edit-target="previewCard" class="relative block rounded-lg overflow-hidden bg-gray-100 aspect-video cursor-pointer transition-all duration-200">
+              <%# アップロード前の状態 %>
+              <div data-post-edit-target="uploadPlaceholder" class="<%= entry&.signed_thumbnail_url.present? ? 'hidden' : '' %> absolute inset-0 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg transition-all duration-200 hover:border-gray-900 hover:bg-black/5">
+                <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                <span class="text-sm font-medium text-gray-600">クリックして画像を選択</span>
+                <span class="text-xs text-gray-400 mt-1">JPG, PNG（最大5MB）</span>
+              </div>
+              <%# アップロード後の画像 %>
+              <img data-post-edit-target="previewImage" src="<%= entry&.signed_thumbnail_url %>" alt="" class="<%= entry&.signed_thumbnail_url.present? ? '' : 'hidden' %> w-full h-full object-cover">
+              <%# ファイル入力（非表示） %>
+              <input type="file"
+                     accept="image/jpeg,image/png,image/webp"
+                     data-post-edit-target="fileInput"
+                     data-action="change->post-edit#handleFileSelect"
+                     class="hidden">
+            </label>
+            <%# 右上の×ボタン（アップロード後に表示） %>
+            <button type="button"
+                    data-post-edit-target="clearImageButton"
+                    data-action="click->post-edit#clearImage"
+                    class="<%= entry&.signed_thumbnail_url.present? ? 'flex' : 'hidden' %> absolute -top-2 -right-2 w-6 h-6 bg-gray-900 text-white border-none rounded-full cursor-pointer items-center justify-center text-xs z-10">
+              ✕
+            </button>
+          </div>
+          <%# カード下部 %>
+          <div class="pt-2">
+            <p data-post-edit-target="previewActionPlan" class="text-sm font-medium text-gray-900 leading-snug line-clamp-2"><%= entry&.content.presence || "アクションプランがここに表示されます" %></p>
+            <div class="flex items-center gap-1.5 mt-1.5">
+              <div class="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500"></div>
+              <span class="text-xs text-gray-500"><%= current_user&.name || "あなた" %></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

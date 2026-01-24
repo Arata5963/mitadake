@@ -1,0 +1,133 @@
+<%#
+  app/views/shared/_entry_card.html.erb
+  ==========================================
+  エントリーカード（統一版）
+  ==========================================
+
+  【このパーシャルの役割】
+  アクションプランをYouTubeサムネイル風に表示する統一コンポーネント。
+  投稿詳細ページとマイページで共通利用。
+
+  【パラメータ】
+  - entry: PostEntryオブジェクト（必須）
+  - post: Postオブジェクト（必須）
+  - mode: 表示モード
+    - :display（デフォルト）達成記録表示モード。クリックでモーダル表示。
+    - :input 達成入力モード。達成ボタン・編集メニュー付き。
+  - show_menu: 3点メニューを表示するか（デフォルト: false）
+
+  【表示内容】
+  - サムネイル画像（16:9、達成記録画像 > 投稿時画像 > YouTubeサムネ）
+  - アクションプラン内容（2行切り詰め）
+  - ユーザー情報（アバター + 名前）
+  - いいねボタン
+
+  【Stimulusコントローラー】
+  achievement-card: 達成記録モーダルの開閉・達成処理
+    - mode="display" → 表示モード（達成記録閲覧）
+    - mode="input" → 入力モード（達成処理可能）
+
+  【使用例】
+  詳細ページ:
+    render "shared/entry_card", entry: entry, post: @post
+
+  マイページ:
+    render "shared/entry_card", entry: current_action, post: current_video, mode: :input, show_menu: is_own_page
+%>
+
+<%
+  # パラメータのデフォルト値
+  mode ||= :display
+  show_menu ||= false
+  user = entry.user
+
+  # サムネイル画像の優先順位
+  # 達成済み: 達成記録画像 > 投稿時サムネ > YouTubeサムネ
+  # 未達成: 投稿時サムネ > YouTubeサムネ
+  youtube_thumbnail = "https://i.ytimg.com/vi/#{post.youtube_video_id}/mqdefault.jpg"
+  if entry.achieved?
+    display_thumbnail = entry.signed_result_image_url || entry.signed_thumbnail_url || youtube_thumbnail
+  else
+    display_thumbnail = entry.signed_thumbnail_url || youtube_thumbnail
+  end
+%>
+
+<article class="group max-w-xs relative"
+         data-controller="achievement-card"
+         data-achievement-card-entry-id-value="<%= entry.id %>"
+         data-achievement-card-post-id-value="<%= post.id %>"
+         <% if mode == :display && entry.achieved? %>
+           data-achievement-card-show-url-value="<%= show_achievement_post_post_entry_path(post, entry) %>"
+           data-achievement-card-mode-value="display"
+           data-achievement-card-hide-original-video-value="true"
+         <% elsif mode == :input %>
+           data-achievement-card-achieve-url-value="<%= achieve_post_post_entry_path(post, entry) %>"
+           data-achievement-card-mode-value="input"
+           data-achievement-card-video-thumbnail-value="<%= post.youtube_thumbnail_url %>"
+           data-achievement-card-video-url-value="<%= post_path(post) %>"
+           data-achievement-card-video-title-value="<%= post.youtube_title %>"
+         <% end %>>
+
+  <% if show_menu %>
+    <%# 3点リーダーメニュー（右上） %>
+    <details class="absolute top-2 right-2 z-10">
+      <summary class="w-7 h-7 rounded-full bg-white/90 flex items-center justify-center shadow cursor-pointer list-none hover:bg-white">
+        <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+          <circle cx="12" cy="5" r="2"/>
+          <circle cx="12" cy="12" r="2"/>
+          <circle cx="12" cy="19" r="2"/>
+        </svg>
+      </summary>
+      <div class="absolute top-8 right-0 bg-white rounded-lg shadow-lg min-w-[120px] overflow-hidden">
+        <%= link_to edit_post_post_entry_path(post, entry, from: 'mypage'),
+              class: "flex items-center gap-2 px-3.5 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors" do %>
+          <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+          </svg>
+          編集
+        <% end %>
+        <%= link_to post_post_entry_path(post, entry),
+              method: :delete,
+              data: { turbo_method: :delete, turbo_confirm: "このアクションプランを削除しますか？" },
+              class: "flex items-center gap-2 px-3.5 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors" do %>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+          削除
+        <% end %>
+      </div>
+    </details>
+  <% end %>
+
+  <%# サムネイル画像 %>
+  <div class="relative rounded-lg overflow-hidden bg-gray-100 aspect-video <%= (entry.achieved? || mode == :input) ? 'cursor-pointer' : '' %>"
+       <% if entry.achieved? || mode == :input %>
+         data-action="click->achievement-card#open"
+       <% end %>>
+    <%= image_tag display_thumbnail,
+          alt: entry.content,
+          class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-200",
+          loading: "lazy" %>
+  </div>
+
+  <%# カード下部 %>
+  <div class="pt-2">
+    <p class="text-sm font-medium text-gray-900 leading-tight line-clamp-2 <%= (entry.achieved? || mode == :input) ? 'cursor-pointer' : '' %>"
+       <% if entry.achieved? || mode == :input %>
+         data-action="click->achievement-card#open"
+       <% end %>>
+      <%= entry.content %>
+    </p>
+
+    <div class="flex items-center justify-between mt-2">
+      <%# ユーザー情報 %>
+      <%= link_to user_profile_path(user), class: "flex items-center gap-1.5 no-underline" do %>
+        <%= render "shared/avatar", user: user, size: :sm, lazy: true %>
+        <span class="text-xs text-gray-500"><%= user.name.presence || "名無しさん" %></span>
+      <% end %>
+
+      <%# いいねボタン %>
+      <%= render 'post_entries/like_button', post_entry: entry %>
+    </div>
+  </div>
+</article>

@@ -57,27 +57,37 @@ class UsersController < ApplicationController
   end
 
   # ------------------------------------------
-  # プロフィール更新
+  # プロフィール・アカウント設定更新
   # ------------------------------------------
   # 【ルート】PATCH /mypage
   #
   # 【処理の流れ】
   # 1. フォームから送信されたパラメータを取得
-  # 2. ユーザー情報を更新
+  # 2. パスワード/メール変更がある場合は current_password が必要
   # 3. 成功: マイページにリダイレクト
   #    失敗: 編集画面を再表示
   #
   def update
     @user = current_user
 
-    if @user.update(user_params)
-      redirect_to mypage_path, notice: "プロフィールを更新しました"
+    # パスワードまたはメールアドレスの変更があるかチェック
+    needs_password = password_change_requested? || email_change_requested?
+
+    if needs_password
+      # Deviseのupdate_with_passwordを使用（current_password必須）
+      if @user.update_with_password(user_params_with_password)
+        bypass_sign_in(@user)  # パスワード変更後も再ログイン不要にする
+        redirect_to mypage_path, notice: "プロフィールを更新しました"
+      else
+        render :edit, status: :unprocessable_entity
+      end
     else
-      # 【status: :unprocessable_entity とは？】
-      # HTTPステータス422を返す。
-      # バリデーションエラー時のRails標準の書き方。
-      # Turbo Driveが正しくフォームを処理するために必要。
-      render :edit, status: :unprocessable_entity
+      # パスワード/メール変更なしの場合は通常のupdate
+      if @user.update(user_params)
+        redirect_to mypage_path, notice: "プロフィールを更新しました"
+      else
+        render :edit, status: :unprocessable_entity
+      end
     end
   end
 
@@ -210,22 +220,34 @@ class UsersController < ApplicationController
   end
 
   # ------------------------------------------
-  # Strong Parameters
+  # Strong Parameters（プロフィールのみ）
   # ------------------------------------------
-  # 【何をするメソッド？】
-  # フォームから送信されたパラメータのうち、
-  # 許可するものを明示的に指定する。
-  # セキュリティ対策（マスアサインメント攻撃の防止）。
-  #
-  # 【許可するパラメータ】
-  # - name: 表示名
-  # - avatar: プロフィール画像
-  # - avatar_cache: CarrierWave用のキャッシュ
-  # - favorite_quote: お気に入りの言葉
-  # - favorite_quote_url: その言葉が出てくる動画のURL
-  #
   def user_params
     params.require(:user).permit(:name, :avatar, :avatar_cache, :favorite_quote, :favorite_quote_url)
+  end
+
+  # ------------------------------------------
+  # Strong Parameters（パスワード変更含む）
+  # ------------------------------------------
+  def user_params_with_password
+    params.require(:user).permit(
+      :name, :avatar, :avatar_cache, :favorite_quote, :favorite_quote_url,
+      :email, :password, :password_confirmation, :current_password
+    )
+  end
+
+  # ------------------------------------------
+  # パスワード変更がリクエストされているか
+  # ------------------------------------------
+  def password_change_requested?
+    params[:user][:password].present?
+  end
+
+  # ------------------------------------------
+  # メールアドレス変更がリクエストされているか
+  # ------------------------------------------
+  def email_change_requested?
+    params[:user][:email].present? && params[:user][:email] != @user.email
   end
 
   # ------------------------------------------

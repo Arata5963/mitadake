@@ -13,14 +13,153 @@
   - 自分: 編集リンクあり、非公開情報表示
   - 他人: 公開情報のみ表示
 
-  【レンダリングされるパーシャル】
-  users/designs/mypage_vertical_compact: メイン表示コンポーネント
+  【ページ構成】
+  1. プロフィールセクション
+  2. きっかけの動画（現在のアクションプラン）
+  3. 私のアクション
+  4. 達成コレクション
 
   【コントローラー】
   UsersController#show（マイページ・プロフィール兼用）
 %>
 <% content_for :title, @is_own_page ? "マイページ" : "#{@user.name}のプロフィール" %>
 
+<%
+  user = @user
+  is_own_page = @is_own_page
+  current_action = user.current_action_plan
+  current_video = user.current_video
+%>
+
 <div class="min-h-screen bg-white">
-  <%= render 'users/designs/mypage_vertical_compact', user: @user, is_own_page: @is_own_page %>
+  <div class="max-w-5xl mx-auto px-5 pt-4 pb-6">
+    <%# プロフィール %>
+    <div class="flex items-center gap-3 mb-6">
+      <%= render "shared/avatar", user: user, size: :xl %>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-1.5">
+          <h1 class="text-xl font-bold text-gray-900 truncate"><%= user.name.presence || "名無しさん" %></h1>
+          <% if is_own_page %>
+            <%= link_to edit_profile_path, class: "p-0.5 text-gray-400 hover:text-gray-600" do %>
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            <% end %>
+          <% end %>
+        </div>
+        <% if user.favorite_quote.present? %>
+          <% if is_own_page %>
+            <%= link_to edit_profile_path, class: "block text-sm text-gray-600 mt-1 hover:text-gray-900 transition-colors" do %>
+              「<%= user.favorite_quote %>」
+            <% end %>
+          <% else %>
+            <p class="text-sm text-gray-600 mt-1">「<%= user.favorite_quote %>」</p>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <% if current_video && current_action %>
+      <%
+        custom_thumbnail = current_action.signed_thumbnail_url
+        youtube_thumbnail = "https://i.ytimg.com/vi/#{current_video.youtube_video_id}/mqdefault.jpg"
+        display_thumbnail = custom_thumbnail.presence || youtube_thumbnail
+      %>
+
+      <%# ステップバッジデザイン %>
+      <section class="mb-6">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-900 text-white text-xs font-bold">1</span>
+          <span class="text-sm font-semibold text-gray-900">きっかけの動画</span>
+        </div>
+        <div data-controller="hero-video" data-hero-video-video-id-value="<%= current_video.youtube_video_id %>" class="mb-6">
+          <div class="group relative rounded-xl overflow-hidden bg-black cursor-pointer aspect-video">
+            <iframe id="hero-player-<%= current_video.youtube_video_id %>" data-hero-video-target="iframe" src="https://www.youtube.com/embed/<%= current_video.youtube_video_id %>?autoplay=1&mute=1&loop=1&playlist=<%= current_video.youtube_video_id %>&controls=0&playsinline=1&rel=0&modestbranding=1&showinfo=0&enablejsapi=1" class="absolute inset-0 w-full h-full pointer-events-none" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <div class="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300" data-action="click->hero-video#toggle">
+              <div class="absolute inset-0 bg-black/30"></div>
+              <button type="button" class="relative z-10 w-14 h-14 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-lg">
+                <svg data-hero-video-target="playButton" class="w-6 h-6 text-black ml-1 hidden" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                <svg data-hero-video-target="pauseButton" class="w-6 h-6 text-black" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+              </button>
+            </div>
+          </div>
+          <%= link_to post_path(current_video), class: "block mt-3" do %>
+            <p class="text-base font-bold text-gray-900 line-clamp-2 leading-snug"><%= current_video.youtube_title %></p>
+            <div class="flex items-center gap-2 mt-1.5">
+              <% if current_video.youtube_channel_thumbnail_url.present? %>
+                <%= image_tag current_video.youtube_channel_thumbnail_url, class: "w-5 h-5 rounded-full", alt: current_video.youtube_channel_name %>
+              <% end %>
+              <span class="text-sm text-gray-500"><%= current_video.youtube_channel_name %></span>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="flex items-center gap-2 mb-3">
+          <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-900 text-white text-xs font-bold">2</span>
+          <span class="text-sm font-semibold text-gray-900">私のアクション</span>
+        </div>
+        <%= render 'shared/entry_card', entry: current_action, post: current_video, mode: :input, show_menu: is_own_page %>
+      </section>
+    <% else %>
+      <%# Empty State %>
+      <% if is_own_page %>
+        <div class="bg-gray-50 rounded-xl py-6 px-4 text-center">
+          <p class="text-sm text-gray-600 mb-3">アクションプランがありません</p>
+          <%= link_to posts_path, class: "inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm rounded-full font-medium hover:bg-gray-700 transition-colors" do %>
+            動画を探す
+          <% end %>
+        </div>
+      <% else %>
+        <div class="bg-gray-50 rounded-xl py-6 px-4 text-center">
+          <p class="text-sm text-gray-600">挑戦中のアクションプランはありません</p>
+        </div>
+      <% end %>
+    <% end %>
+
+    <%# 達成コレクション %>
+    <% achieved_entries = user.post_entries.achieved.includes(:post).order(achieved_at: :desc) %>
+    <% if achieved_entries.present? %>
+      <section class="mt-8">
+        <div class="flex items-center gap-2 mb-4">
+          <h2 class="text-lg font-bold text-gray-900">達成したアクション</h2>
+        </div>
+
+        <div class="collection-grid-youtube">
+          <% achieved_entries.each do |entry| %>
+            <% post = entry.post %>
+            <% entry_user = entry.user %>
+            <% entry_thumbnail = entry.signed_result_image_url || entry.signed_thumbnail_url || "https://i.ytimg.com/vi/#{post.youtube_video_id}/mqdefault.jpg" %>
+
+            <article class="group"
+                     data-controller="achievement-card"
+                     data-achievement-card-entry-id-value="<%= entry.id %>"
+                     data-achievement-card-post-id-value="<%= post.id %>"
+                     data-achievement-card-show-url-value="<%= show_achievement_post_post_entry_path(post, entry) %>"
+                     data-achievement-card-mode-value="display">
+              <div class="rounded-lg overflow-hidden bg-gray-100 aspect-video relative cursor-pointer"
+                   data-action="click->achievement-card#open">
+                <%= image_tag entry_thumbnail,
+                      alt: entry.content,
+                      class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-200",
+                      loading: "lazy" %>
+              </div>
+              <div class="pt-2">
+                <h3 class="text-sm font-medium text-gray-900 group-hover:text-gray-700 transition-colors line-clamp-2 cursor-pointer"
+                    data-action="click->achievement-card#open">
+                  <%= entry.content %>
+                </h3>
+                <div class="flex items-center justify-between mt-2">
+                  <%= link_to user_profile_path(entry_user), class: "flex items-center gap-1.5 no-underline" do %>
+                    <%= render "shared/avatar", user: entry_user, size: :sm, lazy: true %>
+                    <span class="text-xs text-gray-500"><%= entry_user.name.presence || "名無しさん" %></span>
+                  <% end %>
+                  <%= render 'post_entries/like_button', post_entry: entry %>
+                </div>
+              </div>
+            </article>
+          <% end %>
+        </div>
+      </section>
+    <% end %>
+  </div>
 </div>

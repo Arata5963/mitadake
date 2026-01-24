@@ -332,6 +332,110 @@ RSpec.describe "Posts", type: :request do
   end
 
   # ====================
+  # PATCH /posts/:id/update_with_action (動画+アクションプラン同時更新)
+  # ====================
+  describe "PATCH /posts/:id/update_with_action" do
+    let(:post_record) { create(:post, youtube_video_id: "original123") }
+
+    before do
+      allow(YoutubeService).to receive(:fetch_video_info).and_return({
+        title: "New Video",
+        channel_name: "New Channel"
+      })
+    end
+
+    context "エントリー所有者の場合" do
+      let!(:entry) { create(:post_entry, post: post_record, user: user, content: "元のアクションプラン") }
+
+      before { sign_in user }
+
+      context "アクションプランのみ更新" do
+        it "アクションプランを更新する" do
+          patch update_with_action_post_path(post_record), params: {
+            youtube_url: post_record.youtube_url,
+            action_plan: "更新されたアクションプラン"
+          }, as: :json
+
+          expect(response).to have_http_status(:ok)
+          json = JSON.parse(response.body)
+          expect(json['success']).to be true
+          expect(entry.reload.content).to eq("更新されたアクションプラン")
+        end
+      end
+
+      context "動画を変更する場合" do
+        let(:new_url) { "https://www.youtube.com/watch?v=newvideo123" }
+
+        it "新しい動画にエントリーを移動する" do
+          patch update_with_action_post_path(post_record), params: {
+            youtube_url: new_url,
+            action_plan: "新しいアクションプラン"
+          }, as: :json
+
+          expect(response).to have_http_status(:ok)
+          json = JSON.parse(response.body)
+          expect(json['success']).to be true
+          expect(entry.reload.content).to eq("新しいアクションプラン")
+          expect(entry.post.youtube_video_id).to eq("newvideo123")
+        end
+      end
+
+      context "サムネイル画像を更新する場合" do
+        it "サムネイルURLを更新する" do
+          patch update_with_action_post_path(post_record), params: {
+            youtube_url: post_record.youtube_url,
+            action_plan: "アクションプラン",
+            thumbnail_s3_key: "uploads/thumbnails/new_image.jpg"
+          }, as: :json
+
+          expect(response).to have_http_status(:ok)
+          expect(entry.reload.thumbnail_url).to eq("uploads/thumbnails/new_image.jpg")
+        end
+      end
+
+      context "アクションプランが空の場合" do
+        it "エラーを返す" do
+          patch update_with_action_post_path(post_record), params: {
+            youtube_url: post_record.youtube_url,
+            action_plan: ""
+          }, as: :json
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          json = JSON.parse(response.body)
+          expect(json['error']).to include("アクションプラン")
+        end
+      end
+    end
+
+    context "エントリー所有者でない場合" do
+      before do
+        create(:post_entry, post: post_record, user: other_user)
+        sign_in user
+      end
+
+      it "詳細ページにリダイレクトされる" do
+        patch update_with_action_post_path(post_record), params: {
+          youtube_url: post_record.youtube_url,
+          action_plan: "テスト"
+        }, as: :json
+
+        expect(response).to redirect_to(post_path(post_record))
+      end
+    end
+
+    context "ログインしていない場合" do
+      it "401 Unauthorizedを返す" do
+        patch update_with_action_post_path(post_record), params: {
+          youtube_url: post_record.youtube_url,
+          action_plan: "テスト"
+        }, as: :json
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+  end
+
+  # ====================
   # DELETE /posts/:id (削除)
   # ====================
   describe "DELETE /posts/:id" do

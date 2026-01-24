@@ -19,11 +19,9 @@
 
   【Stimulusコントローラー】
   - index-search: 統合検索バー（インクリメンタル検索）
-  - load-more: 無限スクロール・もっと見る機能
 
   【レンダリングされるパーシャル】
   - posts/post_card_note: 投稿カード（ノート風）
-  - posts/load_more_button: もっと見るボタン
   - posts/section_*: 各セクション
 
   【コントローラー】
@@ -75,17 +73,16 @@
           <p class="text-gray-700 font-medium mb-2">まだアクションプランがありません</p>
         </div>
       <% else %>
-        <div data-controller="load-more">
-          <div id="posts-container"
-               data-load-more-target="container"
-               class="grid gap-4"
-               style="grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));">
-            <% @posts.each do |post| %>
-              <%= render 'posts/post_card_note', post: post %>
-            <% end %>
-          </div>
-          <%= render 'posts/load_more_button', posts: @posts %>
+        <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));">
+          <% @posts.each do |post| %>
+            <%= render 'posts/post_card_note', post: post %>
+          <% end %>
         </div>
+        <% if @posts.respond_to?(:total_pages) && @posts.total_pages > 1 %>
+          <div class="mt-8 flex justify-center">
+            <%= paginate @posts %>
+          </div>
+        <% end %>
       <% end %>
 
     <% elsif @filter_channel.present? %>
@@ -105,17 +102,16 @@
           <p class="text-gray-700 font-medium mb-2">このチャンネルの投稿はまだありません</p>
         </div>
       <% else %>
-        <div data-controller="load-more">
-          <div id="posts-container"
-               data-load-more-target="container"
-               class="grid gap-4"
-               style="grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));">
-            <% @posts.each do |post| %>
-              <%= render 'posts/post_card_note', post: post %>
-            <% end %>
-          </div>
-          <%= render 'posts/load_more_button', posts: @posts %>
+        <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));">
+          <% @posts.each do |post| %>
+            <%= render 'posts/post_card_note', post: post %>
+          <% end %>
         </div>
+        <% if @posts.respond_to?(:total_pages) && @posts.total_pages > 1 %>
+          <div class="mt-8 flex justify-center">
+            <%= paginate @posts %>
+          </div>
+        <% end %>
       <% end %>
 
     <% else %>
@@ -133,7 +129,7 @@
 
       <%# セクション2: 人気の動画 %>
       <% if @ranking_posts.present? %>
-        <%= render 'posts/section_ranking', posts: @ranking_posts, design: 'D' %>
+        <%= render 'posts/section_ranking', posts: @ranking_posts %>
       <% end %>
 
       <%# セクション3: アクティブユーザー %>

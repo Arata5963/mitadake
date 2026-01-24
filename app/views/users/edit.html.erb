@@ -1,33 +1,4 @@
-<%#
-  app/views/users/edit.html.erb
-  ==========================================
-  プロフィール編集ページ
-  ==========================================
-
-  【このページの役割】
-  ユーザーのプロフィール情報とアカウント設定を編集するフォーム。
-
-  【編集可能な項目】
-  プロフィール:
-  - プロフィール画像（CarrierWaveアップロード）
-  - ユーザー名
-  - 引用（好きなフレーズ）
-  - 引用元動画（YouTube URL）
-
-  アカウント設定:
-  - メールアドレス
-  - パスワード変更
-
-  【Stimulusコントローラー】
-  - image-preview: プロフィール画像のプレビュー表示
-  - youtube-search: 引用元動画のYouTube検索
-
-  【フォーム送信】
-  PATCH /mypage で UsersController#update へ送信。
-
-  【コントローラー】
-  UsersController#edit, UsersController#update
-%>
+<%# プロフィール編集ページ - UsersController#edit %>
 <% content_for :title, "プロフィール編集" %>
 
 <div class="min-h-screen bg-white">
@@ -133,68 +104,47 @@
         </div>
       </div>
 
-      <%# ===== アカウント設定セクション ===== %>
-      <div class="pt-8 mt-8 border-t border-gray-200">
-        <h2 class="text-base font-bold text-gray-900 mb-6">アカウント設定</h2>
-
-        <%# メールアドレス %>
-        <div class="mb-6">
-          <%= form.label :email, "メールアドレス", class: "block text-xs text-gray-500 mb-1" %>
-          <%= form.email_field :email,
-                autocomplete: "email",
-                class: "w-full px-0 py-2 border-0 border-b border-gray-300 text-gray-900 placeholder-gray-300 focus:border-gray-900 focus:ring-0 focus:outline-none transition-colors bg-transparent" %>
-        </div>
-
-        <%# パスワード変更 %>
-        <div class="mb-6">
-          <p class="text-xs text-gray-500 mb-3">パスワード変更（変更しない場合は空欄）</p>
-
-          <div class="space-y-4">
-            <%= render 'shared/password_field',
-                  form: form,
-                  field_name: :password,
-                  label_text: "新しいパスワード",
-                  placeholder: "新しいパスワードを入力",
-                  autocomplete: "new-password",
-                  show_hint: true,
-                  minimum_length: 6 %>
-
-            <%= render 'shared/password_field',
-                  form: form,
-                  field_name: :password_confirmation,
-                  label_text: "新しいパスワード（確認）",
-                  placeholder: "新しいパスワードを再入力",
-                  autocomplete: "new-password" %>
-          </div>
-        </div>
-
-        <%# 現在のパスワード %>
-        <div class="mb-6">
-          <%= render 'shared/password_field',
-                form: form,
-                field_name: :current_password,
-                label_text: "現在のパスワード",
-                placeholder: "現在のパスワードを入力",
-                autocomplete: "current-password" %>
-          <p class="text-xs text-gray-400 mt-1">メールアドレスまたはパスワードを変更する場合は必須</p>
-        </div>
+      <%# メールアドレス %>
+      <div>
+        <%= form.label :email, "メールアドレス", class: "block text-xs text-gray-500 mb-1" %>
+        <%= form.email_field :email,
+              autocomplete: "email",
+              class: "w-full px-0 py-2 border-0 border-b border-gray-300 text-gray-900 placeholder-gray-300 focus:border-gray-900 focus:ring-0 focus:outline-none transition-colors bg-transparent" %>
       </div>
 
-      <%# ボタン %>
-      <div class="pt-6">
+      <%# パスワード変更 %>
+      <div class="space-y-6">
+        <%= render 'shared/password_field',
+              form: form,
+              field_name: :password,
+              label_text: "新しいパスワード",
+              placeholder: "変更しない場合は空欄",
+              autocomplete: "new-password" %>
+
+        <%= render 'shared/password_field',
+              form: form,
+              field_name: :password_confirmation,
+              label_text: "新しいパスワード（確認）",
+              placeholder: "変更しない場合は空欄",
+              autocomplete: "new-password" %>
+
+        <%= render 'shared/password_field',
+              form: form,
+              field_name: :current_password,
+              label_text: "現在のパスワード",
+              placeholder: "変更時は必須",
+              autocomplete: "current-password" %>
+      </div>
+
+      <%# 更新ボタン %>
+      <div class="pt-4">
         <%= form.submit "更新する",
               class: "w-full bg-gray-900 text-white py-3 text-sm font-medium hover:bg-gray-800 transition-colors cursor-pointer" %>
       </div>
     <% end %>
 
-    <%# ===== アカウント削除 ===== %>
-    <div class="mt-8 pt-8 border-t border-gray-100">
-      <%= link_to "← マイページに戻る", mypage_path,
-            class: "text-sm text-gray-500 hover:text-gray-900 transition-colors" %>
-    </div>
-
-    <div class="mt-8 pt-8 border-t border-gray-100">
-      <p class="text-xs text-gray-500 mb-3">アカウントを削除すると、すべてのデータが完全に削除されます。</p>
+    <%# アカウント削除 %>
+    <div class="mt-12 text-center">
       <%= button_to "アカウントを削除", registration_path(:user),
             method: :delete,
             data: { turbo: false, turbo_confirm: "本当にアカウントを削除しますか？この操作は取り消せません。" },

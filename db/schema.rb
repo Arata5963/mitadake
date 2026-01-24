@@ -29,26 +29,13 @@
 #   - posts:             YouTube動画（1動画 = 1レコード）
 #   - post_entries:      アクションプラン（ユーザーの行動計画）
 #   - entry_likes:       いいね（アクションプランへの応援）
-#   - post_comparisons:  動画比較（関連動画の紐付け）
-#   - comments:          コメント（動画へのコメント）
 #   - solid_queue_*:     バックグラウンドジョブ用テーブル
 #
 # ==========================================
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_21_040241) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_24_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-
-  create_table "comments", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "post_id", null: false
-    t.string "content", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["post_id", "created_at"], name: "index_comments_on_post_id_and_created_at"
-    t.index ["post_id"], name: "index_comments_on_post_id"
-    t.index ["user_id"], name: "index_comments_on_user_id"
-  end
 
   create_table "entry_likes", force: :cascade do |t|
     t.bigint "user_id", null: false
@@ -60,53 +47,13 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_21_040241) do
     t.index ["user_id"], name: "index_entry_likes_on_user_id"
   end
 
-  create_table "notifications", force: :cascade do |t|
-    t.string "target_type", null: false
-    t.bigint "target_id", null: false
-    t.string "notifiable_type", null: false
-    t.bigint "notifiable_id", null: false
-    t.string "key", null: false
-    t.string "group_type"
-    t.bigint "group_id"
-    t.integer "group_owner_id"
-    t.string "notifier_type"
-    t.bigint "notifier_id"
-    t.text "parameters"
-    t.datetime "opened_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["group_owner_id"], name: "index_notifications_on_group_owner_id"
-    t.index ["group_type", "group_id"], name: "index_notifications_on_group"
-    t.index ["notifiable_type", "notifiable_id"], name: "index_notifications_on_notifiable"
-    t.index ["notifier_type", "notifier_id"], name: "index_notifications_on_notifier"
-    t.index ["target_type", "target_id"], name: "index_notifications_on_target"
-  end
-
-  create_table "post_comparisons", force: :cascade do |t|
-    t.bigint "source_post_id", null: false
-    t.bigint "target_post_id", null: false
-    t.text "reason"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["source_post_id", "target_post_id"], name: "index_post_comparisons_on_source_post_id_and_target_post_id", unique: true
-    t.index ["source_post_id"], name: "index_post_comparisons_on_source_post_id"
-    t.index ["target_post_id"], name: "index_post_comparisons_on_target_post_id"
-  end
-
   create_table "post_entries", force: :cascade do |t|
     t.bigint "post_id", null: false
-    t.integer "entry_type", default: 0, null: false
     t.text "content"
     t.date "deadline"
     t.datetime "achieved_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "satisfaction_rating"
-    t.string "title"
-    t.datetime "published_at"
-    t.integer "recommendation_level"
-    t.text "target_audience"
-    t.text "recommendation_point"
     t.bigint "user_id"
     t.string "thumbnail_url"
     t.text "reflection"
@@ -115,7 +62,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_21_040241) do
     t.index ["post_id"], name: "index_post_entries_on_post_id"
     t.index ["user_id", "post_id"], name: "idx_post_entries_user_post"
     t.index ["user_id"], name: "index_post_entries_on_user_id"
-    t.check_constraint "satisfaction_rating IS NULL OR satisfaction_rating >= 1 AND satisfaction_rating <= 5", name: "satisfaction_rating_range"
   end
 
   create_table "posts", force: :cascade do |t|
@@ -133,16 +79,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_21_040241) do
     t.string "youtube_channel_id"
     t.index ["user_id"], name: "index_posts_on_user_id"
     t.index ["youtube_video_id"], name: "index_posts_on_youtube_video_id", unique: true
-  end
-
-  create_table "recommendation_clicks", force: :cascade do |t|
-    t.bigint "post_id", null: false
-    t.bigint "user_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["post_id", "user_id"], name: "index_recommendation_clicks_on_post_id_and_user_id", unique: true
-    t.index ["post_id"], name: "index_recommendation_clicks_on_post_id"
-    t.index ["user_id"], name: "index_recommendation_clicks_on_user_id"
   end
 
   create_table "solid_queue_blocked_executions", force: :cascade do |t|
@@ -266,24 +202,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_21_040241) do
     t.index ["key"], name: "index_solid_queue_semaphores_on_key", unique: true
   end
 
-  create_table "subscriptions", force: :cascade do |t|
-    t.string "target_type", null: false
-    t.bigint "target_id", null: false
-    t.string "key", null: false
-    t.boolean "subscribing", default: true, null: false
-    t.boolean "subscribing_to_email", default: true, null: false
-    t.datetime "subscribed_at"
-    t.datetime "unsubscribed_at"
-    t.datetime "subscribed_to_email_at"
-    t.datetime "unsubscribed_to_email_at"
-    t.text "optional_targets"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["key"], name: "index_subscriptions_on_key"
-    t.index ["target_type", "target_id", "key"], name: "index_subscriptions_on_target_type_and_target_id_and_key", unique: true
-    t.index ["target_type", "target_id"], name: "index_subscriptions_on_target"
-  end
-
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -302,17 +220,11 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_21_040241) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
-  add_foreign_key "comments", "posts"
-  add_foreign_key "comments", "users"
   add_foreign_key "entry_likes", "post_entries"
   add_foreign_key "entry_likes", "users"
-  add_foreign_key "post_comparisons", "posts", column: "source_post_id"
-  add_foreign_key "post_comparisons", "posts", column: "target_post_id"
   add_foreign_key "post_entries", "posts"
   add_foreign_key "post_entries", "users"
   add_foreign_key "posts", "users"
-  add_foreign_key "recommendation_clicks", "posts"
-  add_foreign_key "recommendation_clicks", "users"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade

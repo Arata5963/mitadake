@@ -33,7 +33,7 @@
 
 <div class="min-h-screen bg-white">
   <%# ===== メインコンテンツエリア（1000px幅・中央配置） ===== %>
-  <div class="max-w-[1000px] mx-auto px-5 pt-6">
+  <div class="max-w-5xl mx-auto px-5 pt-6">
 
     <%# ===== ヒーロー: YouTube サムネイル ===== %>
     <%= link_to @post.youtube_url,
@@ -106,7 +106,7 @@
 
   <%# ===== アクションプランセクション（フルワイド） ===== %>
   <section class="border-t border-gray-100 pt-8 mb-8">
-    <div class="max-w-[1000px] mx-auto px-5">
+    <div class="max-w-5xl mx-auto px-5">
       <%
         achieved_entries = @post.post_entries.achieved.includes(:user).order(achieved_at: :desc)
         pending_entries = @post.post_entries.not_achieved.includes(:user).order(created_at: :desc)

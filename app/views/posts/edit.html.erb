@@ -21,7 +21,7 @@
 <% entry = @post.entries_by_user(current_user).first %>
 
 <div class="min-h-[calc(100vh-56px)] bg-white">
-  <div class="max-w-[1000px] mx-auto px-5 py-6"
+  <div class="max-w-5xl mx-auto px-5 py-6"
        data-controller="post-edit"
        data-post-edit-youtube-url-value="<%= youtube_search_posts_path %>"
        data-post-edit-update-url-value="<%= update_with_action_post_path(@post) %>"

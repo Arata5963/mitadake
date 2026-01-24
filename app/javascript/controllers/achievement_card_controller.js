@@ -164,6 +164,13 @@ export default class extends Controller {
                         data-achievement-modal-target="reflectionInput"></textarea>
             </div>
 
+            <div class="px-4 pb-2">
+              <a href="${this.videoUrlValue}"
+                 class="flex items-center justify-center w-full py-3 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors">
+                きっかけの動画
+              </a>
+            </div>
+
             <div class="px-4 pb-4">
               <button type="button"
                       class="w-full py-2.5 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-lg transition-colors"
@@ -235,9 +242,7 @@ export default class extends Controller {
                     </button>
                   ` : ''}
                 </div>
-                <p class="text-sm text-gray-600 whitespace-pre-wrap" data-achievement-modal-target="reflectionDisplay">
-                  ${this.escapeHtml(data.reflection)}
-                </p>
+                <p class="text-sm text-gray-600 whitespace-pre-wrap text-left" data-achievement-modal-target="reflectionDisplay">${this.escapeHtml(data.reflection)}</p>
                 <textarea class="hidden w-full p-3 border border-gray-200 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                           rows="3"
                           placeholder="達成した感想を入力..."

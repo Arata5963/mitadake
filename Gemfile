@@ -99,4 +99,4 @@ group :test do
   gem "vcr"
 end
 gem "tailwindcss-rails", "~> 4.3"
-gem 'redcarpet'
+gem "redcarpet"

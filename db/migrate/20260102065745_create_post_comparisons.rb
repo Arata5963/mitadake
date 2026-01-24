@@ -28,6 +28,6 @@ class CreatePostComparisons < ActiveRecord::Migration[7.2]
     end
 
     # 同じ比較は1回のみ（A→Bは一度だけ）
-    add_index :post_comparisons, [:source_post_id, :target_post_id], unique: true
+    add_index :post_comparisons, [ :source_post_id, :target_post_id ], unique: true
   end
 end

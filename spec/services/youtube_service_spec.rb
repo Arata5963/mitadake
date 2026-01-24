@@ -53,7 +53,7 @@ RSpec.describe YoutubeService, type: :service, youtube_api: true do
         channel_id: channel_id
       )
       video_item = double(snippet: video_snippet)
-      video_response = double(items: [video_item])
+      video_response = double(items: [ video_item ])
       allow(@youtube_service).to receive(:list_videos).with('snippet', id: video_id).and_return(video_response)
 
       # チャンネルAPIレスポンスをモック
@@ -61,7 +61,7 @@ RSpec.describe YoutubeService, type: :service, youtube_api: true do
       channel_thumbnails = double(default: channel_thumbnail, medium: nil)
       channel_snippet = double(thumbnails: channel_thumbnails)
       channel_item = double(snippet: channel_snippet)
-      channel_response = double(items: [channel_item])
+      channel_response = double(items: [ channel_item ])
       allow(@youtube_service).to receive(:list_channels).with('snippet', id: channel_id).and_return(channel_response)
     end
 
@@ -266,7 +266,7 @@ RSpec.describe YoutubeService, type: :service, youtube_api: true do
           channel_id: channel_id
         )
         video_item = double(snippet: video_snippet)
-        video_response = double(items: [video_item])
+        video_response = double(items: [ video_item ])
         allow(youtube_service).to receive(:list_videos).with('snippet', id: video_id).and_return(video_response)
 
         # チャンネル取得でエラー
@@ -300,7 +300,7 @@ RSpec.describe YoutubeService, type: :service, youtube_api: true do
           channel_id: channel_id
         )
         video_item = double(snippet: video_snippet)
-        video_response = double(items: [video_item])
+        video_response = double(items: [ video_item ])
         allow(youtube_service).to receive(:list_videos).with('snippet', id: video_id).and_return(video_response)
 
         # チャンネルが存在しない
@@ -329,7 +329,7 @@ RSpec.describe YoutubeService, type: :service, youtube_api: true do
           channel_id: channel_id
         )
         video_item = double(snippet: video_snippet)
-        video_response = double(items: [video_item])
+        video_response = double(items: [ video_item ])
         allow(youtube_service).to receive(:list_videos).with('snippet', id: video_id).and_return(video_response)
 
         # defaultがnilでmediumのみ
@@ -337,7 +337,7 @@ RSpec.describe YoutubeService, type: :service, youtube_api: true do
         channel_thumbnails = double(default: nil, medium: medium_thumbnail)
         channel_snippet = double(thumbnails: channel_thumbnails)
         channel_item = double(snippet: channel_snippet)
-        channel_response = double(items: [channel_item])
+        channel_response = double(items: [ channel_item ])
         allow(youtube_service).to receive(:list_channels).with('snippet', id: channel_id).and_return(channel_response)
       end
 
@@ -375,7 +375,7 @@ RSpec.describe YoutubeService, type: :service, youtube_api: true do
           thumbnails: thumbnails
         )
         search_item = double(id: video_id_obj, snippet: snippet)
-        search_response = double(items: [search_item])
+        search_response = double(items: [ search_item ])
 
         allow(@youtube_service).to receive(:list_searches).and_return(search_response)
       end
@@ -405,7 +405,7 @@ RSpec.describe YoutubeService, type: :service, youtube_api: true do
           thumbnails: thumbnails
         )
         search_item = double(id: video_id_obj, snippet: snippet)
-        search_response = double(items: [search_item])
+        search_response = double(items: [ search_item ])
 
         allow(@youtube_service).to receive(:list_searches).and_return(search_response)
       end
@@ -433,7 +433,7 @@ RSpec.describe YoutubeService, type: :service, youtube_api: true do
         channel_id_obj = double(video_id: nil)
         channel_item = double(id: channel_id_obj, snippet: snippet)
 
-        search_response = double(items: [video_item, channel_item])
+        search_response = double(items: [ video_item, channel_item ])
         allow(@youtube_service).to receive(:list_searches).and_return(search_response)
       end
 
@@ -532,7 +532,7 @@ RSpec.describe YoutubeService, type: :service, youtube_api: true do
           thumbnails: thumbnails
         )
         search_item = double(id: video_id_obj, snippet: snippet)
-        search_response = double(items: [search_item])
+        search_response = double(items: [ search_item ])
 
         allow(@youtube_service).to receive(:list_searches)
           .with('snippet', q: query, type: 'video', max_results: 5, order: 'relevance')

@@ -93,7 +93,7 @@ class MigratePostsToEntries < ActiveRecord::Migration[7.2]
     add_index :posts, %i[user_id youtube_video_id], unique: true
 
     # 4. 既存の action_plan を PostEntry に変換
-    Post.where.not(action_plan: [nil, '']).find_each do |post|
+    Post.where.not(action_plan: [ nil, '' ]).find_each do |post|
       PostEntry.create!(
         post_id: post.id,
         entry_type: 1, # action

@@ -18,10 +18,9 @@
 # - PATCH /mypage → update（プロフィール更新）
 #
 class UsersController < ApplicationController
-
-  # プロフィール編集はログイン必須
+  # プロフィール編集・アクション一覧はログイン必須
   # 閲覧系（show）は認証不要だが、マイページは内部で認証チェック
-  before_action :authenticate_user!, only: [ :edit, :update ]
+  before_action :authenticate_user!, only: [ :edit, :update, :pending_actions, :achieved_actions ]
 
   # ------------------------------------------
   # マイページ または 他ユーザープロフィール表示
@@ -89,6 +88,26 @@ class UsersController < ApplicationController
         render :edit, status: :unprocessable_entity
       end
     end
+  end
+
+  # ------------------------------------------
+  # 挑戦中のアクション一覧
+  # ------------------------------------------
+  # 【ルート】GET /mypage/pending_actions
+  #
+  def pending_actions
+    @user = current_user
+    @entries = @user.post_entries.not_achieved.includes(:post).order(created_at: :desc)
+  end
+
+  # ------------------------------------------
+  # 達成したアクション一覧
+  # ------------------------------------------
+  # 【ルート】GET /mypage/achieved_actions
+  #
+  def achieved_actions
+    @user = current_user
+    @entries = @user.post_entries.achieved.includes(:post).order(achieved_at: :desc)
   end
 
   private

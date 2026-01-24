@@ -67,6 +67,9 @@ Rails.application.routes.draw do
   get :mypage, to: "users#show"         # GET /mypage → UsersController#show
   get :edit_profile, to: "users#edit"   # GET /edit_profile → UsersController#edit
   patch :mypage, to: "users#update"     # PATCH /mypage → UsersController#update
+  # アクション一覧ページ
+  get "mypage/pending_actions", to: "users#pending_actions", as: :pending_actions   # 挑戦中のアクション一覧
+  get "mypage/achieved_actions", to: "users#achieved_actions", as: :achieved_actions # 達成したアクション一覧
   # 他ユーザーのプロフィール（:id が動的に変わる）
   get "users/:id", to: "users#show", as: :user_profile  # GET /users/123
 
@@ -127,6 +130,6 @@ Rails.application.routes.draw do
   namespace :api do
     # POST /api/presigned_urls → Api::PresignedUrlsController#create
     # S3への直接アップロード用の署名付きURLを生成
-    resources :presigned_urls, only: [:create]
+    resources :presigned_urls, only: [ :create ]
   end
 end

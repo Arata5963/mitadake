@@ -91,16 +91,18 @@ RSpec.describe 'PostEntries', type: :request do
       end
 
       context 'when user already has unachieved entry' do
+        let(:other_post) { create(:post) }
+
         before do
           create(:post_entry, user: user, post: post_record, achieved_at: nil)
         end
 
-        it 'does not create another entry' do
+        it 'allows creating another entry on a different post' do
           expect {
-            post post_post_entries_path(post_record), params: {
+            post post_post_entries_path(other_post), params: {
               post_entry: { content: 'New action', deadline: Date.current + 7.days }
             }
-          }.not_to change(PostEntry, :count)
+          }.to change(PostEntry, :count).by(1)
         end
       end
     end

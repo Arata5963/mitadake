@@ -33,6 +33,6 @@ class DropAchievementsTable < ActiveRecord::Migration[7.2]
 
     add_index :achievements, :post_id
     add_index :achievements, :user_id
-    add_index :achievements, [:user_id, :post_id], unique: true, name: "idx_unique_achievements"
+    add_index :achievements, [ :user_id, :post_id ], unique: true, name: "idx_unique_achievements"
   end
 end

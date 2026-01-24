@@ -24,6 +24,6 @@ class CreateCommentBookmarks < ActiveRecord::Migration[7.2]
       t.timestamps
     end
 
-    add_index :comment_bookmarks, [:user_id, :youtube_comment_id], unique: true
+    add_index :comment_bookmarks, [ :user_id, :youtube_comment_id ], unique: true
   end
 end

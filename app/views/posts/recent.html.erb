@@ -27,14 +27,7 @@
 <div class="min-h-screen bg-white">
   <div class="max-w-6xl mx-auto px-4 sm:px-8 py-6">
     <%# ヘッダー %>
-    <div class="flex items-center mb-6">
-      <%= link_to posts_path, class: "flex items-center gap-2 text-gray-900 hover:text-gray-600 transition-colors" do %>
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-        </svg>
-        <span class="text-xl font-bold">最近の投稿</span>
-      <% end %>
-    </div>
+    <h1 class="text-xl font-bold text-gray-900 mb-6">最近の投稿</h1>
 
     <% if @posts.blank? %>
       <div class="py-16 text-center">

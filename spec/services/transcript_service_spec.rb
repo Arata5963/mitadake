@@ -59,7 +59,7 @@ RSpec.describe TranscriptService, type: :service do
 
       before do
         status = instance_double(Process::Status, success?: true)
-        allow(Open3).to receive(:capture3).and_return([success_output, '', status])
+        allow(Open3).to receive(:capture3).and_return([ success_output, '', status ])
       end
 
       it '字幕テキストを返す' do
@@ -82,7 +82,7 @@ RSpec.describe TranscriptService, type: :service do
 
       before do
         status = instance_double(Process::Status, success?: true)
-        allow(Open3).to receive(:capture3).and_return([error_output, '', status])
+        allow(Open3).to receive(:capture3).and_return([ error_output, '', status ])
       end
 
       it 'エラーメッセージを返す' do
@@ -99,7 +99,7 @@ RSpec.describe TranscriptService, type: :service do
 
       before do
         status = instance_double(Process::Status, success?: true)
-        allow(Open3).to receive(:capture3).and_return([error_output, '', status])
+        allow(Open3).to receive(:capture3).and_return([ error_output, '', status ])
       end
 
       it 'デフォルトのエラーメッセージを返す' do
@@ -112,7 +112,7 @@ RSpec.describe TranscriptService, type: :service do
     context 'スクリプト実行が失敗した場合（非ゼロ終了コード）' do
       before do
         status = instance_double(Process::Status, success?: false)
-        allow(Open3).to receive(:capture3).and_return(['', 'Python error', status])
+        allow(Open3).to receive(:capture3).and_return([ '', 'Python error', status ])
       end
 
       it 'エラーを返す' do
@@ -125,7 +125,7 @@ RSpec.describe TranscriptService, type: :service do
     context 'JSONパースエラーの場合' do
       before do
         status = instance_double(Process::Status, success?: true)
-        allow(Open3).to receive(:capture3).and_return(['invalid json', '', status])
+        allow(Open3).to receive(:capture3).and_return([ 'invalid json', '', status ])
       end
 
       it 'エラーを返す' do
@@ -154,7 +154,7 @@ RSpec.describe TranscriptService, type: :service do
 
       before do
         status = instance_double(Process::Status, success?: true)
-        allow(Open3).to receive(:capture3).and_return([empty_output, '', status])
+        allow(Open3).to receive(:capture3).and_return([ empty_output, '', status ])
       end
 
       it '空配列の場合はnilを返す' do
@@ -172,7 +172,7 @@ RSpec.describe TranscriptService, type: :service do
 
       before do
         status = instance_double(Process::Status, success?: true)
-        allow(Open3).to receive(:capture3).and_return([nil_transcript_output, '', status])
+        allow(Open3).to receive(:capture3).and_return([ nil_transcript_output, '', status ])
       end
 
       it 'nilを返す' do

@@ -14,14 +14,8 @@
      - タイトル・チャンネル名
      - 達成者数・ランキング
 
-  2. アクションプランセクション
-     - タブ切り替え（達成 / 挑戦中）
-     - エントリーカードのグリッド表示
-
-  【タブ切り替え】
-  params[:tab] で表示するタブを指定。
-  - 'achieved': 達成済みアクションプラン
-  - 'pending': 挑戦中のアクションプラン
+  2. 達成アクションセクション
+     - 達成済みエントリーカードのグリッド表示
 
   【レンダリングされるパーシャル】
   - shared/entry_card: アクションプランカード
@@ -104,53 +98,23 @@
     <div class="h-6"></div>
   </div>
 
-  <%# ===== アクションプランセクション（フルワイド） ===== %>
+  <%# ===== 達成したアクションセクション ===== %>
   <section class="border-t border-gray-100 pt-8 mb-8">
     <div class="max-w-5xl mx-auto px-5">
-      <%
-        achieved_entries = @post.post_entries.achieved.includes(:user).order(achieved_at: :desc)
-        pending_entries = @post.post_entries.not_achieved.includes(:user).order(created_at: :desc)
-        current_tab = params[:tab] || 'achieved'
-      %>
+      <% achieved_entries = @post.post_entries.achieved.includes(:user).order(achieved_at: :desc) %>
 
-      <%# タブ切り替え %>
-      <div class="flex gap-1 mb-6 border-b border-gray-200">
-        <%= link_to post_path(@post, tab: 'achieved'),
-            class: "px-4 py-2 text-sm font-medium transition-colors #{current_tab == 'achieved' ? 'text-gray-900 border-b-2 border-gray-900 -mb-px' : 'text-gray-500 hover:text-gray-700'}" do %>
-          達成 (<%= achieved_entries.count %>)
-        <% end %>
-        <%= link_to post_path(@post, tab: 'pending'),
-            class: "px-4 py-2 text-sm font-medium transition-colors #{current_tab == 'pending' ? 'text-gray-900 border-b-2 border-gray-900 -mb-px' : 'text-gray-500 hover:text-gray-700'}" do %>
-          挑戦中 (<%= pending_entries.count %>)
-        <% end %>
-      </div>
+      <h2 class="text-base font-bold text-gray-900 mb-6">達成したアクション</h2>
 
-      <% if current_tab == 'achieved' %>
-        <%# 達成タブ %>
-        <% if achieved_entries.any? %>
-          <div class="action-plan-grid">
-            <% achieved_entries.each do |entry| %>
-              <%= render 'shared/entry_card', entry: entry, post: @post %>
-            <% end %>
-          </div>
-        <% else %>
-          <div class="text-center py-8 px-4 bg-gray-50 rounded-xl">
-            <p class="text-sm text-gray-500">まだ達成されたアクションがありません</p>
-          </div>
-        <% end %>
+      <% if achieved_entries.any? %>
+        <div class="action-plan-grid">
+          <% achieved_entries.each do |entry| %>
+            <%= render 'shared/entry_card', entry: entry, post: @post %>
+          <% end %>
+        </div>
       <% else %>
-        <%# 挑戦中タブ %>
-        <% if pending_entries.any? %>
-          <div class="action-plan-grid">
-            <% pending_entries.each do |entry| %>
-              <%= render 'shared/entry_card', entry: entry, post: @post %>
-            <% end %>
-          </div>
-        <% else %>
-          <div class="text-center py-8 px-4 bg-gray-50 rounded-xl">
-            <p class="text-sm text-gray-500">挑戦中のアクションがありません</p>
-          </div>
-        <% end %>
+        <div class="text-center py-8 px-4 bg-gray-50 rounded-xl">
+          <p class="text-sm text-gray-500">まだ達成されたアクションがありません</p>
+        </div>
       <% end %>
     </div>
   </section>

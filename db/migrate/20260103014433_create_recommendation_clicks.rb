@@ -26,6 +26,6 @@ class CreateRecommendationClicks < ActiveRecord::Migration[7.2]
     end
 
     # 同じユーザーが同じ投稿に複数回クリックしてもカウントは1回
-    add_index :recommendation_clicks, [:post_id, :user_id], unique: true
+    add_index :recommendation_clicks, [ :post_id, :user_id ], unique: true
   end
 end

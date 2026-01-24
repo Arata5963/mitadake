@@ -183,7 +183,7 @@ RSpec.describe GeminiService, type: :service do
         })
         stub_request(:post, gemini_api_url).to_return(
           status: 200,
-          body: { 'candidates' => [{ 'content' => { 'parts' => [{ 'text' => '' }] } }] }.to_json,
+          body: { 'candidates' => [ { 'content' => { 'parts' => [ { 'text' => '' } ] } } ] }.to_json,
           headers: { 'Content-Type' => 'application/json' }
         )
       end
@@ -202,7 +202,7 @@ RSpec.describe GeminiService, type: :service do
         })
         stub_request(:post, gemini_api_url).to_return(
           status: 200,
-          body: { 'candidates' => [{ 'content' => { 'parts' => [{ 'text' => '{invalid json}' }] } }] }.to_json,
+          body: { 'candidates' => [ { 'content' => { 'parts' => [ { 'text' => '{invalid json}' } ] } } ] }.to_json,
           headers: { 'Content-Type' => 'application/json' }
         )
       end
@@ -221,7 +221,7 @@ RSpec.describe GeminiService, type: :service do
         })
         stub_request(:post, gemini_api_url).to_return(
           status: 200,
-          body: { 'candidates' => [{ 'content' => { 'parts' => [{ 'text' => '{"action_plans": []}' }] } }] }.to_json,
+          body: { 'candidates' => [ { 'content' => { 'parts' => [ { 'text' => '{"action_plans": []}' } ] } } ] }.to_json,
           headers: { 'Content-Type' => 'application/json' }
         )
       end
@@ -371,7 +371,7 @@ RSpec.describe GeminiService, type: :service do
       before do
         stub_request(:post, gemini_api_url).to_return(
           status: 200,
-          body: { 'candidates' => [{ 'content' => { 'parts' => [{ 'text' => '' }] } }] }.to_json,
+          body: { 'candidates' => [ { 'content' => { 'parts' => [ { 'text' => '' } ] } } ] }.to_json,
           headers: { 'Content-Type' => 'application/json' }
         )
       end
@@ -387,7 +387,7 @@ RSpec.describe GeminiService, type: :service do
       before do
         stub_request(:post, gemini_api_url).to_return(
           status: 200,
-          body: { 'candidates' => [{ 'content' => { 'parts' => [{ 'text' => '{"other": "value"}' }] } }] }.to_json,
+          body: { 'candidates' => [ { 'content' => { 'parts' => [ { 'text' => '{"other": "value"}' } ] } } ] }.to_json,
           headers: { 'Content-Type' => 'application/json' }
         )
       end
@@ -403,7 +403,7 @@ RSpec.describe GeminiService, type: :service do
       before do
         stub_request(:post, gemini_api_url).to_return(
           status: 200,
-          body: { 'candidates' => [{ 'content' => { 'parts' => [{ 'text' => 'not json at all' }] } }] }.to_json,
+          body: { 'candidates' => [ { 'content' => { 'parts' => [ { 'text' => 'not json at all' } ] } } ] }.to_json,
           headers: { 'Content-Type' => 'application/json' }
         )
       end

@@ -68,7 +68,7 @@ other_users = [
   { name: "めい", email: "mei@example.com", avatar_id: 9 },
   { name: "そうた", email: "souta@example.com", avatar_id: 60 },
   { name: "りな", email: "rina@example.com", avatar_id: 21 },
-  { name: "けんた", email: "kenta@example.com", avatar_id: 68 },
+  { name: "けんた", email: "kenta@example.com", avatar_id: 68 }
 ].map do |data|
   User.create!(
     email: data[:email],
@@ -78,7 +78,7 @@ other_users = [
   )
 end
 
-all_users = [main_user] + other_users
+all_users = [ main_user ] + other_users
 
 # ===== YouTube動画データ（実際の日本の人気動画） =====
 youtube_videos = [
@@ -196,7 +196,7 @@ youtube_videos = [
     video_id: "Ks-_Mh1QhMc",
     title: "これが、生産性の鬼。",
     channel: "マコなり社長"
-  },
+  }
 ]
 
 # ===== 投稿作成 =====
@@ -248,7 +248,7 @@ action_plan_templates = [
   # お金系
   { content: "毎日の支出を記録する", deadline_offset: 30 },
   { content: "月に1万円を投資に回す", deadline_offset: 30 },
-  { content: "固定費を見直して1つ削減する", deadline_offset: 14 },
+  { content: "固定費を見直して1つ削減する", deadline_offset: 14 }
 ]
 
 # 各ユーザーにアクションプランを作成
@@ -284,7 +284,7 @@ main_user_pending = [
   { content: "1日1回、新しい英単語を10個覚える", deadline: Date.current + 3.days, post: posts[1] },
   { content: "週末までにKindle本を1冊読み終える", deadline: Date.current + 5.days, post: posts[2] },
   { content: "来週から毎日腕立て30回", deadline: Date.current + 7.days, post: posts[3] },
-  { content: "今月中に副業のアイデアを3つ出す", deadline: Date.current + 14.days, post: posts[4] },
+  { content: "今月中に副業のアイデアを3つ出す", deadline: Date.current + 14.days, post: posts[4] }
 ]
 
 main_user_pending.each do |plan|
@@ -302,7 +302,7 @@ end
 main_user_achieved = [
   { content: "ああああああああああああああああ", deadline: Date.current - 3.days, post: posts[5] },
   { content: "あ", deadline: Date.current - 5.days, post: posts[9] },
-  { content: "アクションプラン２", deadline: Date.current - 7.days, post: posts[9] },
+  { content: "アクションプラン２", deadline: Date.current - 7.days, post: posts[9] }
 ]
 
 main_user_achieved.each do |plan|
@@ -324,7 +324,7 @@ quotes = [
   { quote: "人生を変えるのは、大きな決断ではなく小さな習慣。", video_index: 1 },
   { quote: "失敗を恐れるな。挑戦しないことを恐れろ。", video_index: 3 },
   { quote: "今日という日は、残りの人生の最初の日。", video_index: 6 },
-  { quote: "他人の目を気にするな。自分の人生を生きろ。", video_index: 2 },
+  { quote: "他人の目を気にするな。自分の人生を生きろ。", video_index: 2 }
 ]
 
 all_users.first(5).each_with_index do |user, i|

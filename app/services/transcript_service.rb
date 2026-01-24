@@ -34,7 +34,6 @@
 # - lib/scripts/get_transcript.py スクリプト
 #
 class TranscriptService
-
   # Pythonスクリプトのパス（Docker内での絶対パス）
   SCRIPT_PATH = "/app/lib/scripts/get_transcript.py"
 
@@ -46,7 +45,6 @@ class TranscriptService
   # クラスメソッドの定義ブロック
   # ==========================================
   class << self
-
     # ------------------------------------------
     # 動画IDから字幕を取得
     # ------------------------------------------

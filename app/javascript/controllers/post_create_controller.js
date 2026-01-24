@@ -577,8 +577,13 @@ export default class extends Controller {
     const canSubmit = hasVideo && hasActionPlan && hasImage
 
     this.submitButtonTarget.disabled = !canSubmit
-    this.submitButtonTarget.style.background = canSubmit ? "#333" : "#c0c0c0"
-    this.submitButtonTarget.style.cursor = canSubmit ? "pointer" : "not-allowed"
+    if (canSubmit) {
+      this.submitButtonTarget.classList.remove("bg-gray-300", "cursor-not-allowed")
+      this.submitButtonTarget.classList.add("bg-gray-900", "hover:bg-gray-800", "cursor-pointer")
+    } else {
+      this.submitButtonTarget.classList.remove("bg-gray-900", "hover:bg-gray-800", "cursor-pointer")
+      this.submitButtonTarget.classList.add("bg-gray-300", "cursor-not-allowed")
+    }
   }
 
   async submitForm(event) {

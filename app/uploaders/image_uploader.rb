@@ -35,7 +35,6 @@
 #   @user.avatar.thumb.url   # サムネイルのURL
 #
 class ImageUploader < CarrierWave::Uploader::Base
-
   # ------------------------------------------
   # MiniMagick を読み込み
   # ------------------------------------------
@@ -123,5 +122,4 @@ class ImageUploader < CarrierWave::Uploader::Base
     process resize_to_fit: [ 300, 300 ]
   end
   # 使用例: @user.avatar.thumb.url でサムネイルURLを取得
-
 end

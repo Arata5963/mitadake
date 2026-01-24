@@ -96,6 +96,10 @@ Rails.application.routes.draw do
       get :recent                 # GET /posts/recent - 最近の投稿
     end
 
+    member do
+      patch :update_with_action   # PATCH /posts/:id/update_with_action - 動画+アクションプランを同時更新
+    end
+
     # ネストしたリソース（投稿に紐づくエントリー）
     # /posts/:post_id/post_entries/...
     resources :post_entries, only: [ :create, :edit, :update, :destroy ] do

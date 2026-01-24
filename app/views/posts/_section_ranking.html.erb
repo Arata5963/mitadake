@@ -1,19 +1,20 @@
 <%#
   app/views/posts/_section_ranking.html.erb
   ==========================================
-  ランキングセクション（横スクロール）
+  人気の動画ランキングセクション（横スクロール）
   ==========================================
 
   【このパーシャルの役割】
   「人気の動画」ランキングを横スクロールで表示するセクション。
+  YouTube Music風のデザインで、左に大きな順位番号を表示。
 
   【パラメータ】
   - posts: ランキング順のPostコレクション
-  - design: ランキングカードのデザイン種類（'A', 'D', 'G', 'H'等）
 
-  【使用されるパーシャル】
-  - shared/horizontal_scroll_section: 横スクロールレイアウト
-  - posts/ranking_item_X: ランキングカード（デザイン別）
+  【カードサイズ】
+  カード全体: 240px
+  順位部分: 40px
+  サムネイル: 190px x 107px
 %>
 
 <%= render layout: "shared/horizontal_scroll_section", locals: {
@@ -22,6 +23,33 @@
 } do %>
   <% posts.each_with_index do |post, index| %>
     <% rank = index + 1 %>
-    <%= render "posts/ranking_item_#{design.downcase}", post: post, rank: rank %>
+    <article class="flex-shrink-0 group flex items-start gap-2" style="width: 240px; min-width: 240px; max-width: 240px;">
+      <div class="flex-shrink-0 w-10 flex items-center justify-center pt-8">
+        <span class="text-3xl font-black text-gray-900"><%= rank %></span>
+      </div>
+      <div class="flex-1" style="width: 190px;">
+        <%= link_to post_path(post), class: "block" do %>
+          <div class="rounded-lg overflow-hidden bg-gray-100" style="width: 190px; height: 107px;">
+            <%= image_tag post.youtube_thumbnail_url(size: :mqdefault),
+                  alt: post.youtube_title,
+                  class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-200",
+                  loading: "lazy" %>
+          </div>
+        <% end %>
+        <div class="pt-2" style="height: 72px;">
+          <%= link_to post_path(post), class: "block" do %>
+            <h3 class="text-sm font-medium text-gray-900 group-hover:text-gray-700 transition-colors line-clamp-2">
+              <%= post.youtube_title %>
+            </h3>
+          <% end %>
+          <div class="flex items-center gap-1 mt-1">
+            <% if post.youtube_channel_thumbnail_url.present? %>
+              <%= image_tag post.youtube_channel_thumbnail_url, class: "w-4 h-4 rounded-full flex-shrink-0", loading: "lazy" %>
+            <% end %>
+            <p class="text-xs text-gray-500 truncate"><%= post.youtube_channel_name %></p>
+          </div>
+        </div>
+      </div>
+    </article>
   <% end %>
 <% end %>

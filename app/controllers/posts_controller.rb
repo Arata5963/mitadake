@@ -42,10 +42,10 @@ class PostsController < ApplicationController
   ]
 
   # 特定のアクションの前に動画を取得
-  before_action :set_post, only: [ :show, :edit, :update, :destroy ]
+  before_action :set_post, only: [ :show, :edit, :update, :update_with_action, :destroy ]
 
   # 編集・更新・削除は、自分のエントリーがある場合のみ許可
-  before_action :check_has_entries, only: [ :edit, :update, :destroy ]
+  before_action :check_has_entries, only: [ :edit, :update, :update_with_action, :destroy ]
 
   # ==========================================
   # 一覧・詳細アクション
@@ -219,6 +219,64 @@ class PostsController < ApplicationController
       redirect_to @post, notice: t("posts.update.success")
     else
       render :edit, status: :unprocessable_entity
+    end
+  end
+
+  # ------------------------------------------
+  # 動画+アクションプラン同時更新（Ajax）
+  # ------------------------------------------
+  # 【ルート】PATCH /posts/:id/update_with_action
+  #
+  # 【何をするアクション？】
+  # 編集画面から動画とアクションプランを同時に更新する。
+  # 動画を変更した場合は新しいPostに移動する。
+  #
+  def update_with_action
+    # 現在のユーザーのエントリーを取得
+    @entry = @post.entries_by_user(current_user).first
+
+    unless @entry
+      render json: { success: false, error: "アクションプランが見つかりません" }, status: :not_found
+      return
+    end
+
+    # アクションプランの内容を更新
+    action_plan = params[:action_plan].to_s.strip
+    if action_plan.blank?
+      render json: { success: false, error: "アクションプランを入力してください" }, status: :unprocessable_entity
+      return
+    end
+
+    # 動画が変更されたかチェック
+    new_youtube_url = params[:youtube_url].to_s.strip
+    if new_youtube_url.present?
+      new_video_id = Post.extract_video_id(new_youtube_url)
+      current_video_id = @post.youtube_video_id
+
+      if new_video_id && new_video_id != current_video_id
+        # 新しい動画に変更
+        new_post = Post.find_or_create_by_video(youtube_url: new_youtube_url)
+        unless new_post
+          render json: { success: false, error: "動画の情報を取得できませんでした" }, status: :unprocessable_entity
+          return
+        end
+        @entry.post = new_post
+        @post = new_post
+      end
+    end
+
+    # アクションプラン内容を更新
+    @entry.content = action_plan
+
+    # サムネイル画像の処理（S3キーで更新）
+    if params[:thumbnail_s3_key].present?
+      @entry.thumbnail_url = params[:thumbnail_s3_key]
+    end
+
+    if @entry.save
+      render json: { success: true, post_id: @post.id, entry_id: @entry.id, url: post_path(@post) }
+    else
+      render json: { success: false, error: @entry.errors.full_messages.join(", ") }, status: :unprocessable_entity
     end
   end
 

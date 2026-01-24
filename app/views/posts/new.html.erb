@@ -1,7 +1,7 @@
 <%#
   app/views/posts/new.html.erb
   ==========================================
-  新規投稿ページ（note風デザイン）
+  新規投稿ページ
   ==========================================
 
   【このページの役割】
@@ -35,8 +35,8 @@
 %>
 <% content_for :title, "新規投稿" %>
 
-<div style="min-height: calc(100vh - 56px); background: #fff;">
-  <div style="max-width: 1000px; margin: 0 auto; padding: 24px 20px;"
+<div class="min-h-[calc(100vh-56px)] bg-white">
+  <div class="max-w-[1000px] mx-auto px-5 py-6"
        data-controller="post-create"
        data-post-create-youtube-url-value="<%= youtube_search_posts_path %>"
        data-post-create-create-url-value="<%= create_with_action_posts_path %>"
@@ -44,49 +44,47 @@
        data-post-create-convert-url-value="<%= convert_to_youtube_title_posts_path %>">
 
     <%# ヘッダー部分 %>
-    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px;">
-      <h1 style="font-size: 18px; font-weight: 600; color: #333; margin: 0;">投稿を作成</h1>
+    <div class="flex items-center justify-between mb-8">
+      <h1 class="text-lg font-semibold text-gray-900">投稿を作成</h1>
       <button type="button"
               data-post-create-target="submitButton"
               data-action="click->post-create#submitForm"
               disabled
-              style="padding: 8px 20px; border-radius: 20px; background: #c0c0c0; color: white; font-size: 14px; font-weight: 600; border: none; cursor: not-allowed; transition: all 0.2s; -webkit-tap-highlight-color: transparent;">
+              class="px-5 py-2 rounded-full bg-gray-300 text-white text-sm font-semibold border-none cursor-not-allowed transition-all duration-200">
         投稿
       </button>
     </div>
 
     <%# 動画選択セクション %>
-    <div style="margin-bottom: 24px;">
-      <label style="display: block; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 12px;">動画を選択</label>
+    <div class="mb-6">
+      <label class="block text-sm font-semibold text-gray-900 mb-3">動画を選択</label>
 
       <%# 検索入力 %>
-      <div style="position: relative;">
+      <div class="relative">
         <input type="text"
                data-post-create-target="input"
                data-action="input->post-create#handleInput keydown->post-create#handleKeydown"
                placeholder="YouTubeで検索..."
                autofocus
-               style="width: 100%; padding: 12px 16px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 15px; color: #333; outline: none; box-sizing: border-box; -webkit-appearance: none;"
-               onfocus="this.style.borderColor='#333'"
-               onblur="this.style.borderColor='#e0e0e0'">
+               class="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 outline-none focus:border-gray-900 transition-colors">
 
         <%# 検索結果ドロップダウン %>
         <div data-post-create-target="results"
-             style="display: none; position: absolute; z-index: 20; width: 100%; background: white; border: 1px solid #e0e0e0; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); margin-top: 4px; max-height: 300px; overflow-y: auto; -webkit-overflow-scrolling: touch;">
+             class="hidden absolute z-20 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-[300px] overflow-y-auto">
         </div>
       </div>
 
       <%# 動画プレビュー %>
-      <div data-post-create-target="preview" style="display: none; margin-top: 12px;">
-        <div style="display: flex; gap: 12px; padding: 12px; background: #f9f9f9; border-radius: 8px;">
-          <img data-post-create-target="previewThumbnail" src="" alt="" style="width: 120px; height: 68px; object-fit: cover; border-radius: 4px; flex-shrink: 0;">
-          <div style="flex: 1; min-width: 0;">
-            <p data-post-create-target="previewTitle" style="font-size: 14px; font-weight: 500; color: #333; margin: 0 0 4px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"></p>
-            <p data-post-create-target="previewChannel" style="font-size: 12px; color: #888; margin: 0;"></p>
+      <div data-post-create-target="preview" class="hidden mt-3">
+        <div class="flex gap-3 p-3 bg-gray-50 rounded-lg">
+          <img data-post-create-target="previewThumbnail" src="" alt="" class="w-[120px] h-[68px] object-cover rounded flex-shrink-0">
+          <div class="flex-1 min-w-0">
+            <p data-post-create-target="previewTitle" class="text-sm font-medium text-gray-900 mb-1 leading-snug line-clamp-2"></p>
+            <p data-post-create-target="previewChannel" class="text-xs text-gray-500"></p>
           </div>
           <button type="button"
                   data-action="click->post-create#clearSelection"
-                  style="flex-shrink: 0; padding: 4px 8px; background: none; border: none; color: #888; font-size: 12px; cursor: pointer;">
+                  class="flex-shrink-0 px-2 py-1 bg-transparent border-none text-gray-500 text-xs cursor-pointer hover:text-gray-700">
             ✕
           </button>
         </div>
@@ -94,25 +92,25 @@
     </div>
 
     <%# アクションプラン入力セクション %>
-    <div style="margin-bottom: 24px;">
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-        <label style="font-size: 14px; font-weight: 600; color: #333;">アクションプラン</label>
+    <div class="mb-6">
+      <div class="flex items-center justify-between mb-3">
+        <label class="text-sm font-semibold text-gray-900">アクションプラン</label>
 
-        <div style="display: flex; gap: 8px; align-items: center;">
+        <div class="flex gap-2 items-center">
           <%# YouTubeタイトル風に変換ボタン %>
           <button type="button"
                   data-post-create-target="convertButton"
                   data-action="click->post-create#convertToYouTubeTitle"
-                  style="display: none; align-items: center; gap: 4px; padding: 6px 12px; background: #fff; border: 1px solid #333; border-radius: 16px; color: #333; font-size: 12px; font-weight: 500; cursor: pointer; -webkit-tap-highlight-color: transparent;">
+                  class="hidden items-center gap-1 px-3 py-1.5 bg-white border border-gray-900 rounded-full text-gray-900 text-xs font-medium cursor-pointer">
             タイトル風に変換
           </button>
 
           <%# AI提案ボタン %>
-          <div data-post-create-target="suggestions" style="display: none;">
+          <div data-post-create-target="suggestions" class="hidden">
             <button type="button"
                     data-post-create-target="suggestButton"
                     data-action="click->post-create#fetchAiSuggestions"
-                    style="display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #fff; border: 1px solid #333; border-radius: 16px; color: #333; font-size: 12px; font-weight: 500; cursor: pointer; -webkit-tap-highlight-color: transparent;">
+                    class="inline-flex items-center gap-1 px-3 py-1.5 bg-white border border-gray-900 rounded-full text-gray-900 text-xs font-medium cursor-pointer">
               AI提案
             </button>
           </div>
@@ -120,63 +118,61 @@
       </div>
 
       <%# AI提案リスト %>
-      <div data-post-create-target="suggestionsContainer" style="margin-bottom: 12px;"></div>
+      <div data-post-create-target="suggestionsContainer" class="mb-3"></div>
 
       <%# テキストエリア %>
-      <div style="border: 1px solid #e0e0e0; border-radius: 8px; transition: border-color 0.2s;" data-post-create-target="inputWrapper">
+      <div class="border border-gray-200 rounded-lg transition-colors duration-200 focus-within:border-gray-900" data-post-create-target="inputWrapper">
         <textarea
           data-post-create-target="actionPlanInput"
           data-action="input->post-create#handleActionPlanInput focus->post-create#focusInput blur->post-create#blurInput"
           placeholder="例：【実践】1日スマホなしで過ごしてみた"
           rows="3"
-          style="width: 100%; border: none; background: transparent; padding: 12px 16px; font-size: 15px; color: #333; resize: none; box-sizing: border-box; outline: none; font-family: inherit; line-height: 1.6; -webkit-appearance: none;"
+          class="w-full border-none bg-transparent px-4 py-3 text-base text-gray-900 resize-none outline-none leading-relaxed"
         ></textarea>
       </div>
 
-      <p style="font-size: 12px; color: #888; margin-top: 8px;">※ YouTubeのタイトル風にアクションプランを設定しよう</p>
+      <p class="text-xs text-gray-500 mt-2">※ YouTubeのタイトル風にアクションプランを設定しよう</p>
     </div>
 
     <%# 達成コレクションプレビュー（サムネイルクリックでアップロード） %>
-    <div data-post-create-target="collectionPreview" style="display: none; margin-bottom: 24px;">
-      <label style="display: block; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 12px;">サムネイル画像</label>
+    <div data-post-create-target="collectionPreview" class="hidden mb-6">
+      <label class="block text-sm font-semibold text-gray-900 mb-3">サムネイル画像</label>
       <div>
-        <div style="max-width: 320px;">
+        <div class="max-w-xs">
           <%# サムネイル部分（クリックでアップロード） %>
-          <div style="position: relative;">
-            <label data-post-create-target="previewCard" style="position: relative; display: block; border-radius: 8px; overflow: hidden; background: #f3f4f6; aspect-ratio: 16/9; cursor: pointer; transition: all 0.2s;">
+          <div class="relative">
+            <label data-post-create-target="previewCard" class="relative block rounded-lg overflow-hidden bg-gray-100 aspect-video cursor-pointer transition-all duration-200">
               <%# アップロード前の状態 %>
-              <div data-post-create-target="uploadPlaceholder" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed #ccc; border-radius: 8px; transition: all 0.2s;"
-                   onmouseover="this.style.borderColor='#333'; this.style.background='rgba(0,0,0,0.02)';"
-                   onmouseout="this.style.borderColor='#ccc'; this.style.background='transparent';">
-                <svg style="width: 32px; height: 32px; color: #999; margin-bottom: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div data-post-create-target="uploadPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg transition-all duration-200 hover:border-gray-900 hover:bg-black/5">
+                <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
-                <span style="font-size: 13px; font-weight: 500; color: #666;">クリックして画像を選択</span>
-                <span style="font-size: 11px; color: #999; margin-top: 4px;">JPG, PNG（最大5MB）</span>
+                <span class="text-sm font-medium text-gray-600">クリックして画像を選択</span>
+                <span class="text-xs text-gray-400 mt-1">JPG, PNG（最大5MB）</span>
               </div>
               <%# アップロード後の画像 %>
-              <img data-post-create-target="previewImage" src="" alt="" style="display: none; width: 100%; height: 100%; object-fit: cover;">
+              <img data-post-create-target="previewImage" src="" alt="" class="hidden w-full h-full object-cover">
               <%# ファイル入力（非表示） %>
               <input type="file"
                      accept="image/jpeg,image/png,image/webp"
                      data-post-create-target="fileInput"
                      data-action="change->post-create#handleFileSelect"
-                     style="display: none;">
+                     class="hidden">
             </label>
             <%# 右上の×ボタン（アップロード後に表示） %>
             <button type="button"
                     data-post-create-target="clearImageButton"
                     data-action="click->post-create#clearImage"
-                    style="display: none; position: absolute; top: -8px; right: -8px; width: 24px; height: 24px; background: #333; color: #fff; border: none; border-radius: 50%; cursor: pointer; align-items: center; justify-content: center; font-size: 12px; z-index: 10;">
+                    class="hidden absolute -top-2 -right-2 w-6 h-6 bg-gray-900 text-white border-none rounded-full cursor-pointer items-center justify-center text-xs z-10">
               ✕
             </button>
           </div>
           <%# カード下部 %>
-          <div style="padding-top: 8px;">
-            <p data-post-create-target="previewActionPlan" style="font-size: 14px; font-weight: 500; color: #333; margin: 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">アクションプランがここに表示されます</p>
-            <div style="display: flex; align-items: center; gap: 6px; margin-top: 6px;">
-              <div style="width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #8b5cf6);"></div>
-              <span style="font-size: 12px; color: #888;"><%= current_user&.name || "あなた" %></span>
+          <div class="pt-2">
+            <p data-post-create-target="previewActionPlan" class="text-sm font-medium text-gray-900 leading-snug line-clamp-2">アクションプランがここに表示されます</p>
+            <div class="flex items-center gap-1.5 mt-1.5">
+              <div class="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500"></div>
+              <span class="text-xs text-gray-500"><%= current_user&.name || "あなた" %></span>
             </div>
           </div>
         </div>

@@ -41,7 +41,7 @@
          class: "flex-1 flex flex-col items-center group [-webkit-tap-highlight-color:transparent]",
          data: { turbo_frame: "_top" } do %>
         <div class="mb-2">
-          <%= render "shared/avatar", user: user, size: :xxl, fallback: :initial, lazy: true %>
+          <%= render "shared/avatar", user: user, size: :xxl, fallback: :icon, lazy: true %>
         </div>
         <span class="text-xs text-gray-700 text-center max-w-[80px] truncate group-hover:text-gray-900 transition-colors">
           <%= user.name %>

@@ -49,6 +49,8 @@ export default class extends Controller {
     postId: Number,
     showUrl: String,
     achieveUrl: String,
+    editUrl: String,
+    deleteUrl: String,
     mode: { type: String, default: "display" },
     hideOriginalVideo: { type: Boolean, default: false },
     videoThumbnail: String,
@@ -101,29 +103,42 @@ export default class extends Controller {
            data-achievement-modal-entry-id-value="${this.entryIdValue}"
            data-achievement-modal-post-id-value="${this.postIdValue}"
            data-achievement-modal-mode-value="input"
-           data-achievement-modal-achieve-url-value="${this.achieveUrlValue}">
+           data-achievement-modal-achieve-url-value="${this.achieveUrlValue}"
+           data-achievement-modal-delete-url-value="${this.deleteUrlValue || ''}"
+           data-achievement-modal-edit-url-value="${this.editUrlValue || ''}">
 
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4"
              data-action="click->achievement-modal#closeOnOverlay">
 
-          <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+          <div class="absolute inset-0 bg-black/60 backdrop-blur-sm pointer-events-none"></div>
 
           <div class="relative bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto shadow-xl">
 
-            <button type="button"
-                    class="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-white/80 hover:bg-white text-gray-500 hover:text-gray-700 z-10"
-                    data-action="click->achievement-modal#close">
-              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-              </svg>
-            </button>
-
-            <div class="p-4 border-b border-gray-100">
-              <h2 class="text-base font-bold text-gray-900 text-center">達成を記録</h2>
+            <div class="flex items-center justify-between p-4 border-b border-gray-100">
+              <h2 class="text-base font-bold text-gray-900">達成を記録</h2>
+              <div class="flex items-center gap-1">
+                <button type="button"
+                   class="flex items-center gap-1 px-2 py-1 hover:bg-gray-100 rounded text-xs text-gray-500 transition-colors"
+                   title="編集"
+                   data-edit-url="${this.editUrlValue}"
+                   data-action="click->achievement-modal#goToEdit">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                  </svg>
+                </button>
+                <a href="${this.videoUrlValue}"
+                   class="flex items-center gap-1 px-2 py-1 hover:bg-gray-100 rounded text-xs text-gray-500 transition-colors"
+                   title="きっかけの動画">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </a>
+              </div>
             </div>
 
             <div class="p-4">
-              <label class="block text-sm font-medium text-gray-700 mb-2">達成の記念写真（任意）</label>
+              <label class="block text-sm font-medium text-gray-700 mb-2">達成の記念写真<span class="text-red-500 ml-1">*</span></label>
 
               <div style="position: relative;">
                 <label style="position: relative; display: block; border-radius: 8px; overflow: hidden; background: #f3f4f6; aspect-ratio: 16/9; cursor: pointer;">
@@ -164,13 +179,6 @@ export default class extends Controller {
                         data-achievement-modal-target="reflectionInput"></textarea>
             </div>
 
-            <div class="px-4 pb-2">
-              <a href="${this.videoUrlValue}"
-                 class="flex items-center justify-center w-full py-3 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors">
-                きっかけの動画
-              </a>
-            </div>
-
             <div class="px-4 pb-4">
               <button type="button"
                       class="w-full py-2.5 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-lg transition-colors"
@@ -196,6 +204,7 @@ export default class extends Controller {
   buildDisplayModalHtml(data) {
     const thumbnailUrl = data.result_image_url || data.fallback_thumbnail_url
     const canEdit = data.can_edit
+    const editUrl = `/posts/${data.post.id}/post_entries/${data.id}/edit?from=mypage`
 
     return `
       <div data-controller="achievement-modal"
@@ -207,17 +216,29 @@ export default class extends Controller {
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4"
              data-action="click->achievement-modal#closeOnOverlay">
 
-          <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+          <div class="absolute inset-0 bg-black/60 backdrop-blur-sm pointer-events-none"></div>
 
           <div class="relative bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto shadow-xl">
 
-            <button type="button"
-                    class="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-white/80 hover:bg-white text-gray-500 hover:text-gray-700 z-10"
-                    data-action="click->achievement-modal#close">
-              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-              </svg>
-            </button>
+            <div class="absolute top-3 right-3 flex items-center gap-1 z-10">
+              ${canEdit ? `
+                <a href="${editUrl}"
+                   class="w-8 h-8 flex items-center justify-center rounded-full bg-white/80 hover:bg-white text-gray-500 hover:text-gray-700"
+                   title="編集">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                  </svg>
+                </a>
+              ` : ''}
+              <a href="${data.post.url}"
+                 class="w-8 h-8 flex items-center justify-center rounded-full bg-white/80 hover:bg-white text-gray-500 hover:text-gray-700"
+                 title="きっかけの動画">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </a>
+            </div>
 
             <div class="aspect-video bg-gray-100 rounded-t-2xl overflow-hidden">
               <img src="${thumbnailUrl}"
@@ -250,12 +271,6 @@ export default class extends Controller {
                           data-achievement-modal-target="reflectionInput"></textarea>
               </div>
 
-              ${!this.hideOriginalVideoValue ? `
-              <a href="${data.post.url}"
-                 class="flex items-center justify-center w-full py-3 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors">
-                きっかけの動画
-              </a>
-              ` : ''}
             </div>
           </div>
         </div>

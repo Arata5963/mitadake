@@ -18,8 +18,25 @@
 # 【対応するビュー】
 # - terms  → app/views/pages/terms.html.erb
 # - privacy → app/views/pages/privacy.html.erb
+# - lp_minimal_full → app/views/pages/lp_minimal_full.html.erb (LP)
 #
 class PagesController < ApplicationController
+  # ------------------------------------------
+  # トップページ（ルート）
+  # ------------------------------------------
+  # 【ルート】GET /
+  #
+  # ログイン状態によって表示を切り替える:
+  # - 未ログイン → LP表示
+  # - ログイン済み → 投稿一覧へリダイレクト
+  #
+  def home
+    if user_signed_in?
+      redirect_to posts_path
+    else
+      render :lp_minimal_full, layout: "landing"
+    end
+  end
   # ------------------------------------------
   # 利用規約ページ
   # ------------------------------------------
@@ -45,4 +62,5 @@ class PagesController < ApplicationController
   def privacy
     # 自動的に app/views/pages/privacy.html.erb が表示される
   end
+
 end

@@ -57,8 +57,9 @@ Rails.application.routes.draw do
   # ==========================================
   # ルートURL（トップページ）
   # ==========================================
-  # "/" にアクセスすると PostsController#index を表示
-  root "posts#index"
+  # 未ログイン → LP表示
+  # ログイン済み → 投稿一覧へリダイレクト
+  root "pages#home"
 
   # ==========================================
   # ユーザー関連ルート
@@ -121,6 +122,7 @@ Rails.application.routes.draw do
   # ==========================================
   get :terms, to: "pages#terms"      # GET /terms → 利用規約
   get :privacy, to: "pages#privacy"  # GET /privacy → プライバシーポリシー
+
 
   # ==========================================
   # API エンドポイント

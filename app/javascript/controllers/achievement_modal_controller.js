@@ -56,7 +56,9 @@ export default class extends Controller {
     postId: Number,
     mode: String,
     achieveUrl: String,
-    updateReflectionUrl: String
+    updateReflectionUrl: String,
+    deleteUrl: String,
+    editUrl: String
   }
 
   connect() {
@@ -205,6 +207,12 @@ export default class extends Controller {
   async submit(event) {
     event.preventDefault()
 
+    // 記念写真は必須
+    if (!this.selectedFile) {
+      alert("記念写真を選択してください")
+      return
+    }
+
     const reflection = this.hasReflectionInputTarget
       ? this.reflectionInputTarget.value.trim()
       : ""
@@ -327,6 +335,47 @@ export default class extends Controller {
     } catch (error) {
       console.error("Save reflection error:", error)
       alert("保存に失敗しました")
+    }
+  }
+
+  // 編集ページへ移動
+  goToEdit(event) {
+    event.preventDefault()
+    event.stopPropagation()
+
+    const url = event.currentTarget.dataset.editUrl || this.editUrlValue
+    if (url && url !== 'undefined' && url !== '') {
+      window.location.href = url
+    }
+  }
+
+  // エントリーを削除
+  async deleteEntry() {
+    if (!confirm("このアクションプランを削除しますか？この操作は取り消せません。")) {
+      return
+    }
+
+    try {
+      // deleteUrlValue または フォールバックURL
+      const deleteUrl = this.deleteUrlValue || `/posts/${this.postIdValue}/post_entries/${this.entryIdValue}`
+
+      const response = await fetch(deleteUrl, {
+        method: "DELETE",
+        headers: {
+          "Accept": "text/vnd.turbo-stream.html",
+          "X-CSRF-Token": this.csrfToken()
+        }
+      })
+
+      if (response.ok) {
+        this.close()
+        window.location.reload()
+      } else {
+        alert("削除に失敗しました")
+      }
+    } catch (error) {
+      console.error("Delete error:", error)
+      alert("削除に失敗しました")
     }
   }
 

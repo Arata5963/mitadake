@@ -1,0 +1,669 @@
+<%#
+  LP＋使い方 統合版 - ミニマル・ジャパニーズスタイル
+  ヒーロー部分: lp_minimal のデザイン
+  コンテンツ部分: guide_minimal のデザイン
+%>
+
+<%= content_for :head do %>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;600&family=Zen+Kaku+Gothic+New:wght@300;400;500&display=swap" rel="stylesheet">
+<% end %>
+
+<style>
+  .lp-guide-minimal {
+    min-height: 100vh;
+    background: #fff;
+    font-family: 'Zen Kaku Gothic New', 'Hiragino Kaku Gothic ProN', sans-serif;
+    font-weight: 300;
+    color: #1c1917;
+    line-height: 2;
+  }
+
+  /* ==========================================
+     ヒーロー (lp_minimal スタイル)
+     ========================================== */
+  .lp-guide-minimal-hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 80px 24px;
+    position: relative;
+  }
+
+  .lp-guide-minimal-hero::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    height: 300px;
+    border: 1px solid #e7e5e4;
+    border-radius: 50%;
+    opacity: 0.5;
+  }
+
+  .lp-guide-minimal-hero::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    height: 500px;
+    border: 1px solid #e7e5e4;
+    border-radius: 50%;
+    opacity: 0.3;
+  }
+
+  .lp-guide-minimal-hero-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .lp-guide-minimal-hero-logo {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 0.9rem;
+    letter-spacing: 8px;
+    color: #a8a29e;
+    margin-bottom: 48px;
+  }
+
+  .lp-guide-minimal-hero-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 3rem;
+    font-weight: 400;
+    color: #1c1917;
+    margin-bottom: 32px;
+    letter-spacing: 4px;
+    line-height: 1.6;
+  }
+
+  .lp-guide-minimal-hero-title span {
+    display: inline-block;
+    border-bottom: 1px solid #78716c;
+    padding-bottom: 4px;
+  }
+
+  .lp-guide-minimal-hero-description {
+    font-size: 1rem;
+    color: #78716c;
+    max-width: 400px;
+    margin: 0 auto 56px;
+    letter-spacing: 1px;
+  }
+
+  .lp-guide-minimal-hero-btn {
+    display: inline-block;
+    background: #1c1917;
+    color: #fafaf9;
+    padding: 18px 56px;
+    font-size: 0.85rem;
+    letter-spacing: 3px;
+    text-decoration: none;
+    transition: all 0.4s ease;
+  }
+
+  .lp-guide-minimal-hero-btn:hover {
+    background: #44403c;
+  }
+
+  .lp-guide-minimal-scroll {
+    position: absolute;
+    bottom: 48px;
+    left: 50%;
+    transform: translateX(-50%);
+    writing-mode: vertical-rl;
+    font-size: 0.75rem;
+    letter-spacing: 4px;
+    color: #a8a29e;
+  }
+
+  /* ==========================================
+     コンテンツ (guide_minimal スタイル)
+     ========================================== */
+  .lp-guide-minimal-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 100px 32px;
+    font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', -apple-system, sans-serif;
+  }
+
+  .lp-guide-minimal-section {
+    margin-bottom: 120px;
+  }
+
+  .lp-guide-minimal-section-label {
+    font-size: 11px;
+    color: #a8a29e;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .lp-guide-minimal-section h2,
+  .lp-guide-minimal-steps h2 {
+    font-size: 24px;
+    font-weight: 400;
+    color: #1c1917;
+    letter-spacing: 0.1em;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e7e5e4;
+  }
+
+  .lp-guide-minimal-section > p {
+    font-size: 15px;
+    color: #57534e;
+    line-height: 2.2;
+    letter-spacing: 0.03em;
+  }
+
+  /* 課題 */
+  .lp-guide-minimal-problems {
+    margin: 48px 0;
+  }
+
+  .lp-guide-minimal-problem {
+    display: flex;
+    gap: 24px;
+    padding: 24px 0;
+    border-bottom: 1px solid #e7e5e4;
+    align-items: flex-start;
+  }
+
+  .lp-guide-minimal-problem:first-child {
+    border-top: 1px solid #e7e5e4;
+  }
+
+  .lp-guide-minimal-problem-num {
+    font-size: 11px;
+    color: #a8a29e;
+    letter-spacing: 0.1em;
+    flex-shrink: 0;
+    padding-top: 4px;
+  }
+
+  .lp-guide-minimal-problem-text {
+    font-size: 14px;
+    color: #57534e;
+    line-height: 1.8;
+  }
+
+  /* 解決策の引用 */
+  .lp-guide-minimal-quote {
+    padding: 48px;
+    background: #f5f5f4;
+    margin: 60px 0;
+    position: relative;
+  }
+
+  .lp-guide-minimal-quote::before {
+    content: '"';
+    position: absolute;
+    top: 24px;
+    left: 32px;
+    font-size: 48px;
+    color: #d6d3d1;
+    font-family: Georgia, serif;
+    line-height: 1;
+  }
+
+  .lp-guide-minimal-quote p {
+    font-size: 14px;
+    color: #57534e;
+    line-height: 2;
+    letter-spacing: 0.05em;
+    padding-left: 32px;
+  }
+
+  .lp-guide-minimal-quote-author {
+    font-size: 12px;
+    color: #a8a29e;
+    margin-top: 20px;
+    padding-left: 32px;
+    letter-spacing: 0.1em;
+  }
+
+  /* 特徴 */
+  .lp-guide-minimal-features {
+    display: flex;
+    gap: 1px;
+    background: #e7e5e4;
+    margin: 60px 0;
+  }
+
+  .lp-guide-minimal-feature {
+    flex: 1;
+    background: #fff;
+    padding: 48px 32px;
+    text-align: center;
+  }
+
+  .lp-guide-minimal-feature-num {
+    font-size: 11px;
+    color: #a8a29e;
+    letter-spacing: 0.2em;
+    margin-bottom: 20px;
+  }
+
+  .lp-guide-minimal-feature h4 {
+    font-size: 15px;
+    font-weight: 500;
+    color: #1c1917;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+  }
+
+  .lp-guide-minimal-feature p {
+    font-size: 12px;
+    color: #78716c;
+    letter-spacing: 0.05em;
+  }
+
+  /* ステップ */
+  .lp-guide-minimal-steps {
+    margin-top: 80px;
+  }
+
+  .lp-guide-minimal-step {
+    display: flex;
+    gap: 60px;
+    padding: 60px 0;
+    border-bottom: 1px solid #e7e5e4;
+  }
+
+  .lp-guide-minimal-step:first-child {
+    border-top: 1px solid #e7e5e4;
+  }
+
+  .lp-guide-minimal-step-num {
+    font-size: 64px;
+    font-weight: 200;
+    color: #e7e5e4;
+    line-height: 1;
+    flex-shrink: 0;
+    width: 80px;
+  }
+
+  .lp-guide-minimal-step-content {
+    flex: 1;
+    padding-top: 8px;
+  }
+
+  .lp-guide-minimal-step h3 {
+    font-size: 18px;
+    font-weight: 500;
+    color: #1c1917;
+    letter-spacing: 0.1em;
+    margin-bottom: 20px;
+  }
+
+  .lp-guide-minimal-step-content > p {
+    font-size: 14px;
+    color: #57534e;
+    line-height: 2;
+    letter-spacing: 0.03em;
+  }
+
+  .lp-guide-minimal-step-cards {
+    display: flex;
+    gap: 24px;
+    margin-top: 32px;
+  }
+
+  .lp-guide-minimal-step-card {
+    flex: 1;
+    padding: 32px;
+    background: #f5f5f4;
+  }
+
+  .lp-guide-minimal-step-card h4 {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1c1917;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e7e5e4;
+  }
+
+  .lp-guide-minimal-step-card ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .lp-guide-minimal-step-card li {
+    font-size: 13px;
+    color: #57534e;
+    line-height: 2.2;
+    letter-spacing: 0.03em;
+  }
+
+  .lp-guide-minimal-step-card li::before {
+    content: '—';
+    margin-right: 8px;
+    color: #a8a29e;
+  }
+
+  /* FAQ */
+  .lp-guide-minimal-faq {
+    margin-top: 120px;
+  }
+
+  .lp-guide-minimal-faq h2 {
+    font-size: 18px;
+    font-weight: 400;
+    color: #1c1917;
+    letter-spacing: 0.15em;
+    text-align: center;
+    margin-bottom: 60px;
+  }
+
+  .lp-guide-minimal-faq-item {
+    padding: 32px 0;
+    border-bottom: 1px solid #e7e5e4;
+  }
+
+  .lp-guide-minimal-faq-item:first-child {
+    border-top: 1px solid #e7e5e4;
+  }
+
+  .lp-guide-minimal-faq-q {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1c1917;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+  }
+
+  .lp-guide-minimal-faq-a {
+    font-size: 13px;
+    color: #78716c;
+    line-height: 1.9;
+    letter-spacing: 0.03em;
+    padding-left: 24px;
+  }
+
+  /* CTA */
+  .lp-guide-minimal-cta {
+    text-align: center;
+    padding: 100px 0;
+    margin-top: 80px;
+    border-top: 1px solid #e7e5e4;
+  }
+
+  .lp-guide-minimal-cta p {
+    font-size: 13px;
+    color: #a8a29e;
+    letter-spacing: 0.1em;
+    margin-bottom: 32px;
+  }
+
+  .lp-guide-minimal-cta-btn {
+    display: inline-block;
+    padding: 20px 60px;
+    background: #1c1917;
+    color: #fafaf9;
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    text-decoration: none;
+    transition: opacity 0.3s;
+  }
+
+  .lp-guide-minimal-cta-btn:hover {
+    opacity: 0.8;
+  }
+
+  /* フッター */
+  .lp-guide-minimal-footer {
+    padding: 40px 32px;
+    border-top: 1px solid #e7e5e4;
+    text-align: center;
+  }
+
+  .lp-guide-minimal-footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-bottom: 24px;
+  }
+
+  .lp-guide-minimal-footer-links a {
+    font-size: 12px;
+    color: #a8a29e;
+    text-decoration: none;
+    letter-spacing: 0.1em;
+  }
+
+  .lp-guide-minimal-footer-links a:hover {
+    color: #1c1917;
+  }
+
+  .lp-guide-minimal-footer p {
+    font-size: 11px;
+    color: #d6d3d1;
+    letter-spacing: 0.1em;
+  }
+
+  /* ==========================================
+     スマホ対応
+     ========================================== */
+  @media (max-width: 768px) {
+    .lp-guide-minimal-hero-title {
+      font-size: 1.75rem;
+      letter-spacing: 2px;
+      white-space: nowrap;
+    }
+
+    .lp-guide-minimal-hero::before,
+    .lp-guide-minimal-hero::after {
+      display: none;
+    }
+
+    .lp-guide-minimal-scroll {
+      display: none;
+    }
+
+    .lp-guide-minimal-content {
+      padding: 60px 20px;
+    }
+
+    .lp-guide-minimal-section {
+      margin-bottom: 80px;
+    }
+
+    .lp-guide-minimal-section h2,
+    .lp-guide-minimal-steps h2 {
+      font-size: 20px;
+    }
+
+    .lp-guide-minimal-problem {
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .lp-guide-minimal-features {
+      flex-direction: column;
+      margin: 40px 0;
+    }
+
+    .lp-guide-minimal-feature {
+      padding: 32px 24px;
+    }
+
+    .lp-guide-minimal-quote {
+      padding: 32px 24px;
+      margin: 40px 0;
+    }
+
+    .lp-guide-minimal-quote::before {
+      top: 16px;
+      left: 20px;
+      font-size: 36px;
+    }
+
+    .lp-guide-minimal-quote p {
+      padding-left: 20px;
+    }
+
+    .lp-guide-minimal-step {
+      flex-direction: column;
+      gap: 24px;
+      padding: 40px 0;
+    }
+
+    .lp-guide-minimal-step-num {
+      font-size: 48px;
+      width: auto;
+    }
+
+    .lp-guide-minimal-step h3 {
+      font-size: 16px;
+    }
+
+    .lp-guide-minimal-step-cards {
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .lp-guide-minimal-step-card {
+      padding: 24px;
+    }
+
+    .lp-guide-minimal-faq {
+      margin-top: 80px;
+    }
+
+    .lp-guide-minimal-faq h2 {
+      font-size: 16px;
+      margin-bottom: 40px;
+    }
+
+    .lp-guide-minimal-cta {
+      padding: 60px 0;
+    }
+
+    .lp-guide-minimal-cta-btn {
+      padding: 18px 48px;
+    }
+
+    .lp-guide-minimal-footer-links {
+      flex-direction: column;
+      gap: 16px;
+    }
+  }
+</style>
+
+<div class="lp-guide-minimal">
+  <%# ==========================================
+      ヒーロー (lp_minimal スタイル)
+      ========================================== %>
+  <section class="lp-guide-minimal-hero">
+    <div class="lp-guide-minimal-hero-content">
+      <p class="lp-guide-minimal-hero-logo">mitadake?</p>
+      <h1 class="lp-guide-minimal-hero-title">
+        <span>見る</span>から、<span>やる</span>へ。
+      </h1>
+      <p class="lp-guide-minimal-hero-description">
+        動画で見たこと、<br>
+        試してみませんか？
+      </p>
+      <%= link_to "はじめる", new_user_registration_path, class: "lp-guide-minimal-hero-btn" %>
+    </div>
+  </section>
+
+  <%# ==========================================
+      コンテンツ (guide_minimal スタイル)
+      ========================================== %>
+  <div class="lp-guide-minimal-content">
+    <%# はじめに %>
+    <section class="lp-guide-minimal-section">
+      <h2>「mitadake?」について</h2>
+      <p>
+        「mitadake?」は、動画を見て「やってみたい」と思ったことを行動に移すためのアプリです。<br>
+        <br>
+        「この習慣始めたい」「このレシピ試したい」「これ買いたい」<br>
+        そんな気持ちをカードにして、達成まで記録できます。<br>
+        <br>
+        サムネイルとYouTube風タイトルで、あなただけのアクションカードを作成。<br>
+        AIが動画の内容から具体的なアクションを提案してくれます。<br>
+        <br>
+        達成したら、振り返りや記録画像を残して共有。<br>
+        他のユーザーのアクションを参考にしたり、いいねで応援したり。<br>
+        再生数ではなく「行動した数」で動画を探す、新しい体験を。
+      </p>
+
+    </section>
+
+    <%# ステップ %>
+    <section id="howto" class="lp-guide-minimal-steps">
+      <h2>使い方の流れ</h2>
+
+      <div class="lp-guide-minimal-step">
+        <span class="lp-guide-minimal-step-num">01</span>
+        <div class="lp-guide-minimal-step-content">
+          <h3>アクションカードを作成</h3>
+          <p>
+            キーワード検索、またはYouTubeのURLを貼り付けて動画を選択。<br>
+            動画を見て「やってみよう」と思ったことを、YouTube風のタイトルで設定します。<br>
+            <br>
+            AIが動画の内容を解析して、3つのアクションを提案。選ぶだけでOKです。<br>
+            自分で入力した場合も、ボタン一つでYouTube風タイトルに変換できます。<br>
+            <br>
+            例：<br>
+            ・料理動画 →「【再現】話題のレシピ作ってみた」<br>
+            ・商品レビュー →「【購入】紹介された商品を買ってみた」<br>
+            ・ライフハック動画 →「【検証】紹介された時短術を試してみた」<br>
+            <br>
+            サムネイル画像も自由に設定可能。<br>
+            あなただけのオリジナルアクションカードが作れます。
+          </p>
+        </div>
+      </div>
+
+      <div class="lp-guide-minimal-step">
+        <span class="lp-guide-minimal-step-num">02</span>
+        <div class="lp-guide-minimal-step-content">
+          <h3>達成を記録</h3>
+          <p>
+            アクションを実行したら、マイページのアクションカードをクリックして達成を記録。<br>
+            振り返りコメントと達成記念の画像を残せます。<br>
+            <br>
+            達成記録は自動で公開され、他のユーザーからいいねで応援してもらえます。<br>
+            同じ動画を見た人の達成も参考にできます。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <%# よくある質問 %>
+    <section class="lp-guide-minimal-faq">
+      <h2>よくある質問</h2>
+
+      <div class="lp-guide-minimal-faq-item">
+        <p class="lp-guide-minimal-faq-q">対応している動画サービスは？</p>
+        <p class="lp-guide-minimal-faq-a">現在はYouTubeの動画のみ対応しています。</p>
+      </div>
+      <div class="lp-guide-minimal-faq-item">
+        <p class="lp-guide-minimal-faq-q">引用フレーズとは？</p>
+        <p class="lp-guide-minimal-faq-a">動画で出会った心に残る言葉を、引用元の動画と一緒に保存できます。自分だけの「座右の銘」としてマイページに表示されます。</p>
+      </div>
+      <div class="lp-guide-minimal-faq-item">
+        <p class="lp-guide-minimal-faq-q">動画を見てすでに行動していた場合は？</p>
+        <p class="lp-guide-minimal-faq-a">それもぜひ記録してください。あなたの経験が他のユーザーの参考になります。</p>
+      </div>
+    </section>
+
+  </div>
+
+  <%# フッター %>
+  <footer class="lp-guide-minimal-footer">
+    <p>© 2026 mitadake?</p>
+  </footer>
+</div>

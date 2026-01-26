@@ -255,10 +255,12 @@ export default class extends Controller {
       })
 
       if (response.ok) {
-        // Turbo Streamレスポンスを処理
-        const html = await response.text()
-        Turbo.renderStreamMessage(html)
         this.close()
+        // フラッシュメッセージをsessionStorageに保存してからリロード
+        sessionStorage.setItem('pendingFlash', JSON.stringify({
+          type: 'notice',
+          message: '達成おめでとうございます！'
+        }))
         window.location.reload()
       } else {
         const data = await response.json()

@@ -45,6 +45,7 @@ Rails.application.routes.draw do
   # 開発環境でメールをブラウザで確認できるようにする
   if Rails.env.development?
     mount LetterOpenerWeb::Engine, at: "/letter_opener"  # メール確認UI
+    post "dev/switch_user", to: "dev#switch_user"        # ユーザー切り替え（なりすまし）
   end
 
   # ==========================================

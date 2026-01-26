@@ -626,6 +626,11 @@ export default class extends Controller {
       const data = await response.json()
 
       if (data.success && data.url) {
+        // フラッシュメッセージをsessionStorageに保存
+        sessionStorage.setItem('pendingFlash', JSON.stringify({
+          type: 'notice',
+          message: '投稿しました！'
+        }))
         if (window.Turbo) {
           window.Turbo.visit(data.url)
         } else {

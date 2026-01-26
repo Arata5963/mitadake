@@ -36,7 +36,7 @@
 <% content_for :title, "新規投稿" %>
 
 <div class="min-h-[calc(100vh-56px)] bg-white">
-  <div class="max-w-5xl mx-auto px-5 py-6"
+  <div class="max-w-2xl mx-auto px-5 py-6"
        data-controller="post-create"
        data-post-create-youtube-url-value="<%= youtube_search_posts_path %>"
        data-post-create-create-url-value="<%= create_with_action_posts_path %>"
@@ -67,16 +67,18 @@
 
       <%# 動画プレビュー %>
       <div data-post-create-target="preview" class="hidden mt-3">
-        <div class="flex gap-3 p-3 bg-gray-50 rounded-lg">
-          <img data-post-create-target="previewThumbnail" src="" alt="" class="w-[120px] h-[68px] object-cover rounded flex-shrink-0">
+        <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+          <img data-post-create-target="previewThumbnail" src="" alt="" class="w-20 h-12 object-cover rounded flex-shrink-0">
           <div class="flex-1 min-w-0">
-            <p data-post-create-target="previewTitle" class="text-sm font-medium text-gray-900 mb-1 leading-snug line-clamp-2"></p>
-            <p data-post-create-target="previewChannel" class="text-xs text-gray-500"></p>
+            <p data-post-create-target="previewTitle" class="text-sm font-medium text-gray-900 line-clamp-2"></p>
+            <p data-post-create-target="previewChannel" class="text-xs text-gray-500 mt-0.5"></p>
           </div>
           <button type="button"
                   data-action="click->post-create#clearSelection"
-                  class="flex-shrink-0 px-2 py-1 bg-transparent border-none text-gray-500 text-xs cursor-pointer hover:text-gray-700">
-            ✕
+                  class="flex-shrink-0 text-gray-400 hover:text-gray-600">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
           </button>
         </div>
       </div>

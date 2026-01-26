@@ -65,9 +65,9 @@ class PostsController < ApplicationController
   # 異なるレスポンスを返す仕組み。
   #
   def index
-    # 未ログインの場合はランディングページを表示
+    # 未ログインの場合はルートへリダイレクト（LP表示）
     unless user_signed_in?
-      render_landing_page
+      redirect_to root_path
       return
     end
 
@@ -451,45 +451,6 @@ class PostsController < ApplicationController
   # ==========================================
   # Index ヘルパーメソッド
   # ==========================================
-
-  # ------------------------------------------
-  # ランディングページを表示（未ログイン時）
-  # ------------------------------------------
-  def render_landing_page
-    # 本番環境ではログインページにリダイレクト
-    if Rails.env.production?
-      redirect_to new_user_session_path
-      return
-    end
-
-    # ランディングページ用のデータを取得
-    @ranking_posts = Post.by_action_count(limit: 5)
-    @achieved_entries = load_achieved_entries_for_landing
-    render "pages/landing", layout: "landing"
-  end
-
-  # ランディングページ用の達成エントリーを取得
-  def load_achieved_entries_for_landing
-    # サムネイル画像がある達成エントリーを優先取得
-    entries = PostEntry.achieved
-                       .includes(:user, :post)
-                       .where.not(thumbnail_url: [ nil, "" ])
-                       .order(achieved_at: :desc)
-                       .limit(6)
-
-    # 6件に満たない場合は追加取得
-    if entries.count < 6
-      remaining = 6 - entries.count
-      additional = PostEntry.achieved
-                            .includes(:user, :post)
-                            .where(thumbnail_url: [ nil, "" ])
-                            .order(achieved_at: :desc)
-                            .limit(remaining)
-      entries = entries.to_a + additional.to_a
-    end
-
-    entries
-  end
 
   # ユーザーでフィルターした投稿を取得
   def load_user_filtered_posts(base_scope)

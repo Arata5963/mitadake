@@ -68,9 +68,6 @@
     <%# 引用元動画（favorite_quote_url から取得） %>
     <% if quote_video_id.present? %>
       <section class="mb-6">
-        <div class="flex items-center gap-2 mb-3">
-          <span class="text-sm font-semibold text-gray-900">引用元動画</span>
-        </div>
         <div data-controller="hero-video" data-hero-video-video-id-value="<%= quote_video_id %>" class="mb-6">
           <div class="group relative rounded-xl overflow-hidden bg-black cursor-pointer aspect-video">
             <iframe id="hero-player-<%= quote_video_id %>" data-hero-video-target="iframe" src="https://www.youtube.com/embed/<%= quote_video_id %>?autoplay=1&mute=1&loop=1&playlist=<%= quote_video_id %>&controls=0&playsinline=1&rel=0&modestbranding=1&showinfo=0&enablejsapi=1" class="absolute inset-0 w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -107,36 +104,9 @@
                  data-achievement-card-mode-value="input"
                  data-achievement-card-video-thumbnail-value="<%= post.youtube_thumbnail_url %>"
                  data-achievement-card-video-url-value="<%= post_path(post) %>"
-                 data-achievement-card-video-title-value="<%= post.youtube_title %>">
-          <% if is_own_page %>
-            <details class="absolute top-2 right-2 z-10">
-              <summary class="w-7 h-7 rounded-full bg-white/90 flex items-center justify-center shadow cursor-pointer list-none hover:bg-white">
-                <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
-                  <circle cx="12" cy="5" r="2"/>
-                  <circle cx="12" cy="12" r="2"/>
-                  <circle cx="12" cy="19" r="2"/>
-                </svg>
-              </summary>
-              <div class="absolute top-8 right-0 bg-white rounded-lg shadow-lg min-w-[120px] overflow-hidden">
-                <%= link_to edit_post_post_entry_path(post, entry, from: 'mypage'),
-                      class: "flex items-center gap-2 px-3.5 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors" do %>
-                  <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                  </svg>
-                  編集
-                <% end %>
-                <%= link_to post_post_entry_path(post, entry),
-                      method: :delete,
-                      data: { turbo_method: :delete, turbo_confirm: "このアクションプランを削除しますか？" },
-                      class: "flex items-center gap-2 px-3.5 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors" do %>
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                  </svg>
-                  削除
-                <% end %>
-              </div>
-            </details>
-          <% end %>
+                 data-achievement-card-video-title-value="<%= post.youtube_title %>"
+                 data-achievement-card-edit-url-value="<%= edit_post_post_entry_path(post, entry, from: 'mypage') %>"
+                 data-achievement-card-delete-url-value="<%= post_post_entry_path(post, entry) %>">
           <div class="rounded-lg overflow-hidden bg-gray-100 aspect-video cursor-pointer"
                data-action="click->achievement-card#open">
             <%= image_tag entry_thumbnail,

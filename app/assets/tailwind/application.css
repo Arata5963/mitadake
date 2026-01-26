@@ -7,9 +7,8 @@
         "./app/assets/**/*.css"
         "./app/javascript/**/*.{js,ts}";
 
-/* ウォームベージュ系カラーパレット */
+/* カラーパレット */
 @theme {
-  --color-cream: #FAF8F5;
   --color-primary: #4A4035;
   --color-accent: #8B7355;
 }

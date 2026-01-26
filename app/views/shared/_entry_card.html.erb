@@ -61,6 +61,8 @@
            data-achievement-card-video-thumbnail-value="<%= post.youtube_thumbnail_url %>"
            data-achievement-card-video-url-value="<%= post_path(post) %>"
            data-achievement-card-video-title-value="<%= post.youtube_title %>"
+           data-achievement-card-edit-url-value="<%= edit_post_post_entry_path(post, entry, from: 'mypage') %>"
+           data-achievement-card-delete-url-value="<%= post_post_entry_path(post, entry) %>"
          <% end %>>
 
   <% if show_menu %>

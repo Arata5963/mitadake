@@ -10,8 +10,6 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // ウォームベージュ系カラーパレット
-        cream: '#FAF8F5',
         primary: '#4A4035',
         accent: '#8B7355',
       },
@@ -35,6 +33,8 @@ module.exports = {
         'stagger-2': 'fadeInUp 0.4s ease-out 0.2s both',
         'stagger-3': 'fadeInUp 0.4s ease-out 0.3s both',
         'scale-in': 'scaleIn 0.5s ease-out forwards',
+        'scroll-left': 'scrollLeft 60s linear infinite',
+        'scroll-right': 'scrollRight 55s linear infinite',
       },
       keyframes: {
         fadeIn: {
@@ -60,6 +60,14 @@ module.exports = {
         scaleIn: {
           '0%': { opacity: '0', transform: 'scale(0.9)' },
           '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+        scrollLeft: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
+        scrollRight: {
+          '0%': { transform: 'translateX(-50%)' },
+          '100%': { transform: 'translateX(0)' },
         },
       },
     },

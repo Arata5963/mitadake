@@ -30,8 +30,24 @@
   <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
     <div class="flex h-14 items-center justify-between gap-4">
 
-      <%# 左側：ロゴ（クリックでホームへ） %>
-      <div class="flex-shrink-0">
+      <%# 左側：ロゴ + 開発用ユーザー切替 %>
+      <div class="flex items-center gap-3 flex-shrink-0">
+        <%# 開発環境専用：ユーザー切り替えドロップダウン %>
+        <% if Rails.env.development? && user_signed_in? %>
+          <form action="/dev/switch_user" method="post" class="flex items-center">
+            <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+            <select name="user_id"
+                    onchange="this.form.submit()"
+                    class="text-xs bg-yellow-100 border border-yellow-300 rounded px-2 py-1 cursor-pointer">
+              <% User.order(:name).each do |u| %>
+                <option value="<%= u.id %>" <%= 'selected' if u.id == current_user.id %>>
+                  <%= u.name %>
+                </option>
+              <% end %>
+            </select>
+          </form>
+        <% end %>
+
         <%= link_to posts_path, class: "flex items-center gap-2 text-gray-900 hover:text-gray-600 transition-colors" do %>
           <span class="text-lg font-bold tracking-tight">mitadake?</span>
         <% end %>

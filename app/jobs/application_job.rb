@@ -1,7 +1,7 @@
-class ApplicationJob < ActiveJob::Base
-  # Automatically retry jobs that encountered a deadlock
-  # retry_on ActiveRecord::Deadlocked
+# ジョブ基底クラス
+# 全てのバックグラウンドジョブの親クラス
 
-  # Most jobs are safe to ignore if the underlying records are no longer available
-  # discard_on ActiveJob::DeserializationError
+class ApplicationJob < ActiveJob::Base
+  # retry_on ActiveRecord::Deadlocked          # デッドロック時は自動リトライ
+  # discard_on ActiveJob::DeserializationError # レコード削除時はジョブ破棄
 end

@@ -1,3 +1,6 @@
+# Dependabot 自動更新設定
+# Gem と GitHub Actions を毎日チェックして PR 作成
+
 version: 2
 updates:
 - package-ecosystem: bundler

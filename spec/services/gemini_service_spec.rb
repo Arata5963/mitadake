@@ -1,31 +1,6 @@
-# spec/services/gemini_service_spec.rb
-# ==========================================
 # GeminiService のテスト
-# ==========================================
-#
-# 【このファイルの役割】
-# Google Gemini AI APIを使用したアクションプラン生成機能をテストする。
-#
-# 【テストの実行方法】
-#   docker compose exec web rspec spec/services/gemini_service_spec.rb
-#
-# 【テスト対象】
-# - suggest_action_plans（アクションプラン提案）
-#   - 字幕ベースの生成
-#   - タイトルベースの生成（字幕がない場合）
-#   - エラーハンドリング（APIキー未設定、レート制限等）
-# - convert_to_youtube_title（タイトル変換）
-#   - アクションプランをYouTube風タイトルに変換
-#
-# 【外部API通信のモック】
-# WebMock（stub_request）を使用してAPI通信をモック化。
-# 実際のAPIを呼び出さずにテストを実行できる。
-#
-#   stub_request(:post, url).to_return(
-#     status: 200,
-#     body: success_response.to_json
-#   )
-#
+# AI によるアクションプラン生成とタイトル変換を検証
+
 require 'rails_helper'
 
 RSpec.describe GeminiService, type: :service do

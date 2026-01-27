@@ -1,17 +1,5 @@
-<%#
-  app/views/kaminari/_gap.html.erb
-  ==========================================
-  Kaminari: 省略記号（...）
-  ==========================================
-
-  【役割】
-  ページ数が多い場合に「...」で省略を表示。
-  例: 1 2 ... 50 51 52 ... 99 100
-
-  【表示タイミング】
-  _paginator.html.erb で was_truncated? が false の時、
-  つまり省略が発生した位置で表示される。
-%>
+<%# Kaminari: 省略記号（...） %>
+<%# ページ数が多い場合の省略表示 %>
 <span class="w-10 h-10 flex items-center justify-center text-gray-400 text-sm">
   ...
 </span>

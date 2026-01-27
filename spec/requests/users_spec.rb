@@ -1,37 +1,12 @@
-# spec/requests/users_spec.rb
-# ==========================================
 # Users コントローラーのリクエストテスト
-# ==========================================
-#
-# 【このファイルの役割】
-# ユーザー関連のエンドポイント（マイページ、プロフィール）を
-# テストする。
-#
-# 【テストの実行方法】
-#   docker compose exec web rspec spec/requests/users_spec.rb
-#
-# 【テスト対象】
-# - GET /mypage（自分のマイページ）
-# - GET /users/:id（他ユーザーのプロフィール）
-# - GET /edit_profile（プロフィール編集フォーム）
-# - PATCH /mypage（プロフィール更新）
-# - プロフィール画像アップロード
-# - 統計情報表示
-#
-# 【ルーティングの特徴】
-# - /mypage → 自分のプロフィール（ログイン必須）
-# - /users/:id → 他ユーザーのプロフィール（公開）
-# - 自分のIDでアクセス → /mypage にリダイレクト
-#
+# マイページ、プロフィール表示・編集を検証
+
 require 'rails_helper'
 
 RSpec.describe 'Users', type: :request do
   let(:user) { create(:user, name: 'テストユーザー') }
   let(:other_user) { create(:user, name: '他のユーザー') }
 
-  # ====================
-  # GET /mypage (自分のマイページ)
-  # ====================
   describe 'GET /mypage' do
     context 'ログインしている場合' do
       before { sign_in user }
@@ -84,9 +59,6 @@ RSpec.describe 'Users', type: :request do
     end
   end
 
-  # ====================
-  # GET /users/:id (他ユーザーのプロフィール)
-  # ====================
   describe 'GET /users/:id' do
     context '他ユーザーのプロフィールを見る場合' do
       before { sign_in user }
@@ -124,9 +96,6 @@ RSpec.describe 'Users', type: :request do
     end
   end
 
-  # ====================
-  # GET /edit_profile
-  # ====================
   describe 'GET /edit_profile' do
     context 'ログインしている場合' do
       before { sign_in user }
@@ -157,9 +126,6 @@ RSpec.describe 'Users', type: :request do
     end
   end
 
-  # ====================
-  # PATCH /mypage (プロフィール更新)
-  # ====================
   describe 'PATCH /mypage' do
     context 'ログインしている場合' do
       before { sign_in user }
@@ -209,9 +175,6 @@ RSpec.describe 'Users', type: :request do
     end
   end
 
-  # ====================
-  # プロフィール画像関連
-  # ====================
   describe 'プロフィール画像' do
     before { sign_in user }
 
@@ -247,9 +210,6 @@ RSpec.describe 'Users', type: :request do
     end
   end
 
-  # ====================
-  # 統計情報
-  # ====================
   describe '統計情報' do
     before { sign_in user }
 

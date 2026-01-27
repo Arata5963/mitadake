@@ -1,38 +1,7 @@
-# config/locales/ja.yml
-# ==========================================
-# 日本語ロケールファイル（i18n設定）
-# ==========================================
-#
-# 【このファイルの役割】
-# アプリケーション内の日本語テキストを定義する。
-# エラーメッセージ、フラッシュメッセージ、日時フォーマットなど。
-#
-# 【構造】
-# ja:
-#   datetime:        → 相対時間（「3日前」など）
-#   time/date:       → 日時フォーマット
-#   errors:          → バリデーションエラー
-#   activerecord:    → モデル名・属性名
-#   enums:           → Enumの翻訳
-#   posts:           → PostsController用メッセージ
-#   achievements:    → AchievementsController用
-#   users:           → UsersController用
-#   comments:        → CommentsController用
-#   entry_likes:     → いいね機能用
-#   post_entries:    → アクションプラン用
-#   notifications:   → 通知機能用
-#
-# 【使い方】
-#   t("posts.create.success")  # → "投稿しました！"
-#   t("errors.messages.blank") # → "を入力してください"
-#   l(Time.current)            # → "2026年01月21日 10:30"
-#
-# 【ActiveRecordの翻訳】
-#   モデル: User.model_name.human → "ユーザー"
-#   属性: User.human_attribute_name(:email) → "メールアドレス"
-#
+# 日本語ロケールファイル
+# t("posts.create.success") や l(Time.current) で使用
+
 ja:
-  # ===== 相対時間表示（time_ago_in_words用） =====
   datetime:
     distance_in_words:
       about_x_hours:
@@ -73,20 +42,18 @@ ja:
         one: "1年"
         other: "%{count}年"
 
-  # ===== 日時フォーマット設定 =====
   time:
     formats:
       default: "%Y年%m月%d日 %H:%M"
       short: "%m/%d %H:%M"
       long: "%Y年%m月%d日 %H時%M分%S秒"
-  
+
   date:
     formats:
       default: "%Y年%m月%d日"
       short: "%m/%d"
       long: "%Y年%m月%d日"
-  
-  # ===== エラーメッセージ =====
+
   errors:
     messages:
       blank: "を入力してください"
@@ -97,16 +64,14 @@ ja:
       not_saved:
         one: "1個のエラーがあります:"
         other: "%{count}個のエラーがあります:"
-        
+
   activerecord:
-    # モデル名の日本語表示設定
     models:
       user: "ユーザー"
       post: "投稿"
       achievement: "達成記録"
       comment: "コメント"
-    
-    # 属性名の日本語表示設定
+
     attributes:
       user:
         name: "ユーザー名"
@@ -129,7 +94,6 @@ ja:
         user: "投稿者"
         post: "投稿"
 
-    # エラーメッセージの詳細設定
     errors:
       models:
         user:
@@ -166,7 +130,6 @@ ja:
               too_short: "コメントは%{count}文字以上で入力してください"
               too_long: "コメントは%{count}文字以内で入力してください"
 
-  # Enum翻訳
   enums:
     post:
       category:
@@ -191,7 +154,6 @@ ja:
         quote: "引用"
         action: "アクション"
 
-  # PostsController関連のメッセージ
   posts:
     not_found: "投稿が見つかりません"
     unauthorized: "他のユーザーの投稿は編集・削除できません"
@@ -201,8 +163,7 @@ ja:
       success: "投稿を更新しました"
     destroy:
       success: "投稿を削除しました"
-      
-  # AchievementsController関連のメッセージ
+
   achievements:
     unauthorized: "他のユーザーの投稿には達成記録できません"
     create:
@@ -212,7 +173,6 @@ ja:
       success: "みただけ？に戻しました"
       not_found: "対象の記録が見つかりません"
 
-  # UsersController関連のメッセージ
   users:
     update:
       success: "プロフィールを更新しました"
@@ -221,7 +181,6 @@ ja:
     attributes:
       avatar: "プロフィール画像"
 
-  # CommentsController関連のメッセージ
   comments:
     not_found: "コメントが見つかりません"
     unauthorized: "他のユーザーのコメントは削除できません"
@@ -231,7 +190,6 @@ ja:
       success: "コメントを削除しました"
       confirm: "本当に削除しますか？"
 
-  # EntryLikesController関連のメッセージ
   entry_likes:
     not_found: "いいねが見つかりません"
     create:
@@ -240,11 +198,9 @@ ja:
     destroy:
       success: "いいねを取り消しました"
 
-  # PostEntriesController関連のメッセージ
   post_entries:
     not_found: "アクションプランが見つかりません"
 
-  # NotificationsController関連のメッセージ
   notifications:
     title: "通知"
     marked_all_as_read: "すべての通知を既読にしました"

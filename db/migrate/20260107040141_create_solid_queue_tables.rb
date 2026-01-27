@@ -1,29 +1,5 @@
-# db/migrate/20260107040141_create_solid_queue_tables.rb
-# ==========================================
-# Solid Queue テーブル作成（バックグラウンドジョブ）
-# ==========================================
-#
-# 【Solid Queueとは？】
-# Rails 標準のバックグラウンドジョブ処理システム。
-# Redisなしで動作し、データベースをジョブキューとして使用。
-#
-# 【作成されるテーブル】
-#   solid_queue_jobs:                ジョブ本体
-#   solid_queue_ready_executions:    実行待ちジョブ
-#   solid_queue_claimed_executions:  実行中ジョブ
-#   solid_queue_blocked_executions:  ブロック中ジョブ
-#   solid_queue_failed_executions:   失敗したジョブ
-#   solid_queue_scheduled_executions: 予約済みジョブ
-#   solid_queue_recurring_*:         定期実行ジョブ関連
-#   solid_queue_processes:           ワーカープロセス
-#   solid_queue_pauses:              一時停止キュー
-#   solid_queue_semaphores:          同時実行制御
-#
-# 【注意点】
-# このマイグレーションは solid_queue gem が生成したもの。
-# 手動で編集しないこと。
-#
-# ==========================================
+# Solid Queueテーブル作成（バックグラウンドジョブ）
+# solid_queue gemが自動生成、手動編集禁止
 
 class CreateSolidQueueTables < ActiveRecord::Migration[7.2]
   def change

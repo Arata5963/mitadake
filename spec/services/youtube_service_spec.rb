@@ -1,41 +1,9 @@
-# spec/services/youtube_service_spec.rb
-# ==========================================
 # YoutubeService のテスト
-# ==========================================
-#
-# 【このファイルの役割】
-# YouTube Data API v3 を使った動画情報取得と
-# 検索機能のテスト。
-#
-# 【テストの実行方法】
-#   docker compose exec web rspec spec/services/youtube_service_spec.rb
-#
-# 【テスト対象】
-# - fetch_video_info: 動画情報の取得
-# - search_videos: 動画検索
-#
-# 【モック化について】
-# 実際のYouTube APIを呼ばずにテストするため、
-# APIレスポンスをモック化している。
-#
-# 【instance_double】
-# 特定のクラスのインスタンスをモック化。
-# 実際のメソッドシグネチャと一致するか検証される。
-#
-#   youtube_service = instance_double(Google::Apis::YoutubeV3::YouTubeService)
-#   allow(youtube_service).to receive(:list_videos).and_return(response)
-#
+# YouTube Data API による動画情報取得と検索機能を検証
 
 require 'rails_helper'
 
 RSpec.describe YoutubeService, type: :service, youtube_api: true do
-  # ==========================================
-  # 動画情報取得のテスト
-  # ==========================================
-  # 【何をテストしている？】
-  # YouTube URLから動画のタイトル、チャンネル名、
-  # サムネイルを取得する機能。
-  #
   describe '.fetch_video_info' do
     let(:video_id) { 'dQw4w9WgXcQ' }
     let(:channel_id) { 'UCtest123' }
@@ -65,9 +33,6 @@ RSpec.describe YoutubeService, type: :service, youtube_api: true do
       allow(@youtube_service).to receive(:list_channels).with('snippet', id: channel_id).and_return(channel_response)
     end
 
-    # ------------------------------------------
-    # 正常系テスト
-    # ------------------------------------------
     context '有効なYouTube URLの場合' do
       it '動画情報を返す' do
         result = described_class.fetch_video_info(youtube_url)
@@ -106,9 +71,6 @@ RSpec.describe YoutubeService, type: :service, youtube_api: true do
       end
     end
 
-    # ------------------------------------------
-    # 異常系テスト
-    # ------------------------------------------
     context 'URLがnilの場合' do
       it 'nilを返す' do
         result = described_class.fetch_video_info(nil)
@@ -155,9 +117,6 @@ RSpec.describe YoutubeService, type: :service, youtube_api: true do
       end
     end
 
-    # ------------------------------------------
-    # APIエラーのテスト
-    # ------------------------------------------
     context 'APIクライアントエラー(404, 403など)が発生した場合' do
       before do
         youtube_service = instance_double(Google::Apis::YoutubeV3::YouTubeService)
@@ -252,9 +211,6 @@ RSpec.describe YoutubeService, type: :service, youtube_api: true do
       end
     end
 
-    # ------------------------------------------
-    # チャンネルサムネイル取得のテスト
-    # ------------------------------------------
     context 'チャンネルサムネイル取得でエラーが発生した場合' do
       before do
         youtube_service = instance_double(Google::Apis::YoutubeV3::YouTubeService)
@@ -349,13 +305,6 @@ RSpec.describe YoutubeService, type: :service, youtube_api: true do
     end
   end
 
-  # ==========================================
-  # 動画検索のテスト
-  # ==========================================
-  # 【何をテストしている？】
-  # YouTube検索機能。
-  # キーワードで動画を検索し、結果を返す。
-  #
   describe '.search_videos' do
     let(:query) { 'Ruby programming' }
 
@@ -445,9 +394,6 @@ RSpec.describe YoutubeService, type: :service, youtube_api: true do
       end
     end
 
-    # ------------------------------------------
-    # 異常系テスト
-    # ------------------------------------------
     context 'クエリがnilの場合' do
       it '空配列を返す' do
         result = described_class.search_videos(nil)

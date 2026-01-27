@@ -1,3 +1,6 @@
+# CI ワークフロー
+# PR・main push 時にセキュリティスキャン、Lint、テストを実行
+
 name: CI
 
 on:
@@ -32,7 +35,6 @@ jobs:
       - name: Scan for security vulnerabilities in JavaScript dependencies
         run: bin/importmap audit
 
-
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -48,7 +50,7 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    
+
     services:
       postgres:
         image: postgres:15

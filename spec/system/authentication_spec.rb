@@ -1,33 +1,6 @@
-# spec/system/authentication_spec.rb
-# ==========================================
 # 認証機能のシステムテスト
-# ==========================================
-#
-# 【このファイルの役割】
-# ユーザー登録、ログイン、ログアウトの
-# エンドツーエンド（E2E）テストを行う。
-#
-# 【テストの実行方法】
-#   docker compose exec web rspec spec/system/authentication_spec.rb
-#
-# 【テスト対象】
-# - ユーザー登録（新規登録、バリデーションエラー）
-# - ログイン（成功、失敗）
-# - ログアウト
-#
-# 【システムテストとは？】
-# ブラウザを使って実際のユーザー操作をシミュレートするテスト。
-# Capybara を使用してページ遷移やフォーム入力をテストできる。
-#
-#   visit new_user_registration_path   # ページにアクセス
-#   fill_in 'user_email', with: 'test@example.com'  # フォーム入力
-#   click_button '登録する'            # ボタンクリック
-#   expect(page).to have_content('成功')  # 画面確認
-#
-# 【driven_by(:rack_test)】
-# JavaScriptを使わないシンプルなテストドライバー。
-# 高速だがJavaScriptの動作はテストできない。
-#
+# ユーザー登録、ログイン、ログアウトのE2Eテスト
+
 require 'rails_helper'
 
 RSpec.describe "Authentication", type: :system do
@@ -35,9 +8,6 @@ RSpec.describe "Authentication", type: :system do
     driven_by(:rack_test)
   end
 
-  # ====================
-  # ユーザー登録
-  # ====================
   describe "ユーザー登録" do
     it "新規ユーザーが登録できる" do
       # 1. 新規登録ページに直接アクセス
@@ -80,9 +50,6 @@ RSpec.describe "Authentication", type: :system do
     end
   end
 
-  # ====================
-  # ログイン・ログアウト
-  # ====================
   describe "ログイン・ログアウト" do
     let!(:user) { create(:user, email: "login@example.com", password: "password123") }
 

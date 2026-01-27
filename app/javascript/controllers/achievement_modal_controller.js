@@ -1,266 +1,162 @@
-// app/javascript/controllers/achievement_modal_controller.js
-// ==========================================
 // 達成記録モーダルコントローラー
-// ==========================================
-//
-// 【このコントローラーの役割】
-// アクションプランを「達成」する時に表示されるモーダルを制御。
-// 感想入力と記念写真のアップロードができる。
-//
-// 【2つのモード】
-// 1. input モード: 新しく達成を記録する（感想・画像を入力）
-// 2. display モード: 既存の達成記録を閲覧する
-//
-// 【処理フロー（input モード）】
-//
-//   1. モーダルが開く
-//      ↓
-//   2. 感想を入力（必須）
-//      ↓
-//   3. 記念写真を選択（任意）
-//      ↓
-//   4. 送信
-//      - 画像があればS3にアップロード
-//      - サーバーに達成を記録
-//      ↓
-//   5. モーダルを閉じてページ更新
-//
-// 【HTML構造】
-// achievement_card_controller から動的にHTMLが挿入される。
-// モーダルのHTMLはJavaScriptで生成（buildInputModalHtml等）。
-//
-// 【S3アップロード】
-// 署名付きURL方式で直接S3にアップロード。
-// サーバーを経由しないので高速。
-//
+// アクションプラン達成時に感想・記念写真を入力するモーダルを制御
 
-import { Controller } from "@hotwired/stimulus"
+import { Controller } from "@hotwired/stimulus"                // Stimulusコントローラー基底クラス
 
 export default class extends Controller {
   static targets = [
-    "overlay",
-    "content",
-    "reflectionInput",
-    "reflectionDisplay",
-    "imagePreview",
-    "imageInput",
-    "uploadArea",
-    "clearImageBtn",
-    "submitBtn",
-    "editBtn",
-    "loadingOverlay"
+    "overlay", "content", "reflectionInput", "reflectionDisplay",
+    "imagePreview", "imageInput", "uploadArea", "clearImageBtn",
+    "submitBtn", "editBtn", "loadingOverlay"
   ]
 
   static values = {
-    entryId: Number,
-    postId: Number,
-    mode: String,
-    achieveUrl: String,
-    updateReflectionUrl: String,
-    deleteUrl: String,
-    editUrl: String
+    entryId: Number,                                           // エントリーID
+    postId: Number,                                            // 投稿ID
+    mode: String,                                              // input/display
+    achieveUrl: String,                                        // 達成記録APIのURL
+    updateReflectionUrl: String,                               // 感想更新APIのURL
+    deleteUrl: String,                                         // 削除APIのURL
+    editUrl: String                                            // 編集ページURL
   }
 
+  // モーダル表示時の初期化
   connect() {
-    document.body.style.overflow = "hidden"
+    document.body.style.overflow = "hidden"                    // 背景スクロール無効化
     this.boundHandleKeydown = this.handleKeydown.bind(this)
     document.addEventListener("keydown", this.boundHandleKeydown)
-    this.selectedFile = null      // Fileオブジェクトを保持
-    this.uploadedS3Key = null     // アップロード後のS3キー
+    this.selectedFile = null                                   // 選択中のファイル
+    this.uploadedS3Key = null                                  // アップロード済みS3キー
   }
 
+  // モーダル非表示時のクリーンアップ
   disconnect() {
-    document.body.style.overflow = ""
+    document.body.style.overflow = ""                          // 背景スクロール有効化
     document.removeEventListener("keydown", this.boundHandleKeydown)
   }
 
+  // ESCキーで閉じる
   handleKeydown(event) {
-    if (event.key === "Escape") {
-      this.close()
-    }
+    if (event.key === "Escape") this.close()
   }
 
+  // モーダルを閉じる
   close() {
     const container = document.getElementById("achievement_modal")
-    if (container) {
-      container.innerHTML = ""
-    }
+    if (container) container.innerHTML = ""
   }
 
+  // オーバーレイクリックで閉じる
   closeOnOverlay(event) {
-    if (event.target === event.currentTarget) {
-      this.close()
-    }
+    if (event.target === event.currentTarget) this.close()
   }
 
-  // ファイル選択をトリガー
+  // ファイル選択ダイアログを開く
   triggerFileInput(event) {
     event.preventDefault()
-    if (this.hasImageInputTarget) {
-      this.imageInputTarget.click()
-    }
+    if (this.hasImageInputTarget) this.imageInputTarget.click()
   }
 
-  // 画像選択（署名付きURL方式：Base64変換しない）
+  // 画像選択時の処理
   handleFileSelect(event) {
     const file = event.target.files[0]
     if (!file) return
 
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > 5 * 1024 * 1024) {                         // 5MB制限
       alert("ファイルサイズは5MB以下にしてください")
       return
     }
 
-    // ファイルを保持（Base64変換しない）
     this.selectedFile = file
-    this.uploadedS3Key = null  // 新しいファイルが選択されたらリセット
-
-    // プレビュー表示（ローカルURL使用）
-    const previewUrl = URL.createObjectURL(file)
+    this.uploadedS3Key = null                                  // 新ファイル選択でリセット
+    const previewUrl = URL.createObjectURL(file)               // ローカルプレビュー用URL
     this.showImagePreview(previewUrl)
   }
 
+  // 画像プレビューを表示
   showImagePreview(dataUrl) {
-    // 画像を表示
     if (this.hasImagePreviewTarget) {
       this.imagePreviewTarget.src = dataUrl
       this.imagePreviewTarget.style.display = 'block'
     }
-    // アップロードエリアを非表示
-    if (this.hasUploadAreaTarget) {
-      this.uploadAreaTarget.style.display = 'none'
-    }
-    // ×ボタンを表示
-    if (this.hasClearImageBtnTarget) {
-      this.clearImageBtnTarget.style.display = 'flex'
-    }
+    if (this.hasUploadAreaTarget) this.uploadAreaTarget.style.display = 'none'
+    if (this.hasClearImageBtnTarget) this.clearImageBtnTarget.style.display = 'flex'
   }
 
+  // 画像をクリア
   clearImage(event) {
     event.preventDefault()
     event.stopPropagation()
-
     this.selectedFile = null
     this.uploadedS3Key = null
-
-    // 画像を非表示
     if (this.hasImagePreviewTarget) {
       this.imagePreviewTarget.src = ""
       this.imagePreviewTarget.style.display = 'none'
     }
-    // アップロードエリアを表示
-    if (this.hasUploadAreaTarget) {
-      this.uploadAreaTarget.style.display = 'flex'
-    }
-    // ×ボタンを非表示
-    if (this.hasClearImageBtnTarget) {
-      this.clearImageBtnTarget.style.display = 'none'
-    }
-    // ファイル入力をリセット
-    if (this.hasImageInputTarget) {
-      this.imageInputTarget.value = ""
-    }
+    if (this.hasUploadAreaTarget) this.uploadAreaTarget.style.display = 'flex'
+    if (this.hasClearImageBtnTarget) this.clearImageBtnTarget.style.display = 'none'
+    if (this.hasImageInputTarget) this.imageInputTarget.value = ""
   }
 
   // S3に直接アップロード（署名付きURL方式）
   async uploadToS3() {
     if (!this.selectedFile) return null
-    if (this.uploadedS3Key) return this.uploadedS3Key  // 既にアップロード済み
+    if (this.uploadedS3Key) return this.uploadedS3Key          // アップロード済み
 
-    // 1. 署名付きURLを取得
     const presignResponse = await fetch('/api/presigned_urls', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': this.csrfToken()
-      },
-      body: JSON.stringify({
-        filename: this.selectedFile.name,
-        content_type: this.selectedFile.type
-      })
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': this.csrfToken() },
+      body: JSON.stringify({ filename: this.selectedFile.name, content_type: this.selectedFile.type })
     })
 
-    if (!presignResponse.ok) {
-      throw new Error('署名付きURLの取得に失敗しました')
-    }
-
+    if (!presignResponse.ok) throw new Error('署名付きURLの取得に失敗しました')
     const { upload_url, s3_key } = await presignResponse.json()
 
-    // 2. S3に直接PUT
     const uploadResponse = await fetch(upload_url, {
       method: 'PUT',
-      headers: {
-        'Content-Type': this.selectedFile.type
-      },
+      headers: { 'Content-Type': this.selectedFile.type },
       body: this.selectedFile
     })
 
-    if (!uploadResponse.ok) {
-      throw new Error('S3へのアップロードに失敗しました')
-    }
+    if (!uploadResponse.ok) throw new Error('S3へのアップロードに失敗しました')
 
     this.uploadedS3Key = s3_key
     return s3_key
   }
 
-  // 達成送信
+  // 達成を送信
   async submit(event) {
     event.preventDefault()
 
-    // 記念写真は必須
-    if (!this.selectedFile) {
+    if (!this.selectedFile) {                                  // 記念写真必須
       alert("記念写真を選択してください")
       return
     }
 
-    const reflection = this.hasReflectionInputTarget
-      ? this.reflectionInputTarget.value.trim()
-      : ""
-
-    // 感想は必須
-    if (!reflection) {
+    const reflection = this.hasReflectionInputTarget ? this.reflectionInputTarget.value.trim() : ""
+    if (!reflection) {                                         // 感想必須
       alert("感想を入力してください")
-      if (this.hasReflectionInputTarget) {
-        this.reflectionInputTarget.focus()
-      }
+      if (this.hasReflectionInputTarget) this.reflectionInputTarget.focus()
       return
     }
 
-    // 送信前の確認
-    if (!confirm("達成を記録しますか？")) {
-      return
-    }
+    if (!confirm("達成を記録しますか？")) return
 
     this.showLoading()
 
     try {
-      // 1. 画像がある場合はS3に直接アップロード
       let s3Key = null
-      if (this.selectedFile) {
-        s3Key = await this.uploadToS3()
-      }
+      if (this.selectedFile) s3Key = await this.uploadToS3()
 
-      // 2. 達成を記録（Turbo Streamで送信）
       const response = await fetch(this.achieveUrlValue, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "text/vnd.turbo-stream.html",
-          "X-CSRF-Token": this.csrfToken()
-        },
-        body: JSON.stringify({
-          reflection: reflection,
-          result_image_s3_key: s3Key
-        })
+        headers: { "Content-Type": "application/json", "Accept": "text/vnd.turbo-stream.html", "X-CSRF-Token": this.csrfToken() },
+        body: JSON.stringify({ reflection: reflection, result_image_s3_key: s3Key })
       })
 
       if (response.ok) {
         this.close()
-        // フラッシュメッセージをsessionStorageに保存してからリロード
-        sessionStorage.setItem('pendingFlash', JSON.stringify({
-          type: 'notice',
-          message: '達成おめでとうございます！'
-        }))
+        sessionStorage.setItem('pendingFlash', JSON.stringify({ type: 'notice', message: '達成おめでとうございます！' }))
         window.location.reload()
       } else {
         const data = await response.json()
@@ -279,12 +175,10 @@ export default class extends Controller {
     if (this.hasReflectionDisplayTarget && this.hasReflectionInputTarget) {
       const currentReflection = this.reflectionDisplayTarget.textContent.trim()
       this.reflectionInputTarget.value = currentReflection === "（感想なし）" ? "" : currentReflection
-
       this.reflectionDisplayTarget.classList.add("hidden")
       this.reflectionInputTarget.classList.remove("hidden")
       this.reflectionInputTarget.focus()
     }
-
     if (this.hasEditBtnTarget) {
       this.editBtnTarget.textContent = "保存"
       this.editBtnTarget.dataset.action = "click->achievement-modal#saveReflection"
@@ -293,40 +187,27 @@ export default class extends Controller {
 
   // 感想を保存
   async saveReflection() {
-    const reflection = this.hasReflectionInputTarget
-      ? this.reflectionInputTarget.value.trim()
-      : ""
-
-    // 感想は必須
+    const reflection = this.hasReflectionInputTarget ? this.reflectionInputTarget.value.trim() : ""
     if (!reflection) {
       alert("感想を入力してください")
-      if (this.hasReflectionInputTarget) {
-        this.reflectionInputTarget.focus()
-      }
+      if (this.hasReflectionInputTarget) this.reflectionInputTarget.focus()
       return
     }
 
     try {
       const response = await fetch(this.updateReflectionUrlValue, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          "X-CSRF-Token": this.csrfToken()
-        },
+        headers: { "Content-Type": "application/json", "Accept": "application/json", "X-CSRF-Token": this.csrfToken() },
         body: JSON.stringify({ reflection: reflection })
       })
 
       const data = await response.json()
-
       if (data.success) {
         if (this.hasReflectionDisplayTarget) {
           this.reflectionDisplayTarget.textContent = data.reflection || "（感想なし）"
           this.reflectionDisplayTarget.classList.remove("hidden")
         }
-        if (this.hasReflectionInputTarget) {
-          this.reflectionInputTarget.classList.add("hidden")
-        }
+        if (this.hasReflectionInputTarget) this.reflectionInputTarget.classList.add("hidden")
         if (this.hasEditBtnTarget) {
           this.editBtnTarget.textContent = "編集"
           this.editBtnTarget.dataset.action = "click->achievement-modal#switchToEdit"
@@ -344,29 +225,19 @@ export default class extends Controller {
   goToEdit(event) {
     event.preventDefault()
     event.stopPropagation()
-
     const url = event.currentTarget.dataset.editUrl || this.editUrlValue
-    if (url && url !== 'undefined' && url !== '') {
-      window.location.href = url
-    }
+    if (url && url !== 'undefined' && url !== '') window.location.href = url
   }
 
   // エントリーを削除
   async deleteEntry() {
-    if (!confirm("このアクションプランを削除しますか？この操作は取り消せません。")) {
-      return
-    }
+    if (!confirm("このアクションプランを削除しますか？この操作は取り消せません。")) return
 
     try {
-      // deleteUrlValue または フォールバックURL
       const deleteUrl = this.deleteUrlValue || `/posts/${this.postIdValue}/post_entries/${this.entryIdValue}`
-
       const response = await fetch(deleteUrl, {
         method: "DELETE",
-        headers: {
-          "Accept": "text/vnd.turbo-stream.html",
-          "X-CSRF-Token": this.csrfToken()
-        }
+        headers: { "Accept": "text/vnd.turbo-stream.html", "X-CSRF-Token": this.csrfToken() }
       })
 
       if (response.ok) {
@@ -381,28 +252,26 @@ export default class extends Controller {
     }
   }
 
+  // ローディング表示
   showLoading() {
     if (this.hasLoadingOverlayTarget) {
       this.loadingOverlayTarget.classList.remove("hidden")
       this.loadingOverlayTarget.classList.add("flex")
     }
-    if (this.hasSubmitBtnTarget) {
-      this.submitBtnTarget.disabled = true
-    }
+    if (this.hasSubmitBtnTarget) this.submitBtnTarget.disabled = true
   }
 
+  // ローディング非表示
   hideLoading() {
     if (this.hasLoadingOverlayTarget) {
       this.loadingOverlayTarget.classList.add("hidden")
       this.loadingOverlayTarget.classList.remove("flex")
     }
-    if (this.hasSubmitBtnTarget) {
-      this.submitBtnTarget.disabled = false
-    }
+    if (this.hasSubmitBtnTarget) this.submitBtnTarget.disabled = false
   }
 
+  // CSRFトークンを取得
   csrfToken() {
     return document.querySelector('meta[name="csrf-token"]')?.content
   }
-
 }

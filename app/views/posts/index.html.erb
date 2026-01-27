@@ -1,35 +1,8 @@
-<%#
-  app/views/posts/index.html.erb
-  ==========================================
-  投稿一覧ページ（YouTube風セクション表示）
-  ==========================================
-
-  【このページの役割】
-  ログイン後のメインページ。動画一覧を表示する。
-
-  【表示モード】
-  1. @filter_user 指定時: 特定ユーザーの投稿のみ表示
-  2. @filter_channel 指定時: 特定チャンネルの投稿のみ表示
-  3. フィルターなし: YouTube風セクション表示
-     - フィーチャー動画（自動再生ヒーロー）
-     - 人気のチャンネル
-     - 人気の動画ランキング
-     - アクティブユーザー
-     - 最近の投稿
-
-  【Stimulusコントローラー】
-  - index-search: 統合検索バー（インクリメンタル検索）
-
-  【レンダリングされるパーシャル】
-  - posts/post_card_note: 投稿カード（ノート風）
-  - posts/section_*: 各セクション
-
-  【コントローラー】
-  PostsController#index
-%>
+<%# 投稿一覧ページ（YouTube風セクション表示） %>
+<%# ログイン後のメインページ。フィルター指定時はグリッド、それ以外はセクション表示 %>
 
 <div class="min-h-screen bg-white">
-  <%# ===== 統合検索バー ===== %>
+  <%# 統合検索バー %>
   <div class="border-b border-gray-100">
     <div class="max-w-6xl mx-auto px-4 sm:px-8 py-3">
       <div class="relative"
@@ -53,10 +26,10 @@
     </div>
   </div>
 
-  <%# ===== メインコンテンツ ===== %>
+  <%# メインコンテンツ %>
   <div class="max-w-6xl mx-auto px-4 sm:px-8 py-6">
     <% if @filter_user.present? %>
-      <%# ===== ユーザーフィルター時: 従来のグリッド表示 ===== %>
+      <%# ユーザーフィルター時: グリッド表示 %>
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-2">
           <h1 class="text-lg font-bold text-gray-900">投稿一覧</h1>
@@ -86,7 +59,7 @@
       <% end %>
 
     <% elsif @filter_channel.present? %>
-      <%# ===== チャンネルフィルター時: グリッド表示 ===== %>
+      <%# チャンネルフィルター時: グリッド表示 %>
       <h1 class="text-xl font-bold text-gray-900 mb-6"><%= @filter_channel %></h1>
 
       <% if @posts.blank? %>
@@ -108,29 +81,29 @@
       <% end %>
 
     <% else %>
-      <%# ===== セクション表示 ===== %>
+      <%# セクション表示（デフォルト） %>
 
-      <%# フィーチャー動画（TOP5からランダム自動再生） %>
+      <%# フィーチャー動画 %>
       <% if @featured_post.present? %>
         <%= render 'posts/section_hero_video', post: @featured_post %>
       <% end %>
 
-      <%# セクション1: 人気のチャンネル %>
+      <%# 人気のチャンネル %>
       <% if @popular_channels.present? %>
         <%= render 'posts/section_channels', channels: @popular_channels %>
       <% end %>
 
-      <%# セクション2: 人気の動画 %>
+      <%# 人気の動画 %>
       <% if @ranking_posts.present? %>
         <%= render 'posts/section_ranking', posts: @ranking_posts %>
       <% end %>
 
-      <%# セクション3: アクティブユーザー %>
+      <%# アクティブユーザー %>
       <% if @user_ranking.present? %>
         <%= render 'posts/section_user_ranking', users: @user_ranking %>
       <% end %>
 
-      <%# セクション4: 最近の投稿 %>
+      <%# 最近の投稿 %>
       <% if @recent_posts.present? %>
         <%= render 'posts/section_recent_posts', posts: @recent_posts %>
       <% end %>

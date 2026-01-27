@@ -1,38 +1,22 @@
-# 開発環境用 Dockerfile
+# 開発環境用Dockerfile
+# ホットリロード対応、軽量構成
+
 FROM ruby:3.3.9-slim
 
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y \
-    build-essential \
-    git \
-    libpq-dev \
-    libvips \
-    imagemagick \
-    pkg-config \
-    curl \
-    libjemalloc2 \
-    libyaml-dev \
-    # Python（youtube_transcript_api用）
-    python3 \
-    python3-pip \
-    && rm -rf /var/lib/apt/lists /var/cache/apt/archives
+    build-essential git libpq-dev libvips imagemagick pkg-config curl \
+    libjemalloc2 libyaml-dev python3 python3-pip && \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-# youtube_transcript_apiをインストール
 RUN pip3 install --break-system-packages youtube-transcript-api
 
-# ★ 作業ディレクトリを /app に統一（/rails から変更）
 WORKDIR /app
 
-# 先に Gemfile 系だけコピーして bundle（キャッシュを効かせる）
 COPY Gemfile Gemfile.lock ./
 RUN bundle install
 
-# アプリケーションコードをコピー
 COPY . .
 
-# ポート3000を公開
 EXPOSE 3000
-
-# Railsサーバーを起動
-# （WORKDIR を /app にしたので相対で bin/rails が動く）
 CMD ["bin/rails", "server", "-b", "0.0.0.0", "-p", "3000"]

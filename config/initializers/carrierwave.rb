@@ -1,125 +1,23 @@
-# config/initializers/carrierwave.rb
-# ==========================================
-# CarrierWave 設定ファイル
-# ==========================================
-#
-# 【このファイルの役割】
-# CarrierWave（ファイルアップロードライブラリ）の
-# グローバル設定を定義する。
-#
-# 【CarrierWaveとは？】
-# Railsで最もよく使われるファイルアップロードライブラリ。
-# 画像のリサイズ、複数サイズの自動生成、
-# クラウドストレージへの保存などができる。
-#
-# 【このアプリでの使用場所】
-# - User#avatar（プロフィール画像）
-# - PostEntry#result_image（達成記念画像）
-#
-# 【ストレージの種類】
-#
-#   :file（ローカル保存）
-#   └─ サーバーのファイルシステムに保存
-#   └─ 開発・テスト環境で使用
-#
-#   :fog（クラウド保存）
-#   └─ AWS S3などに保存
-#   └─ 本番環境で使用
-#
-# 【関連ファイル】
-# - app/uploaders/image_uploader.rb: アップローダー定義
-# - app/models/user.rb: mount_uploader :avatar
-#
+# CarrierWave設定ファイル
+# 画像アップロードの保存先（テスト:ローカル、本番:S3）を設定
+
 CarrierWave.configure do |config|
-  # ------------------------------------------
-  # 環境別ストレージ設定
-  # ------------------------------------------
-  # テスト環境ではローカル保存、それ以外ではS3を使用
-  #
   if Rails.env.test?
-    # ------------------------------------------
-    # テスト環境: ローカルファイルシステム
-    # ------------------------------------------
-    # 【なぜテスト環境だけローカル？】
-    # - テストの実行速度を上げるため
-    # - 外部サービス（S3）に依存しないため
-    # - テスト後に自動削除できるため
-    #
-    config.storage = :file
-
-    # tmp ディレクトリに保存（テスト後に自動削除）
-    config.root = Rails.root.join("tmp")
-
+    config.storage = :file                    # ローカル保存
+    config.root = Rails.root.join("tmp")      # tmpディレクトリに保存
   else
-    # ------------------------------------------
-    # 本番・開発環境: AWS S3
-    # ------------------------------------------
-    # 【なぜS3を使う？】
-    # - サーバーの容量を節約できる
-    # - CDNと組み合わせて高速配信
-    # - サーバーが複数台でも画像を共有できる
-    #
-    # 【:fog とは？】
-    # fog はクラウドサービスを抽象化するRuby gem。
-    # S3, Google Cloud Storage, Azure などに対応。
-    #
-    config.storage = :fog
+    config.storage = :fog                     # クラウド保存（S3）
+    config.fog_provider = "fog/aws"           # AWSを使用
 
-    # ------------------------------------------
-    # AWS接続設定
-    # ------------------------------------------
-    # fogライブラリのAWSサポートを使用
-    config.fog_provider = "fog/aws"
-
-    # AWSに接続するための認証情報
-    # 【セキュリティ注意】
-    # 認証情報はコードに直接書かず、環境変数から読み込む。
-    # .envファイルやRender/Herokuの環境変数に設定。
-    #
     config.fog_credentials = {
-      # プロバイダー（AWS固定）
       provider:              "AWS",
-
-      # AWSアクセスキーID
-      # IAMユーザーの認証情報（ユーザー名のようなもの）
-      aws_access_key_id:     ENV["AWS_ACCESS_KEY_ID"],
-
-      # AWSシークレットキー
-      # IAMユーザーの認証情報（パスワードのようなもの）
+      aws_access_key_id:     ENV["AWS_ACCESS_KEY_ID"],      # IAM認証情報
       aws_secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"],
-
-      # S3バケットのリージョン
-      # 例: "ap-northeast-1"（東京）、"ap-southeast-2"（シドニー）
       region:                ENV["AWS_REGION"]
     }
 
-    # ------------------------------------------
-    # S3バケット設定
-    # ------------------------------------------
-    # 保存先となるS3バケット名
-    # 【バケットとは？】
-    # S3でファイルを保存するコンテナのようなもの。
-    # 1プロジェクト1バケットが一般的。
-    #
-    config.fog_directory = ENV["AWS_BUCKET"]
-
-    # ------------------------------------------
-    # 公開設定
-    # ------------------------------------------
-    # false = 署名付きURLでのみアクセス可能（セキュア）
-    # true  = 誰でもURLを知っていればアクセス可能
-    #
-    # 【署名付きURLとは？】
-    # 一定時間だけ有効な認証付きURL。
-    # セキュリティが必要な画像に使用。
-    #
-    config.fog_public = false
-
-    # ACL設定を無効化
-    # 【なぜ無効化？】
-    # S3の「Object Ownership」設定との競合を防ぐため。
-    # 新しいS3バケットではACLを使わない設定が推奨されている。
-    #
-    config.fog_attributes = {}
+    config.fog_directory = ENV["AWS_BUCKET"]  # S3バケット名
+    config.fog_public = false                 # 署名付きURLでのみアクセス可能
+    config.fog_attributes = {}                # ACL無効化（新S3設定推奨）
   end
 end

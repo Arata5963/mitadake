@@ -1,26 +1,6 @@
-# spec/helpers/application_helper_spec.rb
-# ==========================================
 # ApplicationHelper のテスト
-# ==========================================
-#
-# 【このファイルの役割】
-# ビューヘルパーメソッドが正しく動作することを検証する。
-#
-# 【テストの実行方法】
-#   docker compose exec web rspec spec/helpers/application_helper_spec.rb
-#
-# 【テスト対象】
-# - display_name（ユーザー名表示）
-#   - 名前がある場合 → 名前を返す
-#   - 名前がない場合 → 「名無しさん」を返す
-# - default_meta_tags（OGPメタタグ生成）
-#   - サイト名、説明、OGタグ、Twitterカードの設定
-#
-# 【ヘルパーテストの書き方】
-# helper メソッドでヘルパーにアクセスできる。
-#
-#   expect(helper.display_name(user)).to eq('テストユーザー')
-#
+# display_name、default_meta_tagsメソッドを検証
+
 require 'rails_helper'
 
 RSpec.describe ApplicationHelper, type: :helper do

@@ -1,44 +1,17 @@
-# spec/rails_helper.rb
-# ==========================================
 # RSpec + Rails 統合設定ファイル
-# ==========================================
-#
-# 【このファイルの役割】
-# Rails 環境でのテストに必要な設定を定義する。
-# DB接続、Devise認証、FactoryBot等の設定を行う。
-#
-# 【設定されている機能】
-#   - SimpleCov:         テストカバレッジ計測
-#   - Shoulda Matchers:  モデルテストの DSL
-#   - FactoryBot:        テストデータ生成
-#   - Devise:            認証ヘルパー（sign_in 等）
-#   - DatabaseCleaner:   テスト間でのDB初期化
-#   - WebMock:           外部HTTPリクエストのモック
-#
-# 【テスト実行方法】
-#   docker compose exec web rspec              # 全テスト
-#   docker compose exec web rspec spec/models/ # モデルのみ
-#   docker compose exec web rspec --format doc # 詳細表示
-#
-# 【カバレッジ確認】
-#   テスト実行後に coverage/index.html を開く
-#
-# ==========================================
+# DB・Devise・FactoryBot等のRails依存設定
 
-# rails generate rspec:install で生成されたファイル
 require 'spec_helper'
 ENV['RAILS_ENV'] ||= 'test'
 require_relative '../config/environment'
 
-# 本番環境では絶対にテストを実行しない（安全対策）
 abort("The Rails environment is running in production mode!") if Rails.env.production?
 
 require 'rspec/rails'
 require 'webmock/rspec'
-# この行より下に追加の require を記述（Rails はこの時点で読み込み済み）
 
-# WebMock設定: テスト中は外部HTTPリクエストを無効化（localhostは許可）
 WebMock.disable_net_connect!(allow_localhost: true)
+
 require 'simplecov'
 SimpleCov.start 'rails' do
   add_filter '/bin/'
@@ -52,8 +25,6 @@ SimpleCov.start 'rails' do
   add_group 'Uploaders', 'app/uploaders'
 end
 
-
-# Shoulda Matchers の設定
 require 'shoulda-matchers'
 Shoulda::Matchers.configure do |config|
   config.integrate do |with|
@@ -62,16 +33,13 @@ Shoulda::Matchers.configure do |config|
   end
 end
 
-# FactoryBot の設定
 RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
-  # Devise のヘルパーメソッド（sign_in, sign_out など）を有効化
   config.include Devise::Test::IntegrationHelpers, type: :request
   config.include Devise::Test::IntegrationHelpers, type: :system
   config.include ActiveJob::TestHelper, type: :job
 end
 
-# DatabaseCleaner の設定
 require 'database_cleaner-active_record'
 RSpec.configure do |config|
   config.before(:suite) do
@@ -85,68 +53,22 @@ RSpec.configure do |config|
     end
   end
 
-  # YouTubeServiceをモック（YouTube情報取得テスト以外）
+  # YouTube APIをモック（:youtube_apiタグ付きテスト以外）
   config.before(:each) do |example|
     unless example.metadata[:youtube_api]
       allow(YoutubeService).to receive(:fetch_video_info).and_return(nil)
     end
   end
 end
-# Requires supporting ruby files with custom matchers and macros, etc, in
-# spec/support/ and its subdirectories. Files matching `spec/**/*_spec.rb` are
-# run as spec files by default. This means that files in spec/support that end
-# in _spec.rb will both be required and run as specs, causing the specs to be
-# run twice. It is recommended that you do not name files matching this glob to
-# end with _spec.rb. You can configure this pattern with the --pattern
-# option on the command line or in ~/.rspec, .rspec or `.rspec-local`.
-#
-# The following line is provided for convenience purposes. It has the downside
-# of increasing the boot-up time by auto-requiring all files in the support
-# directory. Alternatively, in the individual `*_spec.rb` files, manually
-# require only the support files necessary.
-#
-# Rails.root.glob('spec/support/**/*.rb').sort_by(&:to_s).each { |f| require f }
 
-# Checks for pending migrations and applies them before tests are run.
-# If you are not using ActiveRecord, you can remove these lines.
 begin
   ActiveRecord::Migration.maintain_test_schema!
 rescue ActiveRecord::PendingMigrationError => e
   abort e.to_s.strip
 end
+
 RSpec.configure do |config|
-  # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
-  config.fixture_paths = [
-    Rails.root.join('spec/fixtures')
-  ]
-
-  # If you're not using ActiveRecord, or you'd prefer not to run each of your
-  # examples within a transaction, remove the following line or assign false
-  # instead of true.
+  config.fixture_paths = [Rails.root.join('spec/fixtures')]
   config.use_transactional_fixtures = true
-
-  # You can uncomment this line to turn off ActiveRecord support entirely.
-  # config.use_active_record = false
-
-  # RSpec Rails uses metadata to mix in different behaviours to your tests,
-  # for example enabling you to call `get` and `post` in request specs. e.g.:
-  #
-  #     RSpec.describe UsersController, type: :request do
-  #       # ...
-  #     end
-  #
-  # The different available types are documented in the features, such as in
-  # https://rspec.info/features/7-1/rspec-rails
-  #
-  # You can also this infer these behaviours automatically by location, e.g.
-  # /spec/models would pull in the same behaviour as `type: :model` but this
-  # behaviour is considered legacy and will be removed in a future version.
-  #
-  # To enable this behaviour uncomment the line below.
-  # config.infer_spec_type_from_file_location!
-
-  # Filter lines from Rails gems in backtraces.
   config.filter_rails_from_backtrace!
-  # arbitrary gems may also be filtered via:
-  # config.filter_gems_from_backtrace("gem name")
 end

@@ -1,43 +1,12 @@
-# spec/requests/posts_spec.rb
-# ==========================================
 # Posts コントローラーのリクエストテスト
-# ==========================================
-#
-# 【このファイルの役割】
-# 投稿（YouTube動画）関連のAPIエンドポイントをテストする。
-# CRUD操作、検索、AI機能など多くのエンドポイントがある。
-#
-# 【テストの実行方法】
-#   docker compose exec web rspec spec/requests/posts_spec.rb
-#
-# 【テスト対象】
-# - GET /posts（一覧表示）
-# - GET /posts/:id（詳細表示）
-# - GET /posts/new（新規作成フォーム）
-# - POST /posts/find_or_create（動画検索/作成）
-# - POST /posts/create_with_action（動画+アクションプラン作成）
-# - GET/PATCH /posts/:id/edit（編集）
-# - DELETE /posts/:id（削除）
-# - GET /posts/autocomplete（オートコンプリート）
-# - GET /posts/recent（最近の投稿）
-# - GET /posts/youtube_search（YouTube検索）
-# - GET /posts/search_posts（投稿検索）
-# - POST /posts/suggest_action_plans（AI提案）
-# - POST /posts/convert_to_youtube_title（タイトル変換）
-#
-# 【認証テスト】
-# sign_in helper を使用してログイン状態をシミュレート。
-# 未ログイン時はログインページにリダイレクトされることを確認。
-#
+# CRUD、検索、AI機能などのエンドポイントを検証
+
 require 'rails_helper'
 
 RSpec.describe "Posts", type: :request do
   let(:user) { create(:user) }
   let(:other_user) { create(:user) }
 
-  # ====================
-  # GET /posts (一覧表示)
-  # ====================
   describe "GET /posts" do
     context "未ログインの場合" do
       it "ランディングページを表示する" do
@@ -114,9 +83,6 @@ RSpec.describe "Posts", type: :request do
     end
   end
 
-  # ====================
-  # GET /posts/:id (詳細表示)
-  # ====================
   describe "GET /posts/:id" do
     let(:post_record) { create(:post, youtube_title: "テスト動画タイトル") }
 
@@ -136,9 +102,6 @@ RSpec.describe "Posts", type: :request do
     end
   end
 
-  # ====================
-  # GET /posts/new (新規作成フォーム)
-  # ====================
   describe "GET /posts/new" do
     context "ログインしている場合" do
       before { sign_in user }
@@ -157,9 +120,6 @@ RSpec.describe "Posts", type: :request do
     end
   end
 
-  # ====================
-  # POST /posts/find_or_create (動画検索/作成)
-  # ====================
   describe "POST /posts/find_or_create" do
     context "有効なYouTube URLの場合" do
       let(:valid_url) { "https://www.youtube.com/watch?v=dQw4w9WgXcQ" }
@@ -195,9 +155,6 @@ RSpec.describe "Posts", type: :request do
     end
   end
 
-  # ====================
-  # POST /posts/create_with_action (動画+アクションプラン作成)
-  # ====================
   describe "POST /posts/create_with_action" do
     let(:valid_url) { "https://www.youtube.com/watch?v=test123" }
 
@@ -254,9 +211,6 @@ RSpec.describe "Posts", type: :request do
     end
   end
 
-  # ====================
-  # GET /posts/:id/edit (編集フォーム)
-  # ====================
   describe "GET /posts/:id/edit" do
     let(:post_record) { create(:post) }
 
@@ -292,9 +246,6 @@ RSpec.describe "Posts", type: :request do
     end
   end
 
-  # ====================
-  # PATCH /posts/:id (更新)
-  # ====================
   describe "PATCH /posts/:id" do
     let(:post_record) { create(:post, youtube_url: "https://www.youtube.com/watch?v=original") }
 
@@ -332,9 +283,6 @@ RSpec.describe "Posts", type: :request do
     end
   end
 
-  # ====================
-  # PATCH /posts/:id/update_with_action (動画+アクションプラン同時更新)
-  # ====================
   describe "PATCH /posts/:id/update_with_action" do
     let(:post_record) { create(:post, youtube_video_id: "original123") }
 
@@ -436,9 +384,6 @@ RSpec.describe "Posts", type: :request do
     end
   end
 
-  # ====================
-  # DELETE /posts/:id (削除)
-  # ====================
   describe "DELETE /posts/:id" do
     let!(:post_record) { create(:post) }
 
@@ -481,9 +426,6 @@ RSpec.describe "Posts", type: :request do
     end
   end
 
-  # ====================
-  # GET /posts/autocomplete (オートコンプリート)
-  # ====================
   describe "GET /posts/autocomplete" do
     let!(:post1) { create(:post, youtube_title: "Ruby入門講座") }
     let!(:post2) { create(:post, youtube_title: "Rubyで自動化入門") }
@@ -499,9 +441,6 @@ RSpec.describe "Posts", type: :request do
     end
   end
 
-  # ====================
-  # GET /posts/recent (最近の投稿)
-  # ====================
   describe "GET /posts/recent" do
     it "最近の投稿ページを表示" do
       get recent_posts_path

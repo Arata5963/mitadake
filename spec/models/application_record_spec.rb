@@ -1,27 +1,6 @@
-# spec/models/application_record_spec.rb
-# ==========================================
 # ApplicationRecord のテスト
-# ==========================================
-#
-# 【このファイルの役割】
-# ApplicationRecord（全モデルの基底クラス）の設定をテストする。
-#
-# 【テストの実行方法】
-#   docker compose exec web rspec spec/models/application_record_spec.rb
-#
-# 【テスト対象】
-# - 抽象クラス設定
-# - ActiveRecord::Baseの継承関係
-# - 既存モデルの継承確認
-#
-# 【ApplicationRecordとは？】
-# Rails 5以降で導入された、全モデルの基底クラス。
-# 全モデル共通の設定やメソッドをここに定義できる。
-#
-#   ApplicationRecord < ActiveRecord::Base
-#   User < ApplicationRecord
-#   Post < ApplicationRecord
-#
+# 抽象クラス設定と継承関係を検証
+
 require 'rails_helper'
 
 RSpec.describe ApplicationRecord, type: :model do
@@ -31,7 +10,6 @@ RSpec.describe ApplicationRecord, type: :model do
     end
 
     it 'ApplicationRecordを継承したモデルが作成できる' do
-      # テスト用のモデルクラスを動的に作成
       test_model = Class.new(ApplicationRecord) do
         self.table_name = 'users'
       end

@@ -1,31 +1,5 @@
-<%#
-  app/views/posts/_section_channels.html.erb
-  ==========================================
-  人気のチャンネルセクション
-  ==========================================
-
-  【このパーシャルの役割】
-  アクションプランの多いYouTubeチャンネルをランキング表示。
-  チャンネルアイコンをクリックするとそのチャンネルの動画一覧へ。
-
-  【パラメータ】
-  channels: チャンネル情報の配列
-    - channel_name: チャンネル名
-    - thumbnail_url: チャンネルアイコンURL
-    - action_count: アクションプラン数
-
-  【レイアウト】
-  横スクロールセクション（shared/horizontal_scroll_section）を使用
-
-  【表示内容】
-  - ランキング番号
-  - チャンネルアイコン（丸型）
-  - チャンネル名
-  - アクション数
-
-  【リンク先】
-  posts_path(channel: channel_name) でチャンネルでフィルタリング
-%>
+<%# 人気のチャンネルセクション %>
+<%# アクションプランの多いYouTubeチャンネルをランキング表示 %>
 
 <%= render layout: "shared/horizontal_scroll_section", locals: {
   title: "人気のチャンネル",

@@ -1,34 +1,5 @@
-<%#
-  app/views/posts/_section_hero_video.html.erb
-  ==========================================
-  ヒーローセクション（フィーチャー動画）
-  ==========================================
-
-  【このパーシャルの役割】
-  ページ上部に大きく表示されるフィーチャー動画。
-  自動再生・ミュート・ループで動画をBGM的に表示。
-
-  【パラメータ】
-  post: 表示するPostオブジェクト
-
-  【YouTube埋め込みパラメータ】
-  - autoplay=1: 自動再生
-  - mute=1: ミュート（自動再生に必須）
-  - loop=1: ループ再生
-  - playlist=VIDEO_ID: ループに必要
-  - controls=0: コントロール非表示
-  - playsinline=1: モバイルでインライン再生
-  - enablejsapi=1: JavaScript APIを有効化
-
-  【Stimulusコントローラー】
-  hero-video: 再生/一時停止の切り替えを制御
-  - data-action="click->hero-video#toggle"
-  - data-hero-video-target="playButton/pauseButton"
-
-  【ホバー時の動作】
-  マウスオーバーでオーバーレイが表示され、
-  クリックで再生/一時停止を切り替えられる。
-%>
+<%# ヒーローセクション（フィーチャー動画） %>
+<%# ページ上部に大きく表示される自動再生・ミュート・ループ動画 %>
 
 <section class="mb-8" data-controller="hero-video" data-hero-video-video-id-value="<%= post.youtube_video_id %>">
   <%# 動画コンテナ %>

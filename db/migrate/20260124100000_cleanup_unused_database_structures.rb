@@ -1,44 +1,14 @@
-# db/migrate/20260124100000_cleanup_unused_database_structures.rb
-# ==========================================
 # 未使用テーブル・カラムの削除
-# ==========================================
-#
-# 【このマイグレーションの目的】
-# コードベース調査の結果、使用されていないテーブルとカラムを削除する。
-# データベーススキーマを簡素化し、メンテナンス性を向上させる。
-#
-# 【削除されるテーブル】
-# - comments: 動画へのコメント（機能未使用）
-# - post_comparisons: 動画比較（モデル削除済み）
-# - recommendation_clicks: レコメンドクリック（機能未使用）
-# - notifications: 通知（activity_notification gem未使用）
-# - subscriptions: 購読（activity_notification gem未使用）
-#
-# 【削除されるカラム（post_entries）】
-# - entry_type: 未使用
-# - satisfaction_rating: 未使用
-# - title: 未使用
-# - published_at: 未使用
-# - recommendation_level: 未使用
-# - target_audience: 未使用
-# - recommendation_point: 未使用
-#
-# ==========================================
+# comments, post_comparisons等のテーブルとpost_entriesの不要カラムを削除
+
 class CleanupUnusedDatabaseStructures < ActiveRecord::Migration[7.2]
   def up
-    # ========================================
-    # テーブル削除
-    # ========================================
     drop_table :comments, if_exists: true
     drop_table :post_comparisons, if_exists: true
     drop_table :recommendation_clicks, if_exists: true
     drop_table :notifications, if_exists: true
     drop_table :subscriptions, if_exists: true
 
-    # ========================================
-    # post_entries の未使用カラム削除
-    # ========================================
-    # まずcheck constraintを削除
     execute <<-SQL
       ALTER TABLE post_entries DROP CONSTRAINT IF EXISTS satisfaction_rating_range;
     SQL
@@ -54,9 +24,6 @@ class CleanupUnusedDatabaseStructures < ActiveRecord::Migration[7.2]
   end
 
   def down
-    # ========================================
-    # post_entries のカラム復元
-    # ========================================
     add_column :post_entries, :entry_type, :integer, default: 0, null: false
     add_column :post_entries, :satisfaction_rating, :integer
     add_column :post_entries, :title, :string
@@ -70,9 +37,6 @@ class CleanupUnusedDatabaseStructures < ActiveRecord::Migration[7.2]
       CHECK (satisfaction_rating IS NULL OR satisfaction_rating >= 1 AND satisfaction_rating <= 5);
     SQL
 
-    # ========================================
-    # テーブル復元
-    # ========================================
     create_table :subscriptions do |t|
       t.string :target_type, null: false
       t.bigint :target_id, null: false

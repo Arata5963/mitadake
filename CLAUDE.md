@@ -73,35 +73,68 @@
 
 ### コメントガイドライン
 
-コードリーディングしやすくするため、以下5種類のコメントを使う。
+**ファイルヘッダー（2行）**
+- 1行目: 役割（何をするか）
+- 2行目: いつ・どう使われるか
+- ファイル名は書かない（見ればわかる）
+- 区切り線（`====`や`----`）は使わない
 
-| # | 種類 | 目的 | 書く場所 |
-|---|------|------|----------|
-| 1 | ファイルの役割 | 「このファイル何？」に答える | ファイル冒頭 |
-| 2 | WHY（なぜ） | コードを見ただけではわからない理由 | コード直前 |
-| 3 | 注意点・罠 | 将来の自分への警告 | 危険なコード直前 |
-| 4 | 複雑なロジックの要約 | 全体を読まなくても概要がわかる | メソッド直前 |
-| 5 | 関連ファイル | ファイル間の繋がりを明確に | ファイル冒頭 |
+**メソッドコメント**
+- メソッドの上に1行コメントを追加（何をするか）
 
-**例:**
+**横コメント**
+- 全ての行につける（見落とし防止のため）
+- 同じブロック内は `#` の位置を揃える
+- 異なるブロック間は揃えなくてよい
+- WHY（なぜ）や注意点も横コメントで書く
+
+**Ruby例:**
 ```ruby
-# ファイル名
-# ==========================================
-# 一言でわかる説明
-# ==========================================
-#
-# 【使い方】普段どう使っているか
-#
-# 【関連ファイル】
-#   - bin/dev → このファイルを読み込む
-#
-# ==========================================
+# YouTube動画モデル
+# ユーザーが登録した動画を管理する
 
-# 無料プランはメモリ制限があるため少なめに設定（WHY）
-pool: 2
+class Post < ApplicationRecord
+  belongs_to :user, optional: true                     # 投稿者（任意）
+  has_many :post_entries, dependent: :destroy          # アクションプラン一覧
 
-# ⚠️ この順番を変えると起動しなくなる（注意点）
-require_relative "config/application"
+  validates :youtube_url, presence: true               # URL必須
+
+  # DBの値またはURLから動画IDを取得
+  def youtube_video_id
+    read_attribute(:youtube_video_id) || extract(url)  # read_attribute使用: selfだと無限ループ
+  end
+end
+```
+
+**JavaScript例:**
+```javascript
+// 達成カードコントローラー
+// カードクリック時に達成記録モーダルを開く
+
+import { Controller } from "@hotwired/stimulus"  // Stimulusコントローラー基底クラス
+
+export default class extends Controller {
+  static values = {
+    entryId: Number,                             // エントリーID
+    mode: { type: String, default: "display" }   // モード（input/display）
+  }
+
+  // カードクリック時にモーダルを開く
+  async open(event) {
+    event.preventDefault()                       // デフォルト動作を防止
+    event.stopPropagation()                      // イベント伝播を停止
+  }
+}
+```
+
+**YAML例:**
+```yaml
+# Render.com インフラ設定（IaC）
+# GitHubにpushすると自動でサーバー・DBが構築される
+
+databases:
+  - name: mitadake-postgres              # Renderで表示される名前
+    plan: free                           # 無料プラン（90日で自動削除に注意）
 ```
 
 **書かなくて良いコメント:** コードの直訳、パラメータ説明、使用例、変更履歴、TODO
@@ -233,4 +266,4 @@ YouTube埋め込み対応
 
 ---
 
-*最終更新: 2026-01-24*
+*最終更新: 2026-01-26*

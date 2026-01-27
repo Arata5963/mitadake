@@ -1,25 +1,6 @@
 #!/usr/bin/env ruby
-# bin/rails
-# ==========================================
 # Rails コマンド実行スクリプト
-# ==========================================
-#
-# 【このファイルの役割】
-# `rails` コマンドのエントリーポイント。
-# `bin/rails server`, `bin/rails console` 等のコマンドを実行する。
-#
-# 【よく使うコマンド】
-#   bin/rails server      # 開発サーバー起動（または bin/rails s）
-#   bin/rails console     # Railsコンソール起動（または bin/rails c）
-#   bin/rails generate    # ジェネレータ実行（または bin/rails g）
-#   bin/rails db:migrate  # マイグレーション実行
-#   bin/rails routes      # ルーティング一覧表示
-#
-# 【Docker環境での使用】
-#   docker compose exec web bin/rails c
-#   docker compose exec web bin/rails db:migrate
-#
-# ==========================================
+# bin/rails server, console, db:migrate 等で使用
 
 APP_PATH = File.expand_path("../config/application", __dir__)
 require_relative "../config/boot"

@@ -1,130 +1,43 @@
-// app/javascript/controllers/sidebar_controller.js
-// ==========================================
 // モバイル用サイドバー開閉コントローラー
-// ==========================================
-//
-// 【このコントローラーの役割】
-// モバイル画面でハンバーガーメニューを押した時に
-// 画面右から滑り出すサイドバーを制御する。
-//
-// 【機能】
-// - サイドバーのスライドイン/アウト
-// - オーバーレイ（背景の黒い幕）の表示/非表示
-// - ESCキーで閉じる
-// - 開いている間はbodyのスクロールを無効化
-//
-// 【HTML側の使い方】
-//   <div data-controller="sidebar">
-//     <!-- ハンバーガーボタン -->
-//     <button data-action="click->sidebar#open">☰</button>
-//
-//     <!-- オーバーレイ（背景クリックで閉じる） -->
-//     <div data-sidebar-target="overlay"
-//          data-action="click->sidebar#close"></div>
-//
-//     <!-- サイドバー本体 -->
-//     <div data-sidebar-target="panel">
-//       メニュー内容
-//     </div>
-//   </div>
-//
-// 【Stimulusのtargetsとは？】
-// HTML要素をJavaScriptから参照するための仕組み。
-// data-sidebar-target="panel" と書くと、
-// this.panelTarget でその要素にアクセスできる。
-//
+// ハンバーガーメニュークリックで右からスライドインするサイドバーを制御
 
-import { Controller } from "@hotwired/stimulus"
+import { Controller } from "@hotwired/stimulus"                // Stimulusコントローラー基底クラス
 
 export default class extends Controller {
-  // ------------------------------------------
-  // Targets（HTML要素の参照）
-  // ------------------------------------------
-  // - panel: サイドバー本体
-  // - overlay: 背景の半透明オーバーレイ
-  //
-  static targets = ["panel", "overlay"]
+  static targets = ["panel", "overlay"]                        // panel: サイドバー本体, overlay: 背景の幕
 
-  // ------------------------------------------
-  // connect: コントローラーがDOMに接続された時
-  // ------------------------------------------
-  // 【何をするメソッド？】
-  // ESCキーのイベントリスナーを登録。
-  //
+  // ESCキーリスナーを登録
   connect() {
-    // bind(this): イベントハンドラー内で this がコントローラーを指すようにする
-    this.boundHandleKeydown = this.handleKeydown.bind(this)
+    this.boundHandleKeydown = this.handleKeydown.bind(this)    // thisを固定
     document.addEventListener("keydown", this.boundHandleKeydown)
   }
 
-  // ------------------------------------------
-  // disconnect: コントローラーがDOMから切り離された時
-  // ------------------------------------------
-  // 【何をするメソッド？】
-  // イベントリスナーを解除してメモリリークを防ぐ。
-  //
+  // ESCキーリスナーを解除
   disconnect() {
     document.removeEventListener("keydown", this.boundHandleKeydown)
   }
 
-  // ------------------------------------------
-  // open: サイドバーを開く
-  // ------------------------------------------
-  // 【何をするメソッド？】
-  // サイドバーを画面右からスライドインさせる。
-  //
-  // 【HTML側での呼び出し方】
-  //   <button data-action="click->sidebar#open">☰</button>
-  //
+  // サイドバーをスライドインで表示
   open() {
-    // サイドバーを開く（Tailwind CSSのクラス操作）
-    // translate-x-full: 画面外（右）
-    // translate-x-0: 画面内（表示）
-    this.panelTarget.classList.remove("translate-x-full")
-    this.panelTarget.classList.add("translate-x-0")
-
-    // オーバーレイを表示
-    // opacity-0: 透明
-    // opacity-100: 不透明
+    this.panelTarget.classList.remove("translate-x-full")      // 画面外から
+    this.panelTarget.classList.add("translate-x-0")            // 画面内へ
     this.overlayTarget.classList.remove("opacity-0", "pointer-events-none")
     this.overlayTarget.classList.add("opacity-100", "pointer-events-auto")
-
-    // bodyのスクロールを無効化（サイドバー開いてる間は背景スクロールさせない）
-    document.body.classList.add("overflow-hidden")
+    document.body.classList.add("overflow-hidden")             // 背景スクロール無効化
   }
 
-  // ------------------------------------------
-  // close: サイドバーを閉じる
-  // ------------------------------------------
-  // 【何をするメソッド？】
-  // サイドバーを画面外にスライドアウトさせる。
-  //
-  // 【呼ばれるタイミング】
-  // - オーバーレイをクリック
-  // - ESCキーを押す
-  // - 閉じるボタンをクリック
-  //
+  // サイドバーをスライドアウトで非表示
   close() {
-    // サイドバーを閉じる
-    this.panelTarget.classList.remove("translate-x-0")
-    this.panelTarget.classList.add("translate-x-full")
-
-    // オーバーレイを非表示
+    this.panelTarget.classList.remove("translate-x-0")         // 画面内から
+    this.panelTarget.classList.add("translate-x-full")         // 画面外へ
     this.overlayTarget.classList.remove("opacity-100", "pointer-events-auto")
     this.overlayTarget.classList.add("opacity-0", "pointer-events-none")
-
-    // bodyのスクロールを有効化
-    document.body.classList.remove("overflow-hidden")
+    document.body.classList.remove("overflow-hidden")          // 背景スクロール有効化
   }
 
-  // ------------------------------------------
-  // handleKeydown: キーボードイベント処理
-  // ------------------------------------------
-  // 【何をするメソッド？】
-  // ESCキーが押されたらサイドバーを閉じる。
-  //
+  // ESCキーで閉じる
   handleKeydown(event) {
-    if (event.key === "Escape") {
+    if (event.key === "Escape") {                              // ESCキーが押された場合
       this.close()
     }
   }

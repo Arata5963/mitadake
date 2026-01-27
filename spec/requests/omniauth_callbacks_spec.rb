@@ -1,35 +1,9 @@
-# spec/requests/omniauth_callbacks_spec.rb
-# ==========================================
 # OmniAuth コールバックのリクエストテスト
-# ==========================================
-#
-# 【このファイルの役割】
-# Google OAuth2 認証コールバックをテストする。
-# 新規ユーザー作成、既存ユーザーログイン、エラー処理。
-#
-# 【テストの実行方法】
-#   docker compose exec web rspec spec/requests/omniauth_callbacks_spec.rb
-#
-# 【テスト対象】
-# - GET /users/auth/google_oauth2/callback
-#   - 新規ユーザーの場合 → ユーザー作成してログイン
-#   - 既存ユーザーの場合 → そのままログイン
-#   - 認証失敗の場合 → エラーメッセージを表示
-#
-# 【OmniAuthテストモード】
-# OmniAuth.config.test_mode = true で
-# 実際のGoogleログインをモック化する。
-#
-#   OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new({
-#     provider: 'google_oauth2',
-#     uid: '123456789',
-#     info: { email: 'test@example.com', name: 'Test User' }
-#   })
-#
+# Google OAuth2認証の成功・失敗パターンを検証
+
 require 'rails_helper'
 
 RSpec.describe 'OmniauthCallbacks', type: :request do
-  # OmniAuthテストモードの有効化・無効化
   before(:all) do
     OmniAuth.config.test_mode = true
   end

@@ -1,47 +1,8 @@
-# config/recurring.yml
-# ==========================================
-# Solid Queue 定期実行ジョブ設定
-# ==========================================
-#
-# 【このファイルの役割】
-# 定期的に自動実行するジョブ（cron的な処理）を定義する。
-# Solid Queue の Recurring Tasks 機能を使用。
-#
-# 【書き方の例】
-#   ジョブ名:
-#     class: ジョブクラス名        # app/jobs/ のジョブを指定
-#     command: "Rubyコード"       # または直接Rubyコードを実行
-#     queue: キュー名             # 使用するキュー
-#     schedule: スケジュール      # 実行タイミング
-#
-# 【スケジュールの書き方】
-#   every hour              # 毎時
-#   every day at 5am        # 毎日5時
-#   every hour at minute 12 # 毎時12分
-#   every Monday at 9am     # 毎週月曜9時
-#
-# 【注意点】
-# このファイルは Solid Queue 用。
-# Sidekiq を使う場合は sidekiq.yml を参照。
-#
-# ==========================================
+# Solid Queue定期実行ジョブ設定
+# cron的な定期処理を定義
 
-# コメントアウトされた例（参考用）
-# examples:
-#   periodic_cleanup:
-#     class: CleanSoftDeletedRecordsJob
-#     queue: background
-#     args: [ 1000, { batch_size: 500 } ]
-#     schedule: every hour
-#   periodic_cleanup_with_command:
-#     command: "SoftDeletedRecord.due.delete_all"
-#     priority: 2
-#     schedule: at 5am every day
-
-# 本番環境の定期ジョブ
 production:
-  # 完了済みジョブのクリーンアップ（毎時12分に実行）
-  # Solid Queue のテーブルが肥大化するのを防ぐ
+  # 完了済みジョブのクリーンアップ（毎時12分）
   clear_solid_queue_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
     schedule: every hour at minute 12

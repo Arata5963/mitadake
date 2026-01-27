@@ -1,22 +1,5 @@
-<%#
-  app/views/kaminari/_page.html.erb
-  ==========================================
-  Kaminari: 各ページ番号
-  ==========================================
-
-  【役割】
-  「1」「2」「3」などのページ番号を表示。
-  現在のページは背景色を変えてハイライト。
-
-  【page.current?】
-  現在表示中のページかどうかを判定。
-  true → span要素（リンクなし、背景グレー）
-  false → link_to（クリック可能）
-
-  【page.rel】
-  隣接ページの場合に "prev" または "next" が入る。
-  SEO用の rel 属性に使用。
-%>
+<%# Kaminari: 各ページ番号 %>
+<%# 現在ページはハイライト表示、それ以外はリンク %>
 <% if page.current? %>
   <span class="w-10 h-10 flex items-center justify-center bg-gray-900 text-white text-sm font-medium rounded-lg">
     <%= page %>

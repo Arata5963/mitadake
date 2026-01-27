@@ -1,20 +1,6 @@
-# db/migrate/20260105063221_create_comment_bookmarks.rb
-# ==========================================
-# コメントブックマークテーブルを作成
-# ==========================================
-#
-# 【このマイグレーションの目的】
-# ユーザーが有益なYouTubeコメントをブックマークできる
-# 機能のためのテーブルを作成する。
-#
-# 【カラムの意味】
-# - user_id: ブックマークしたユーザーへの外部キー
-# - youtube_comment_id: ブックマークしたコメントへの外部キー
-#
-# 【インデックス】
-# - user_id + youtube_comment_id: 同じコメントの重複ブックマーク防止
-#
-# ==========================================
+# CommentBookmarksテーブル作成（コメントブックマーク）
+# ユーザーが有益なYouTubeコメントをブックマークできる機能
+
 class CreateCommentBookmarks < ActiveRecord::Migration[7.2]
   def change
     create_table :comment_bookmarks do |t|

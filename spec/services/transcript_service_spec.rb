@@ -1,31 +1,6 @@
-# spec/services/transcript_service_spec.rb
-# ==========================================
 # TranscriptService のテスト
-# ==========================================
-#
-# 【このファイルの役割】
-# YouTube動画の字幕取得サービスをテストする。
-# Pythonスクリプトを呼び出して字幕を取得する処理。
-#
-# 【テストの実行方法】
-#   docker compose exec web rspec spec/services/transcript_service_spec.rb
-#
-# 【テスト対象】
-# - fetch_with_status（字幕取得）
-#   - 正常系（字幕取得成功）
-#   - 異常系（空のvideo_id、スクリプトエラー、JSONパースエラー）
-#
-# 【外部プロセス呼び出しのモック】
-# Open3.capture3 をモック化してPythonスクリプト呼び出しをシミュレート。
-#
-#   allow(Open3).to receive(:capture3).and_return([output, '', status])
-#
-# 【instance_double とは？】
-# RSpecのモック機能。指定したクラスのインスタンスを模倣する。
-# 実際のメソッドと異なるメソッドを呼ぶとエラーになるため安全。
-#
-#   status = instance_double(Process::Status, success?: true)
-#
+# YouTube動画の字幕取得処理を検証
+
 require 'rails_helper'
 
 RSpec.describe TranscriptService, type: :service do

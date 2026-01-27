@@ -1,76 +1,16 @@
-# spec/models/user_spec.rb
-# ==========================================
 # User モデルのテスト
-# ==========================================
-#
-# 【このファイルの役割】
-# Userモデルのバリデーション、アソシエーション、
-# メソッドが正しく動作することを検証する。
-#
-# 【RSpecとは？】
-# Ruby/Railsで最もよく使われるテストフレームワーク。
-# 「describe」「context」「it」でテストを構造化し、
-# 自然言語に近い形で仕様を記述できる。
-#
-# 【テストの実行方法】
-#   docker compose exec web rspec spec/models/user_spec.rb
-#
-# 【テスト対象】
-# - バリデーション（email, name, password）
-# - すきな言葉（favorite_quote）のバリデーション
-# - アソシエーション（posts, post_entries, entry_likes）
-# - OAuth認証（from_omniauth）
-# - ランキング（by_achieved_count）
-# - 現在のアクションプラン取得
-#
-# 【shoulda-matchers gem】
-# バリデーションやアソシエーションのテストを
-# シンプルに書けるようにするDSL。
-#
-#   it { should validate_presence_of(:email) }
-#   it { should have_many(:posts) }
-#
-# 【factory_bot gem】
-# テストデータを簡単に作成できるライブラリ。
-#
-#   create(:user)              # DBに保存
-#   build(:user)               # DBに保存しない
-#   create(:user, name: "太郎") # 属性を上書き
-#
+# バリデーション、アソシエーション、OAuth、ランキング機能を検証
 
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
-  # ==========================================
-  # バリデーションのテスト
-  # ==========================================
-  # 【何をテストしている？】
-  # ユーザー登録時に必要な情報が正しく検証されるか。
-  #
   describe "validations" do
-    # subject: テスト対象を定義
-    # 各テストで共通して使用される
     subject { create(:user) }
 
-    # ------------------------------------------
-    # メールアドレスのバリデーション
-    # ------------------------------------------
-    # 必須、ユニーク（重複不可）、大文字小文字区別なし
-    #
     it { should validate_presence_of(:email) }
     it { should validate_uniqueness_of(:email).case_insensitive }
-
-    # ------------------------------------------
-    # 名前のバリデーション
-    # ------------------------------------------
     it { should validate_presence_of(:name) }
 
-    # ------------------------------------------
-    # メールフォーマットのテスト（Deviseのvalidatable）
-    # ------------------------------------------
-    # 【なぜ明示的にテスト？】
-    # Deviseが提供するバリデーションが正しく機能しているか確認。
-    #
     it "有効なメールアドレス形式を受け入れる" do
       user = build(:user, email: "test@example.com")
       expect(user).to be_valid
@@ -81,11 +21,6 @@ RSpec.describe User, type: :model do
       expect(user).not_to be_valid
     end
 
-    # ------------------------------------------
-    # パスワードのバリデーション（Devise）
-    # ------------------------------------------
-    # config/initializers/devise.rb の password_length で設定
-    #
     it "パスワードが6文字以上で有効" do
       user = build(:user, password: "123456")
       expect(user).to be_valid
@@ -97,13 +32,6 @@ RSpec.describe User, type: :model do
     end
   end
 
-  # ==========================================
-  # すきな言葉のバリデーション
-  # ==========================================
-  # 【何をテストしている？】
-  # マイページに表示する「すきな言葉」機能。
-  # 言葉とURLはセットで入力する必要がある。
-  #
   describe "favorite_quote validations" do
     it "両方入力されていれば有効" do
       user = build(:user,
@@ -170,25 +98,12 @@ RSpec.describe User, type: :model do
     end
   end
 
-  # ==========================================
-  # アソシエーションのテスト
-  # ==========================================
-  # 【何をテストしている？】
-  # モデル間のリレーションが正しく設定されているか。
-  #
   describe "associations" do
     it { should have_many(:posts).dependent(:destroy) }
     it { should have_many(:post_entries).dependent(:destroy) }
     it { should have_many(:entry_likes).dependent(:destroy) }
   end
 
-  # ==========================================
-  # 依存削除のテスト
-  # ==========================================
-  # 【何をテストしている？】
-  # ユーザー削除時に関連データも削除されるか。
-  # dependent: :destroy の動作確認。
-  #
   describe "dependent destroy (実データ確認)" do
     it "ユーザー削除で関連レコードも削除される" do
       user = create(:user)
@@ -206,22 +121,7 @@ RSpec.describe User, type: :model do
     end
   end
 
-  # ==========================================
-  # OAuth認証（Google）のテスト
-  # ==========================================
-  # 【何をテストしている？】
-  # Googleログイン時のユーザー作成・更新ロジック。
-  #
-  # 【from_omniauthメソッドの役割】
-  # 1. provider/uidで既存ユーザーを検索
-  # 2. 見つからなければメールで検索
-  # 3. どちらもなければ新規作成
-  #
   describe '.from_omniauth' do
-    # 【OmniAuth::AuthHash】
-    # OmniAuthが返す認証情報のハッシュ。
-    # Googleから取得したユーザー情報が入る。
-    #
     let(:auth) do
       OmniAuth::AuthHash.new(
         provider: 'google_oauth2',
@@ -333,13 +233,6 @@ RSpec.describe User, type: :model do
     end
   end
 
-  # ==========================================
-  # ユーザーランキング（達成数順）のテスト
-  # ==========================================
-  # 【何をテストしている？】
-  # トップページのユーザーランキング機能。
-  # 達成数が多い順にユーザーを取得できるか。
-  #
   describe '.by_achieved_count' do
     let!(:user1) { create(:user) }
     let!(:user2) { create(:user) }
@@ -347,16 +240,12 @@ RSpec.describe User, type: :model do
     let!(:post) { create(:post, user: user1) }
 
     before do
-      # テストデータ作成
-      # user1: 3件達成
       3.times do
         entry = create(:post_entry, post: post, user: user1)
         entry.update!(achieved_at: Time.current)
       end
-      # user2: 1件達成
       entry = create(:post_entry, post: post, user: user2)
       entry.update!(achieved_at: Time.current)
-      # user3: 0件達成
     end
 
     context '全期間（デフォルト）' do
@@ -379,7 +268,6 @@ RSpec.describe User, type: :model do
 
     context '期間指定（today）' do
       before do
-        # 過去の達成を追加
         entry = create(:post_entry, post: post, user: user3)
         entry.update!(achieved_at: 2.days.ago)
       end
@@ -407,13 +295,6 @@ RSpec.describe User, type: :model do
     end
   end
 
-  # ==========================================
-  # 現在のアクションプラン取得のテスト
-  # ==========================================
-  # 【何をテストしている？】
-  # ユーザーの「進行中のアクションプラン」を取得するメソッド。
-  # 1ユーザー1アクションプラン制限の実装に使用。
-  #
   describe '#current_action_plan' do
     let(:user) { create(:user) }
     let(:post) { create(:post, user: user) }
@@ -441,13 +322,6 @@ RSpec.describe User, type: :model do
     end
   end
 
-  # ==========================================
-  # 現在の動画取得のテスト
-  # ==========================================
-  # 【何をテストしている？】
-  # ユーザーの「進行中のアクションプランの動画」を取得。
-  # マイページでの表示に使用。
-  #
   describe '#current_video' do
     let(:user) { create(:user) }
     let(:post) { create(:post, user: user) }

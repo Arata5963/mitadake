@@ -1,27 +1,6 @@
-# spec/models/user_methods_spec.rb
-# ==========================================
 # User モデルのメソッドテスト（追加機能）
-# ==========================================
-#
-# 【このファイルの役割】
-# User モデルの追加機能（アバター、パスワードバリデーション）を
-# テストする。user_spec.rb を補完するテスト。
-#
-# 【テストの実行方法】
-#   docker compose exec web rspec spec/models/user_methods_spec.rb
-#
-# 【テスト対象】
-# - CarrierWaveアバターアップロード
-# - Deviseパスワードバリデーション
-#
-# 【CarrierWaveとは？】
-# ファイルアップロード機能を提供するgem。
-# ImageUploaderと連携して画像をアップロード・リサイズする。
-#
-#   user.avatar         # アップロードされた画像
-#   user.avatar.url     # 画像のURL
-#   user.avatar.thumb   # サムネイルバージョン
-#
+# CarrierWaveアバターとDeviseパスワードバリデーションを検証
+
 require 'rails_helper'
 
 RSpec.describe User, type: :model do

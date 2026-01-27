@@ -1,53 +1,11 @@
-<%#
-  app/views/shared/_header.html.erb
-  ==========================================
-  共通ヘッダー
-  ==========================================
-
-  【このパーシャルの役割】
-  全ページ共通のヘッダーナビゲーション。
-  layouts/application.html.erb からレンダリングされる。
-
-  【構成要素】
-  - 左側: ロゴ（posts_path へリンク）
-  - 右側: ナビゲーションアイコン
-    - 投稿ボタン（ログイン時のみ）
-    - プロフィール/サイドバートリガー
-
-  【Stimulusコントローラー】
-  sidebar: サイドバーの開閉を制御
-
-  【レンダリングされるパーシャル】
-  - shared/avatar: アバター画像
-  - shared/sidebar: サイドバーメニュー
-
-  【スタイル】
-  - スティッキーヘッダー（sticky top-0）
-  - 最大幅 max-w-screen-xl
-  - 高さ h-14
-%>
+<%# 共通ヘッダー %>
+<%# layouts/application.html.erb から呼び出される全ページ共通ナビゲーション %>
 <header class="bg-white border-b border-gray-200 sticky top-0 z-40">
   <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
     <div class="flex h-14 items-center justify-between gap-4">
 
-      <%# 左側：ロゴ + 開発用ユーザー切替 %>
+      <%# 左側：ロゴ %>
       <div class="flex items-center gap-3 flex-shrink-0">
-        <%# 開発環境専用：ユーザー切り替えドロップダウン %>
-        <% if Rails.env.development? && user_signed_in? %>
-          <form action="/dev/switch_user" method="post" class="flex items-center">
-            <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-            <select name="user_id"
-                    onchange="this.form.submit()"
-                    class="text-xs bg-yellow-100 border border-yellow-300 rounded px-2 py-1 cursor-pointer">
-              <% User.order(:name).each do |u| %>
-                <option value="<%= u.id %>" <%= 'selected' if u.id == current_user.id %>>
-                  <%= u.name %>
-                </option>
-              <% end %>
-            </select>
-          </form>
-        <% end %>
-
         <%= link_to posts_path, class: "flex items-center gap-2 text-gray-900 hover:text-gray-600 transition-colors" do %>
           <span class="text-lg font-bold tracking-tight">mitadake?</span>
         <% end %>

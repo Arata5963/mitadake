@@ -1,27 +1,6 @@
-# spec/models/post_methods_spec.rb
-# ==========================================
 # Post モデルのメソッドテスト（追加機能）
-# ==========================================
-#
-# 【このファイルの役割】
-# Post モデルのRansack検索機能と依存削除をテストする。
-# post_spec.rb を補完するテスト。
-#
-# 【テストの実行方法】
-#   docker compose exec web rspec spec/models/post_methods_spec.rb
-#
-# 【テスト対象】
-# - ransackable_attributes（検索可能な属性）
-# - ransackable_associations（検索可能なアソシエーション）
-# - dependent destroy（投稿削除時のエントリー削除）
-#
-# 【Ransackとは？】
-# 検索機能を簡単に実装できるgem。
-# ransackable_attributes で検索可能な属性を制限できる。
-#
-#   Post.ransack(youtube_title_cont: "Ruby")
-#     → youtube_title に "Ruby" を含む投稿を検索
-#
+# Ransack検索機能と依存削除を検証
+
 require 'rails_helper'
 
 RSpec.describe Post, type: :model do

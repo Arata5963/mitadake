@@ -1,102 +1,57 @@
-// app/javascript/controllers/achievement_card_controller.js
-// ==========================================
 // 達成カードコントローラー
-// ==========================================
-//
-// 【このコントローラーの役割】
-// 達成済みアクションプランのカードをクリックした時に
-// 達成記録モーダルを開く。
-//
-// 【2つのモード】
-// 1. input モード: 達成ボタンをクリック → 感想・画像入力モーダル
-// 2. display モード: 達成済みカードをクリック → 閲覧用モーダル
-//
-// 【achievement_modal_controller との関係】
-// このコントローラーがモーダルのHTMLを生成して
-// #achievement_modal 要素に挿入する。
-// その後、achievement_modal_controller が動作を制御する。
-//
-// 【処理フロー】
-//
-//   1. カードがクリックされる（open メソッド）
-//      ↓
-//   2. モードを判定（input / display）
-//      ↓
-//   3. モードに応じたHTMLを生成
-//      - buildInputModalHtml(): 入力用
-//      - buildDisplayModalHtml(): 表示用
-//      ↓
-//   4. #achievement_modal に挿入
-//      ↓
-//   5. achievement_modal_controller が起動
-//
-// 【HTML側の使い方】
-//   <div data-controller="achievement-card"
-//        data-achievement-card-entry-id-value="123"
-//        data-achievement-card-post-id-value="456"
-//        data-achievement-card-mode-value="display"
-//        data-achievement-card-show-url-value="/posts/456/entries/123/show_achievement"
-//        data-action="click->achievement-card#open">
-//     カードの内容
-//   </div>
-//
+// カードクリック時に達成記録モーダルを開く（input: 入力用 / display: 閲覧用）
 
-import { Controller } from "@hotwired/stimulus"
+import { Controller } from "@hotwired/stimulus"  // Stimulusコントローラー基底クラス
 
 export default class extends Controller {
   static values = {
-    entryId: Number,
-    postId: Number,
-    showUrl: String,
-    achieveUrl: String,
-    editUrl: String,
-    deleteUrl: String,
-    mode: { type: String, default: "display" },
-    hideOriginalVideo: { type: Boolean, default: false },
-    videoThumbnail: String,
-    videoUrl: String,
-    videoTitle: String
+    entryId: Number,                                 // エントリーID
+    postId: Number,                                  // 投稿ID
+    showUrl: String,                                 // 詳細取得URL
+    achieveUrl: String,                              // 達成記録URL
+    editUrl: String,                                 // 編集URL
+    deleteUrl: String,                               // 削除URL
+    mode: { type: String, default: "display" },      // モード（input/display）
+    hideOriginalVideo: { type: Boolean, default: false },  // 動画リンク非表示フラグ
+    videoThumbnail: String,                          // サムネイルURL
+    videoUrl: String,                                // 動画URL
+    videoTitle: String                               // 動画タイトル
   }
 
+  // カードクリック時にモーダルを開く
   async open(event) {
-    event.preventDefault()
-    event.stopPropagation()
+    event.preventDefault()                           // デフォルト動作を防止
+    event.stopPropagation()                          // イベント伝播を停止
 
-    // 入力モード（達成時）
-    if (this.modeValue === "input") {
-      this.renderInputModal()
-      return
+    if (this.modeValue === "input") {                // 入力モードの場合
+      this.renderInputModal()                        // 入力モーダルを表示
+      return                                         // 処理終了
     }
 
-    // 表示モード（閲覧時）
     try {
-      const response = await fetch(this.showUrlValue, {
-        headers: { "Accept": "application/json" }
-      })
-
-      const data = await response.json()
-      this.renderDisplayModal(data)
+      const response = await fetch(this.showUrlValue, { headers: { "Accept": "application/json" } })  // APIからデータ取得
+      const data = await response.json()             // JSONをパース
+      this.renderDisplayModal(data)                  // 閲覧モーダルを表示
     } catch (error) {
-      console.error("Failed to load achievement:", error)
+      console.error("Failed to load achievement:", error)  // エラーログ出力
     }
   }
 
+  // 入力モード用モーダルを表示
   renderInputModal() {
-    const container = document.getElementById("achievement_modal")
-    if (!container) return
-
-    const html = this.buildInputModalHtml()
-    container.innerHTML = html
+    const container = document.getElementById("achievement_modal")  // モーダルコンテナを取得
+    if (!container) return                           // コンテナがなければ終了
+    container.innerHTML = this.buildInputModalHtml() // HTMLを挿入
   }
 
+  // 閲覧モード用モーダルを表示
   renderDisplayModal(data) {
-    const container = document.getElementById("achievement_modal")
-    if (!container) return
-
-    const html = this.buildDisplayModalHtml(data)
-    container.innerHTML = html
+    const container = document.getElementById("achievement_modal")  // モーダルコンテナを取得
+    if (!container) return                           // コンテナがなければ終了
+    container.innerHTML = this.buildDisplayModalHtml(data)  // HTMLを挿入
   }
 
+  // 入力モード用HTMLを生成
   buildInputModalHtml() {
     return `
       <div data-controller="achievement-modal"
@@ -201,10 +156,11 @@ export default class extends Controller {
     `
   }
 
+  // 閲覧モード用HTMLを生成
   buildDisplayModalHtml(data) {
-    const thumbnailUrl = data.result_image_url || data.fallback_thumbnail_url
-    const canEdit = data.can_edit
-    const editUrl = `/posts/${data.post.id}/post_entries/${data.id}/edit?from=mypage`
+    const thumbnailUrl = data.result_image_url || data.fallback_thumbnail_url  // サムネイルURL（結果画像優先）
+    const canEdit = data.can_edit                    // 編集可能フラグ
+    const editUrl = `/posts/${data.post.id}/post_entries/${data.id}/edit?from=mypage`  // 編集URL
 
     return `
       <div data-controller="achievement-modal"
@@ -230,14 +186,16 @@ export default class extends Controller {
                   </svg>
                 </a>
               ` : ''}
-              <a href="${data.post.url}"
-                 class="w-8 h-8 flex items-center justify-center rounded-full bg-white/80 hover:bg-white text-gray-500 hover:text-gray-700"
-                 title="きっかけの動画">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-              </a>
+              ${!this.hideOriginalVideoValue ? `
+                <a href="${data.post.url}"
+                   class="w-8 h-8 flex items-center justify-center rounded-full bg-white/80 hover:bg-white text-gray-500 hover:text-gray-700"
+                   title="きっかけの動画">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </a>
+              ` : ''}
             </div>
 
             <div class="aspect-video bg-gray-100 rounded-t-2xl overflow-hidden">
@@ -278,10 +236,11 @@ export default class extends Controller {
     `
   }
 
+  // HTMLエスケープ処理
   escapeHtml(text) {
-    if (!text) return ''
-    const div = document.createElement("div")
-    div.textContent = text
-    return div.innerHTML
+    if (!text) return ''                             // 空なら空文字を返す
+    const div = document.createElement("div")        // 一時的なdiv要素を作成
+    div.textContent = text                           // テキストとして設定（自動エスケープ）
+    return div.innerHTML                             // エスケープ済みHTMLを返す
   }
 }

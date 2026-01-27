@@ -1,44 +1,13 @@
-# spec/system/posts_spec.rb
-# ==========================================
 # 投稿関連のシステムテスト
-# ==========================================
-#
-# 【このファイルの役割】
-# 投稿（YouTube動画）の作成、一覧、詳細、編集、削除の
-# エンドツーエンドテストを行う。
-#
-# 【テストの実行方法】
-#   docker compose exec web rspec spec/system/posts_spec.rb
-#
-# 【テスト対象】
-# - 投稿作成（JavaScript必須のためスキップ）
-# - 投稿一覧表示
-# - 投稿詳細表示
-# - 投稿編集（権限チェック含む）
-# - 投稿削除（エントリー削除）
-#
-# 【注意】
-# 現在のUIはStimulusコントローラーを使用しているため、
-# 投稿作成フローは rack_test ではテストできない。
-# 代わりに request spec でAPIレベルのテストを行う。
-#
-# 【page.driver.submit】
-# Capybara の rack_test ドライバーで
-# DELETE リクエストを直接送信する方法。
-#
-#   page.driver.submit :delete, post_path(post), {}
-#
+# 投稿のCRUD操作をE2Eで検証
+
 require 'rails_helper'
 
 RSpec.describe "Posts", type: :system do
-  # JavaScript を使わないシンプルなテストの場合は rack_test を使用
   before do
     driven_by(:rack_test)
   end
 
-  # ====================
-  # 投稿作成フロー（JavaScript必須のためスキップ）
-  # ====================
   describe "投稿作成" do
     let(:user) { create(:user) }
 
@@ -56,9 +25,6 @@ RSpec.describe "Posts", type: :system do
     end
   end
 
-  # ====================
-  # 投稿一覧表示
-  # ====================
   describe "投稿一覧" do
     let(:user) { create(:user) }
 
@@ -90,9 +56,6 @@ RSpec.describe "Posts", type: :system do
     end
   end
 
-  # ====================
-  # 投稿詳細表示
-  # ====================
   describe "投稿詳細" do
     let(:user) { create(:user) }
     let!(:post_record) { create(:post, youtube_title: "詳細テスト動画") }
@@ -107,9 +70,6 @@ RSpec.describe "Posts", type: :system do
     end
   end
 
-  # ====================
-  # 投稿編集
-  # ====================
   describe "投稿編集" do
     let(:user) { create(:user) }
     let!(:post_record) { create(:post, youtube_title: "編集テスト動画") }
@@ -141,9 +101,6 @@ RSpec.describe "Posts", type: :system do
     end
   end
 
-  # ====================
-  # 投稿削除（エントリー削除）
-  # ====================
   describe "投稿削除" do
     let(:user) { create(:user) }
     let!(:post_record) { create(:post, youtube_title: "削除テスト動画") }

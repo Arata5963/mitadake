@@ -1,62 +1,10 @@
-# config/storage.yml
-# ==========================================
-# Active Storage ファイル保存設定
-# ==========================================
-#
-# 【Active Storageとは？】
-# Rails 標準のファイルアップロード機能。
-# 画像・動画・ドキュメントなどをモデルに紐づけて保存できる。
-#
-# 【このプロジェクトでの使用状況】
-# Active Storage は使用していない。
-# 代わりに CarrierWave + AWS S3 を使用。
-# （config/initializers/carrierwave.rb を参照）
-#
-# 【サービスの種類】
-#   Disk:         ローカルファイルシステムに保存
-#   S3:           Amazon S3 に保存
-#   GCS:          Google Cloud Storage に保存
-#   AzureStorage: Microsoft Azure Blob Storage に保存
-#
-# 【設定の使い方】
-#   config/environments/development.rb で：
-#   config.active_storage.service = :local
-#
-# ==========================================
+# Active Storageファイル保存設定
+# ※本プロジェクトはCarrierWave+S3を使用（Active Storage未使用）
 
-# テスト環境: 一時フォルダに保存
 test:
   service: Disk
   root: <%= Rails.root.join("tmp/storage") %>
 
-# ローカル開発: storage/ フォルダに保存
 local:
   service: Disk
   root: <%= Rails.root.join("storage") %>
-
-# Use bin/rails credentials:edit to set the AWS secrets (as aws:access_key_id|secret_access_key)
-# amazon:
-#   service: S3
-#   access_key_id: <%= Rails.application.credentials.dig(:aws, :access_key_id) %>
-#   secret_access_key: <%= Rails.application.credentials.dig(:aws, :secret_access_key) %>
-#   region: us-east-1
-#   bucket: your_own_bucket-<%= Rails.env %>
-
-# Remember not to checkin your GCS keyfile to a repository
-# google:
-#   service: GCS
-#   project: your_project
-#   credentials: <%= Rails.root.join("path/to/gcs.keyfile") %>
-#   bucket: your_own_bucket-<%= Rails.env %>
-
-# Use bin/rails credentials:edit to set the Azure Storage secret (as azure_storage:storage_access_key)
-# microsoft:
-#   service: AzureStorage
-#   storage_account_name: your_account_name
-#   storage_access_key: <%= Rails.application.credentials.dig(:azure_storage, :storage_access_key) %>
-#   container: your_container_name-<%= Rails.env %>
-
-# mirror:
-#   service: Mirror
-#   primary: local
-#   mirrors: [ amazon, google, microsoft ]

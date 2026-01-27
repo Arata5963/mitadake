@@ -1,34 +1,9 @@
-# spec/system/password_toggle_spec.rb
-# ==========================================
 # パスワード表示/非表示機能のシステムテスト
-# ==========================================
-#
-# 【このファイルの役割】
-# パスワード入力フィールドの表示/非表示トグル機能を
-# テストする。Stimulusコントローラーで実装。
-#
-# 【テストの実行方法】
-#   docker compose exec web rspec spec/system/password_toggle_spec.rb
-#
-# 【テスト対象】
-# - 新規登録ページ（password + password_confirmation）
-# - ログインページ（password）
-# - パスワードリセットページ（password + confirmation）
-# - プロフィール編集ページ（new password + confirmation + current）
-# - アクセシビリティ（aria-label, キーボード操作）
-#
-# 【HTML構造の確認】
-# rack_test ではJavaScriptが動作しないが、
-# HTML要素の存在は確認できる。
-#
-#   expect(page).to have_css('input[type="password"]')
-#   expect(page).to have_css('button[data-action*="password-toggle#toggle"]')
-#   expect(page).to have_css('[data-controller="password-toggle"]')
-#
+# トグルボタンのHTML構造とアクセシビリティを検証
+
 require 'rails_helper'
 
 RSpec.describe 'パスワード表示/非表示機能', type: :system do
-  # rack_testを使用（JavaScriptは動作しないが、HTML構造はテスト可能）
   before do
     driven_by(:rack_test)
   end

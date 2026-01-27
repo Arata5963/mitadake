@@ -1,33 +1,5 @@
-<%#
-  app/views/devise/registrations/new.html.erb
-  ==========================================
-  新規登録ページ
-  ==========================================
-
-  【このページの役割】
-  新規ユーザーがアカウントを作成するフォーム。
-
-  【登録方法】
-  1. メール + パスワード（Devise標準）
-  2. Googleで登録（OAuth2）
-
-  【フォーム要素】
-  - ユーザー名入力（必須）
-  - メールアドレス入力
-  - パスワード入力（最小6文字、ヒント表示）
-  - パスワード確認入力
-  - ログインリンク
-
-  【バリデーション表示】
-  devise/shared/_error_messages でエラーを表示。
-
-  【Turbo無効化】
-  data: { turbo: false } でTurbo Driveを無効化。
-  Deviseの登録処理との互換性のため。
-
-  【コントローラー】
-  Users::RegistrationsController#new, #create
-%>
+<%# 新規登録ページ %>
+<%# メール/パスワードまたはGoogleでアカウントを作成するフォーム %>
 <% content_for :title, "新規登録" %>
 
 <div class="min-h-screen bg-white">

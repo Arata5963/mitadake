@@ -1,29 +1,6 @@
 #!/usr/bin/env ruby
-# bin/importmap
-# ==========================================
 # Import Map 管理コマンド
-# ==========================================
-#
-# 【このファイルの役割】
-# JavaScript ライブラリの管理を行う。
-# config/importmap.rb の設定を操作する。
-#
-# 【よく使うコマンド】
-#   bin/importmap pin ライブラリ名   # ライブラリを追加
-#   bin/importmap unpin ライブラリ名 # ライブラリを削除
-#   bin/importmap update            # バージョンを更新
-#   bin/importmap json              # 現在の設定をJSON出力
-#   bin/importmap audit             # セキュリティ監査
-#
-# 【使用例】
-#   bin/importmap pin lodash        # lodash を追加
-#   bin/importmap pin react --from=jsdelivr  # CDNを指定して追加
-#
-# 【npm/yarn との違い】
-#   npm/yarn: node_modules にダウンロード
-#   importmap: CDN から直接読み込み（ダウンロード不要）
-#
-# ==========================================
+# bin/importmap pin/unpin/update で JS ライブラリを管理
 
 require_relative "../config/application"
 require "importmap/commands"

@@ -1,26 +1,6 @@
-# spec/system/interactions_spec.rb
-# ==========================================
 # インタラクションのシステムテスト
-# ==========================================
-#
-# 【このファイルの役割】
-# 達成記録など、ユーザーインタラクションの
-# 基本的な画面表示をテストする。
-#
-# 【テストの実行方法】
-#   docker compose exec web rspec spec/system/interactions_spec.rb
-#
-# 【テスト対象】
-# - 達成記録の表示
-#   - 自分のエントリー（挑戦中）
-#   - 達成済みエントリー
-# - 未ログイン時の閲覧制御
-#
-# 【注意】
-# 達成ボタンなどJavaScriptで動作する機能は
-# request spec でテストする。
-# このファイルでは画面表示の確認のみ。
-#
+# 達成記録の画面表示と閲覧制御を検証
+
 require 'rails_helper'
 
 RSpec.describe "Interactions", type: :system do
@@ -28,9 +8,6 @@ RSpec.describe "Interactions", type: :system do
     driven_by(:rack_test)
   end
 
-  # ====================
-  # 達成記録（PostEntry経由）
-  # ====================
   describe "達成記録" do
     let(:user) { create(:user) }
     let!(:post_record) { create(:post, youtube_title: "テスト動画") }
@@ -70,9 +47,6 @@ RSpec.describe "Interactions", type: :system do
     end
   end
 
-  # ====================
-  # 未ログイン時の制御
-  # ====================
   describe "未ログイン時の制御" do
     let!(:post_record) { create(:post, youtube_title: "公開動画") }
     let!(:entry) { create(:post_entry, :achieved, post: post_record, user: create(:user), content: "公開アクション") }

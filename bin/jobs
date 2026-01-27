@@ -1,31 +1,6 @@
 #!/usr/bin/env ruby
-# bin/jobs
-# ==========================================
 # Solid Queue ワーカー起動スクリプト
-# ==========================================
-#
-# 【このファイルの役割】
-# Solid Queue のバックグラウンドジョブワーカーを起動する。
-# 本番環境で非同期処理を実行するために使用。
-#
-# 【使い方】
-#   bin/jobs start     # ワーカー起動
-#   bin/jobs stop      # ワーカー停止
-#
-# 【Solid Queue とは？】
-# Rails 標準のバックグラウンドジョブ処理システム。
-# Redis 不要でデータベースのみで動作する。
-#
-# 【ジョブの例】
-#   - メール送信（ActionMailer）
-#   - AI要約の生成（Gemini API 呼び出し）
-#   - 定期クリーンアップ
-#
-# 【開発環境との違い】
-#   開発: Sidekiq を使用（docker-compose で Redis 起動）
-#   本番: Solid Queue を使用（Redis 不要でコスト削減）
-#
-# ==========================================
+# bin/jobs start/stop でバックグラウンドジョブを処理
 
 require_relative "../config/environment"
 require "solid_queue/cli"

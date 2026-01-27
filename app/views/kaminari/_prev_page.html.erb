@@ -1,18 +1,5 @@
-<%#
-  app/views/kaminari/_prev_page.html.erb
-  ==========================================
-  Kaminari: 前のページへのリンク
-  ==========================================
-
-  【役割】
-  「< 前へ」ボタン。クリックすると前のページに移動。
-
-  【rel="prev"】
-  SEO用の属性。検索エンジンにページの関係性を伝える。
-
-  【表示条件】
-  1ページ目以外で表示される。
-%>
+<%# Kaminari: 前のページへのリンク %>
+<%# 「< 前へ」ボタン、1ページ目以外で表示 %>
 <%= link_to url, rel: 'prev', class: "h-10 px-4 flex items-center justify-center border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg transition-colors" do %>
   <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>

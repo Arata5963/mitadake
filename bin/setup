@@ -1,29 +1,6 @@
 #!/usr/bin/env ruby
-# bin/setup
-# ==========================================
 # 開発環境セットアップスクリプト
-# ==========================================
-#
-# 【このファイルの役割】
-# 新しい開発者がプロジェクトを始める際の初期設定を自動化する。
-# クローン後に `bin/setup` を実行するだけで開発開始できる。
-#
-# 【実行される処理】
-#   1. bundle install  (Gem インストール)
-#   2. db:prepare      (DB作成・マイグレーション)
-#   3. log:clear       (ログファイルクリア)
-#   4. tmp:clear       (一時ファイルクリア)
-#   5. bin/dev 起動    (開発サーバー)
-#
-# 【使い方】
-#   bin/setup              # セットアップ + サーバー起動
-#   bin/setup --skip-server # セットアップのみ（サーバー起動しない）
-#
-# 【idempotent（冪等性）】
-# このスクリプトは何度実行しても同じ結果になる。
-# 既にセットアップ済みでも安全に再実行可能。
-#
-# ==========================================
+# クローン後に bin/setup で Gem インストール・DB 準備・サーバー起動
 
 require "fileutils"
 
@@ -34,16 +11,8 @@ def system!(*args)
 end
 
 FileUtils.chdir APP_ROOT do
-  # 開発環境を自動セットアップするスクリプト。
-  # 冪等性があるため、いつでも再実行可能。
-
   puts "== Installing dependencies =="
   system("bundle check") || system!("bundle install")
-
-  # puts "\n== Copying sample files =="
-  # unless File.exist?("config/database.yml")
-  #   FileUtils.cp "config/database.yml.sample", "config/database.yml"
-  # end
 
   puts "\n== Preparing database =="
   system! "bin/rails db:prepare"
@@ -53,7 +22,7 @@ FileUtils.chdir APP_ROOT do
 
   unless ARGV.include?("--skip-server")
     puts "\n== Starting development server =="
-    STDOUT.flush # flush the output before exec(2) so that it displays
+    STDOUT.flush
     exec "bin/dev"
   end
 end

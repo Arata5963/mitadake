@@ -1,38 +1,5 @@
-<%#
-  app/views/posts/new.html.erb
-  ==========================================
-  新規投稿ページ
-  ==========================================
-
-  【このページの役割】
-  YouTube動画とアクションプランを投稿するフォーム。
-  すべてStimulusコントローラーで制御される。
-
-  【投稿フロー】
-  1. YouTube検索で動画を選択
-  2. アクションプランを入力（AI提案あり）
-  3. サムネイル画像をアップロード（任意）
-  4. 投稿ボタンで送信
-
-  【Stimulusコントローラー】
-  post-create:
-    - handleInput: YouTube検索
-    - handleKeydown: キーボード操作
-    - clearSelection: 動画選択解除
-    - fetchAiSuggestions: AIによるアクションプラン提案
-    - convertToYouTubeTitle: アクションプランをYouTube風タイトルに変換
-    - handleFileSelect: サムネイル画像アップロード
-    - submitForm: フォーム送信（Ajax）
-
-  【API連携】
-  - youtube_search_posts_path: YouTube動画検索API
-  - suggest_action_plans_posts_path: AI提案API（Gemini）
-  - convert_to_youtube_title_posts_path: タイトル変換API（Gemini）
-  - create_with_action_posts_path: 投稿作成API
-
-  【コントローラー】
-  PostsController#new, PostsController#create_with_action
-%>
+<%# 新規投稿ページ %>
+<%# YouTube動画とアクションプランを投稿するフォーム %>
 <% content_for :title, "新規投稿" %>
 
 <div class="min-h-[calc(100vh-56px)] bg-white">
@@ -43,7 +10,7 @@
        data-post-create-suggest-url-value="<%= suggest_action_plans_posts_path %>"
        data-post-create-convert-url-value="<%= convert_to_youtube_title_posts_path %>">
 
-    <%# ヘッダー部分 %>
+    <%# ヘッダー %>
     <h1 class="text-xl font-bold text-gray-900 mb-8">投稿を作成</h1>
 
     <%# 動画選択セクション %>
@@ -113,7 +80,7 @@
       <%# AI提案リスト %>
       <div data-post-create-target="suggestionsContainer" class="mb-3"></div>
 
-      <%# テキストエリア（1行から自動拡張） %>
+      <%# テキストエリア %>
       <textarea
         data-post-create-target="actionPlanInput"
         data-action="input->post-create#handleActionPlanInput"
@@ -130,7 +97,7 @@
       <label class="block text-xs text-gray-500 mb-1">サムネイル画像</label>
       <div>
         <div class="max-w-xs">
-          <%# サムネイル部分（クリックでアップロード） %>
+          <%# サムネイル（クリックでアップロード） %>
           <div class="relative">
             <label data-post-create-target="previewCard" class="relative block rounded-lg overflow-hidden bg-gray-100 aspect-video cursor-pointer transition-all duration-200">
               <%# アップロード前の状態 %>
@@ -150,7 +117,7 @@
                      data-action="change->post-create#handleFileSelect"
                      class="hidden">
             </label>
-            <%# 右上の×ボタン（アップロード後に表示） %>
+            <%# 右上の×ボタン %>
             <button type="button"
                     data-post-create-target="clearImageButton"
                     data-action="click->post-create#clearImage"
@@ -170,7 +137,7 @@
       </div>
     </div>
 
-    <%# 投稿ボタン（一番下） %>
+    <%# 投稿ボタン %>
     <div class="pt-4">
       <button type="button"
               data-post-create-target="submitButton"

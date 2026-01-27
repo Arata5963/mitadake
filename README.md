@@ -61,7 +61,6 @@ AIが動画内容に基づいたアクションプランを提案してくれる
 
 - **YouTube特化**：URL入力だけでサムネイル・タイトル・チャンネル名を自動取得
 - **AIアクションプラン提案**：動画内容に基づいてAIが具体的な行動を提案
-- **1プラン集中設計**：1人1つの未達成プランに絞ることで、確実に実践へ
 - **達成記録の可視化**：感想と画像で達成の瞬間を記録・共有
 - **動画と行動の紐付け**：いつでも元の動画に立ち返れる埋め込みプレイヤー表示
 
@@ -82,7 +81,7 @@ AIが動画内容に基づいたアクションプランを提案してくれる
 - [x] 投稿CRUD（YouTube URL + アクションプラン）
 - [x] YouTubeサムネイル・タイトル・チャンネル名自動取得
 - [x] YouTube埋め込みプレイヤー表示
-- [x] 達成記録（タスク型：1投稿1回）
+- [x] 達成記録（タスク型）
 - [x] 達成バッジ・アイコン表示
 - [x] いいね機能
 - [x] オートコンプリート検索
@@ -130,10 +129,3 @@ AIが動画内容に基づいたアクションプランを提案してくれる
 | RSpec | テストフレームワーク |
 | RuboCop | コード品質チェック |
 
-## 画面遷移図
-
-Figma：[https://www.figma.com/design/QCTe0k9W6mgtJS7ihyhvM9/卒業制作-画面遷移図?m=auto&t=Q542u03bqJ3Dbcno-6](https://www.figma.com/design/QCTe0k9W6mgtJS7ihyhvM9/%E5%8D%92%E6%A5%AD%E5%88%B6%E4%BD%9C-%E7%94%BB%E9%9D%A2%E9%81%B7%E7%A7%BB%E5%9B%B3?m=auto&t=Q542u03bqJ3Dbcno-6)
-
-## ER図
-
-draw.io：[https://app.diagrams.net/#G1cauXsIN8sXiEn5sOBWcplEgs7IRANzes](https://app.diagrams.net/#G1cauXsIN8sXiEn5sOBWcplEgs7IRANzes)

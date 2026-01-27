@@ -1,52 +1,33 @@
-# Docker Composeサービス定義
+# Docker Compose開発環境定義
+# docker compose up で Rails + PostgreSQL が起動
+
 services:
-  # Webアプリケーション（Rails）コンテナ
   web:
-    # Dockerイメージのビルド設定
     build:
-      context: .                    # ビルドコンテキスト（現在のディレクトリ）
-      dockerfile: Dockerfile.dev    # 開発環境用Dockerfileを使用
-    
+      context: .
+      dockerfile: Dockerfile.dev
     working_dir: /app
-
-    # ポート転送設定
     ports:
-      - "3000:3000"                # ホスト3000番 → コンテナ3000番に転送
-
-    # ボリュームマウント設定
+      - "3000:3000"           # localhost:3000 でアクセス
     volumes:
-      - ./:/app
-
-    # .env.developmentに記述したAWSキーの環境変数を読み込む
+      - ./:/app               # ソースコードをマウント（ホットリロード）
     env_file:
-      - .env.development           # AWS認証情報などの環境変数ファイルを読み込み
-
-    # サービス依存関係
+      - .env.development      # 環境変数を読み込み
     depends_on:
-      - db                         # dbサービス起動後にwebサービスを起動
+      - db
+    stdin_open: true          # デバッグ用
+    tty: true
 
-    # コンテナ操作用設定
-    stdin_open: true               # 標準入力を開放（デバッグ用）
-    tty: true                      # 疑似TTY割り当て（ターミナル操作用）
-
-  # データベース（PostgreSQL）コンテナ
   db:
-    image: postgres:15             # PostgreSQL 15の公式イメージを使用
-
-    # PostgreSQL設定用環境変数
+    image: postgres:15
     environment:
-      POSTGRES_PASSWORD: password  # データベースのパスワード
-      POSTGRES_USER: postgres     # データベースのユーザー名
-      POSTGRES_DB: mvp_development # 作成するデータベース名
-
-    # データ永続化用ボリューム
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_DB: mvp_development
     volumes:
-      - postgres_data:/var/lib/postgresql/data  # PostgreSQLデータを永続ボリュームに保存
-
-    # ポート転送設定
+      - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"               # PostgreSQL標準ポートをホストに転送
+      - "5432:5432"
 
-# 永続ボリューム定義
 volumes:
-  postgres_data:                  # PostgreSQLデータ保存用の名前付きボリューム
+  postgres_data:

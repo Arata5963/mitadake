@@ -1,37 +1,16 @@
-# config/cable.yml
-# ==========================================
 # Action Cable（WebSocket）設定
-# ==========================================
-#
-# 【Action Cableとは？】
-# Rails でリアルタイム通信（WebSocket）を実現する機能。
-# チャット、通知、ライブ更新などに使用する。
-#
-# 【アダプターの種類】
-#   async:       開発用（メモリ内で完結）
-#   test:        テスト用
-#   solid_cable: 本番用（データベースを使用）
-#   redis:       本番用（Redisを使用）
-#
-# 【このプロジェクトでの使用状況】
-# 現在、Action Cable は積極的に使用していない。
-# 将来的にリアルタイム機能を追加する際に使用予定。
-#
-# ==========================================
+# リアルタイム通信用（現在は積極利用なし）
 
-# 開発環境: メモリ内で処理（シンプル）
 development:
   adapter: async
 
-# テスト環境: テスト専用アダプター
 test:
   adapter: test
 
-# 本番環境: Solid Cable（データベース経由）
 production:
   adapter: solid_cable
   connects_to:
     database:
-      writing: cable           # database.yml の cable: 設定を使用
-  polling_interval: 0.1.seconds  # 新メッセージのチェック間隔
-  message_retention: 1.day       # メッセージの保持期間
+      writing: cable               # database.ymlのcable設定を使用
+  polling_interval: 0.1.seconds    # メッセージチェック間隔
+  message_retention: 1.day         # メッセージ保持期間

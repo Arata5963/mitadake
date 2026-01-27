@@ -1,26 +1,5 @@
-<%#
-  app/views/posts/autocomplete.html.erb
-  ==========================================
-  検索オートコンプリート候補
-  ==========================================
-
-  【このファイルの役割】
-  検索ボックスに入力中にリアルタイムで表示される
-  候補リストを生成する。
-
-  【アクセス元】
-  GET /posts/autocomplete?q=検索語
-
-  【使用されるStimulusコントローラー】
-  autocomplete_controller.js が検索入力を監視し、
-  このビューをfetchして候補を表示する。
-
-  【data属性】
-  data-autocomplete-value: 選択時に入力欄に設定される値
-
-  【変数】
-  @suggestions: 検索候補の配列（コントローラーから）
-%>
+<%# 検索オートコンプリート候補 %>
+<%# 検索ボックス入力中にリアルタイムで表示される候補リスト %>
 <% @suggestions.each do |suggestion| %>
   <li class="px-4 py-2 cursor-pointer hover:bg-accent/10 text-sm text-primary/80"
       role="option"

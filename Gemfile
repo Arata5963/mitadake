@@ -4,7 +4,7 @@
 source "https://rubygems.org"
 
 # Rails基本フレームワーク
-gem "rails", "~> 7.2.2"
+gem "rails", "~> 8.1.2"
 
 # アセット管理・フロントエンド
 gem "propshaft"           # 静的ファイル配信

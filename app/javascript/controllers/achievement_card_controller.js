@@ -70,7 +70,6 @@ export default class extends Controller {
           <div class="relative bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto shadow-xl">
 
             <div class="flex items-center justify-between p-4 border-b border-gray-100">
-              <h2 class="text-base font-bold text-gray-900">達成を記録</h2>
               <div class="flex items-center gap-1">
                 <button type="button"
                    class="flex items-center gap-1 px-2 py-1 hover:bg-gray-100 rounded text-xs text-gray-500 transition-colors"
@@ -90,6 +89,14 @@ export default class extends Controller {
                   </svg>
                 </a>
               </div>
+              <button type="button"
+                      class="flex items-center gap-1 px-2 py-1 hover:bg-gray-100 rounded text-xs text-gray-500 transition-colors"
+                      title="閉じる"
+                      data-action="click->achievement-modal#close">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
             </div>
 
             <div class="p-4">

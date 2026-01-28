@@ -104,7 +104,7 @@ export default class extends Controller {
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
                     <span style="font-size: 13px; font-weight: 500; color: #666;">クリックして画像を選択</span>
-                    <span style="font-size: 11px; color: #999; margin-top: 4px;">JPG, PNG（最大5MB）</span>
+                    <span style="font-size: 11px; color: #999; margin-top: 4px;">JPG, PNG（最大10MB）</span>
                   </div>
                   <img data-achievement-modal-target="imagePreview"
                        src=""
@@ -198,11 +198,32 @@ export default class extends Controller {
               ` : ''}
             </div>
 
-            <div class="aspect-video bg-gray-100 rounded-t-2xl overflow-hidden">
+            <div class="aspect-video bg-gray-100 rounded-t-2xl overflow-hidden relative">
               <img src="${thumbnailUrl}"
                    alt=""
-                   class="w-full h-full object-cover">
+                   class="w-full h-full object-cover"
+                   data-achievement-modal-target="displayImage">
+              <!-- 編集用：新しい画像のプレビュー（初期非表示） -->
+              <img src=""
+                   alt="プレビュー"
+                   class="w-full h-full object-cover absolute inset-0 hidden"
+                   data-achievement-modal-target="editImagePreview">
             </div>
+            <!-- 編集用：画像変更リンク（初期非表示） -->
+            ${canEdit ? `
+              <div class="hidden flex justify-end px-4 pt-1" data-achievement-modal-target="editImageSection">
+                <button type="button"
+                        class="text-xs text-gray-500 hover:text-gray-700"
+                        data-action="click->achievement-modal#triggerEditFileInput">
+                  画像を変更
+                </button>
+                <input type="file"
+                       accept="image/jpeg,image/png,image/webp"
+                       data-achievement-modal-target="editImageInput"
+                       data-action="change->achievement-modal#handleEditFileSelect"
+                       style="display: none;">
+              </div>
+            ` : ''}
 
             <div class="p-4">
               <h3 class="text-lg font-bold text-gray-900 mb-4">

@@ -14,51 +14,46 @@
 
 | タスク | 参照ドキュメント |
 |--------|------------------|
-| 新機能の実装 | `01_technical_design/01_architecture.md`, `01_technical_design/02_database.md` |
-| API実装 | `01_technical_design/03_api_design.md` |
-| 画面実装 | `01_technical_design/04_screen_flow.md`, `02_design_system/` |
-| テスト作成 | `01_technical_design/08_test_strategy.md` |
-| スタイリング | `02_design_system/01_design_tokens.md`, `02_design_system/03_components.md` |
+| 新機能の実装 | `01_development_docs/01_architecture.md`, `01_development_docs/02_database.md` |
+| API実装 | `01_development_docs/03_api_design.md` |
+| 画面実装 | `01_development_docs/04_screen_flow.md`, `02_design_system/` |
+| テスト作成 | `01_development_docs/06_test_strategy.md` |
+| スタイリング | `02_design_system/02_colors_typography.md`, `02_design_system/03_components.md` |
 | Devise関連 | `03_library_guides/01_devise.md` |
 | Hotwire実装 | `03_library_guides/02_hotwire.md` |
-| 検索機能 | `03_library_guides/03_ransack.md` |
-| 画像アップロード | `03_library_guides/04_carrierwave.md` |
-| バックグラウンドジョブ | `03_library_guides/05_sidekiq.md` |
-| Git操作・PR作成 | `01_technical_design/10_git_workflow.md` |
-| 設計決定の記録 | `04_adr/` |
+| 画像アップロード | `03_library_guides/03_carrierwave.md` |
 
 ## ドキュメント構成
 
 ```
 .claude/
 ├── 00_project/
-│   └── 01_appcadia_concept_requirements.md  # コンセプト・要件定義
-├── 01_technical_design/
+│   ├── 01_concept_requirements.md           # コンセプト・要件定義
+│   └── 02_roadmap.md                        # 開発ロードマップ
+├── 01_development_docs/
 │   ├── 01_architecture.md                   # アーキテクチャ設計
 │   ├── 02_database.md                       # データベース設計
 │   ├── 03_api_design.md                     # API設計
 │   ├── 04_screen_flow.md                    # 画面遷移
 │   ├── 05_error_handling.md                 # エラーハンドリング
-│   ├── 06_security.md                       # セキュリティ
-│   ├── 07_performance.md                    # パフォーマンス
-│   ├── 08_test_strategy.md                  # テスト戦略
-│   ├── 09_ci_cd.md                          # CI/CD
-│   └── 10_git_workflow.md                   # Gitワークフロー
+│   ├── 06_test_strategy.md                  # テスト戦略
+│   ├── 07_security.md                       # セキュリティ
+│   ├── 08_setup.md                          # セットアップ手順
+│   └── 09_cicd.md                           # CI/CD
 ├── 02_design_system/
-│   ├── 01_design_tokens.md                  # カラー、余白、角丸、影
-│   ├── 02_design_principles.md              # デザイン原則、方針
+│   ├── 01_principles.md                     # デザイン原則、方針
+│   ├── 02_colors_typography.md              # カラー、タイポグラフィ
 │   ├── 03_components.md                     # UIコンポーネント設計
 │   └── 04_layouts.md                        # レイアウトシステム
 ├── 03_library_guides/
 │   ├── 01_devise.md                         # Devise実装パターン
 │   ├── 02_hotwire.md                        # Hotwire実装パターン
-│   ├── 03_ransack.md                        # Ransack実装パターン
-│   ├── 04_carrierwave.md                    # CarrierWave実装パターン
-│   └── 05_sidekiq.md                        # Sidekiq実装パターン
-├── 04_adr/                                   # ADR（設計決定記録）
-│   └── ADR-YYYYMMDD-xxx.md
-└── 05_learning/                              # 学習記録
-    └── YYYY-MM-DD-xxx.md
+│   └── 03_carrierwave.md                    # CarrierWave実装パターン
+└── commands/                                 # Claude Codeコマンド
+    ├── README.md
+    ├── pr.md
+    ├── save.md
+    └── test.md
 ```
 
 ## 開発時の基本ルール
@@ -218,14 +213,13 @@ docker compose exec web rails c
 
 | 変更内容 | 確認すべきドキュメント |
 |----------|----------------------|
-| DBスキーマ変更 | `01_technical_design/02_database.md` |
-| 新モデル/コントローラー追加 | `01_technical_design/01_architecture.md` |
+| DBスキーマ変更 | `01_development_docs/02_database.md` |
+| 新モデル/コントローラー追加 | `01_development_docs/01_architecture.md` |
 | 新ライブラリ導入 | `03_library_guides/` に新規ガイド作成 |
-| 大きな設計判断 | `04_adr/` にADR作成 |
 
 ### 2. Gitフロー実行
 
-`01_technical_design/10_git_workflow.md` に従ってコミット・PR作成
+`CLAUDE.md` のGit運用セクションに従ってコミット・PR作成
 
 ### Claude Code への依頼テンプレート
 
@@ -266,4 +260,4 @@ YouTube埋め込み対応
 
 ---
 
-*最終更新: 2026-01-26*
+*最終更新: 2026-01-28*

@@ -40,8 +40,7 @@ app/
 │   ├── user.rb
 │   ├── post.rb
 │   ├── post_entry.rb
-│   ├── entry_like.rb
-│   └── achievement.rb
+│   └── entry_like.rb
 ├── services/
 │   ├── gemini_service.rb            # AI要約・提案
 │   ├── youtube_service.rb           # YouTube API

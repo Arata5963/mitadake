@@ -61,10 +61,17 @@ class PostEntriesController < ApplicationController
     render json: build_achievement_json(@entry)                                      # 達成記録をJSONで返す
   end
 
-  # 感想編集（API）
+  # 感想・画像編集（API）
   def update_reflection
-    @entry.update_reflection!(reflection_text: params[:reflection])                  # 振り返りを更新
-    render json: { success: true, reflection: @entry.reflection }                    # 成功レスポンス
+    @entry.update_reflection!(                                                       # 振り返り・画像を更新
+      reflection_text: params[:reflection],                                          # 振り返りテキスト
+      result_image_s3_key: params[:result_image_s3_key]                              # 達成画像S3キー
+    )
+    render json: {                                                                   # 成功レスポンス
+      success: true,
+      reflection: @entry.reflection,
+      result_image_url: @entry.signed_result_image_url                               # 新しい画像URLも返す
+    }
   rescue StandardError => e                                                          # エラーが発生した場合
     render json: { success: false, error: e.message }, status: :unprocessable_entity  # エラーレスポンス
   end

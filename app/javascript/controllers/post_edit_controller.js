@@ -217,7 +217,7 @@ export default class extends Controller {
   handleFileSelect(event) {
     const file = event.target.files[0]
     if (!file) return
-    if (!isValidFileSize(file, 5)) { alert('ファイルサイズは5MB以下にしてください'); return }
+    if (!isValidFileSize(file, 10)) { alert('ファイルサイズは10MB以下にしてください'); return }
     this.selectedFile = file
     this.uploadedS3Key = null
     const previewUrl = URL.createObjectURL(file)

@@ -7,7 +7,8 @@ export default class extends Controller {
   static targets = [
     "overlay", "content", "reflectionInput", "reflectionDisplay",
     "imagePreview", "imageInput", "uploadArea", "clearImageBtn",
-    "submitBtn", "editBtn", "loadingOverlay"
+    "submitBtn", "editBtn", "loadingOverlay",
+    "editImageInput", "editImagePreview", "displayImage", "editImageSection"
   ]
 
   static values = {
@@ -25,8 +26,10 @@ export default class extends Controller {
     document.body.style.overflow = "hidden"                    // 背景スクロール無効化
     this.boundHandleKeydown = this.handleKeydown.bind(this)
     document.addEventListener("keydown", this.boundHandleKeydown)
-    this.selectedFile = null                                   // 選択中のファイル
-    this.uploadedS3Key = null                                  // アップロード済みS3キー
+    this.selectedFile = null                                   // 選択中のファイル（入力モード用）
+    this.uploadedS3Key = null                                  // アップロード済みS3キー（入力モード用）
+    this.editSelectedFile = null                               // 選択中のファイル（編集モード用）
+    this.editUploadedS3Key = null                              // アップロード済みS3キー（編集モード用）
   }
 
   // モーダル非表示時のクリーンアップ
@@ -62,8 +65,8 @@ export default class extends Controller {
     const file = event.target.files[0]
     if (!file) return
 
-    if (file.size > 5 * 1024 * 1024) {                         // 5MB制限
-      alert("ファイルサイズは5MB以下にしてください")
+    if (file.size > 10 * 1024 * 1024) {                        // 10MB制限
+      alert("ファイルサイズは10MB以下にしてください")
       return
     }
 
@@ -179,13 +182,16 @@ export default class extends Controller {
       this.reflectionInputTarget.classList.remove("hidden")
       this.reflectionInputTarget.focus()
     }
+    if (this.hasEditImageSectionTarget) this.editImageSectionTarget.classList.remove("hidden")  // 画像変更ボタンを表示
     if (this.hasEditBtnTarget) {
       this.editBtnTarget.textContent = "保存"
       this.editBtnTarget.dataset.action = "click->achievement-modal#saveReflection"
     }
+    this.editSelectedFile = null                               // 編集用ファイルをリセット
+    this.editUploadedS3Key = null                              // 編集用S3キーをリセット
   }
 
-  // 感想を保存
+  // 感想・画像を保存
   async saveReflection() {
     const reflection = this.hasReflectionInputTarget ? this.reflectionInputTarget.value.trim() : ""
     if (!reflection) {
@@ -194,11 +200,24 @@ export default class extends Controller {
       return
     }
 
+    if (this.hasEditBtnTarget) {                               // 保存中表示
+      this.editBtnTarget.textContent = "保存中..."
+      this.editBtnTarget.disabled = true
+    }
+
     try {
+      let s3Key = null                                         // S3キー（画像変更時のみ）
+      if (this.editSelectedFile) {                             // 新しい画像が選択されている場合
+        s3Key = await this.uploadEditImageToS3()               // S3にアップロード
+      }
+
+      const body = { reflection: reflection }                  // リクエストボディ
+      if (s3Key) body.result_image_s3_key = s3Key              // 画像があれば追加
+
       const response = await fetch(this.updateReflectionUrlValue, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", "Accept": "application/json", "X-CSRF-Token": this.csrfToken() },
-        body: JSON.stringify({ reflection: reflection })
+        body: JSON.stringify(body)
       })
 
       const data = await response.json()
@@ -208,17 +227,107 @@ export default class extends Controller {
           this.reflectionDisplayTarget.classList.remove("hidden")
         }
         if (this.hasReflectionInputTarget) this.reflectionInputTarget.classList.add("hidden")
+        if (data.result_image_url && this.hasDisplayImageTarget) {  // 画像も更新された場合
+          this.displayImageTarget.src = data.result_image_url       // 表示画像を更新
+        }
+        if (this.hasEditImagePreviewTarget) {                       // プレビューをリセット
+          this.editImagePreviewTarget.classList.add("hidden")
+          this.editImagePreviewTarget.src = ""
+        }
+        if (this.hasEditImageSectionTarget) this.editImageSectionTarget.classList.add("hidden")  // 変更ボタンを非表示
         if (this.hasEditBtnTarget) {
           this.editBtnTarget.textContent = "編集"
+          this.editBtnTarget.disabled = false
           this.editBtnTarget.dataset.action = "click->achievement-modal#switchToEdit"
         }
+        this.editSelectedFile = null                           // リセット
+        this.editUploadedS3Key = null
       } else {
         alert(data.error || "保存に失敗しました")
+        this.restoreEditButton()
       }
     } catch (error) {
       console.error("Save reflection error:", error)
       alert("保存に失敗しました")
+      this.restoreEditButton()
     }
+  }
+
+  // 編集ボタンを元に戻す
+  restoreEditButton() {
+    if (this.hasEditBtnTarget) {
+      this.editBtnTarget.textContent = "保存"
+      this.editBtnTarget.disabled = false
+    }
+  }
+
+  // 編集用画像をS3にアップロード
+  async uploadEditImageToS3() {
+    if (!this.editSelectedFile) return null
+    if (this.editUploadedS3Key) return this.editUploadedS3Key  // アップロード済み
+
+    const presignResponse = await fetch('/api/presigned_urls', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': this.csrfToken() },
+      body: JSON.stringify({ filename: this.editSelectedFile.name, content_type: this.editSelectedFile.type })
+    })
+
+    if (!presignResponse.ok) throw new Error('署名付きURLの取得に失敗しました')
+    const { upload_url, s3_key } = await presignResponse.json()
+
+    const uploadResponse = await fetch(upload_url, {
+      method: 'PUT',
+      headers: { 'Content-Type': this.editSelectedFile.type },
+      body: this.editSelectedFile
+    })
+
+    if (!uploadResponse.ok) throw new Error('S3へのアップロードに失敗しました')
+
+    this.editUploadedS3Key = s3_key
+    return s3_key
+  }
+
+  // 編集用画像選択時の処理
+  handleEditFileSelect(event) {
+    const file = event.target.files[0]
+    if (!file) return
+
+    if (file.size > 10 * 1024 * 1024) {                        // 10MB制限
+      alert("ファイルサイズは10MB以下にしてください")
+      return
+    }
+
+    this.editSelectedFile = file
+    this.editUploadedS3Key = null                              // 新ファイル選択でリセット
+    const previewUrl = URL.createObjectURL(file)               // ローカルプレビュー用URL
+    this.showEditImagePreview(previewUrl)
+  }
+
+  // 編集用画像プレビューを表示
+  showEditImagePreview(dataUrl) {
+    if (this.hasEditImagePreviewTarget) {
+      this.editImagePreviewTarget.src = dataUrl
+      this.editImagePreviewTarget.classList.remove('hidden')     // プレビューを表示（元画像の上に重ねる）
+    }
+  }
+
+  // 編集用画像をクリア（プレビューを元に戻す）
+  clearEditImage(event) {
+    event.preventDefault()
+    event.stopPropagation()
+    this.editSelectedFile = null
+    this.editUploadedS3Key = null
+    if (this.hasEditImagePreviewTarget) {
+      this.editImagePreviewTarget.src = ""
+      this.editImagePreviewTarget.classList.add('hidden')        // プレビューを非表示
+    }
+    if (this.hasEditImageInputTarget) this.editImageInputTarget.value = ""
+  }
+
+  // 編集用ファイル選択ダイアログを開く
+  triggerEditFileInput(event) {
+    event.preventDefault()
+    if (this.hasEditImageInputTarget) this.editImageInputTarget.click()
   }
 
   // 編集ページへ移動

@@ -11,6 +11,7 @@
 │ name            │  │
 │ avatar          │  │
 │ favorite_quote  │  │
+│ favorite_quote_url│ │
 └─────────────────┘  │
          │           │
          ▼           │
@@ -22,7 +23,9 @@
 │ youtube_url     │                     │
 │ youtube_video_id│ (unique)            │
 │ youtube_title   │                     │
-│ ai_summary      │                     │
+│ youtube_channel_name│                 │
+│ youtube_channel_id│                   │
+│ youtube_channel_thumbnail_url│        │
 └─────────────────┘                     │
          │                              │
          ▼                              │
@@ -33,10 +36,10 @@
 │ post_id         │────│              │ │
 │ user_id         │────│ user_id      │─┘
 │ content         │    └──────────────┘
-│ deadline        │
 │ achieved_at     │
 │ reflection      │
 │ result_image    │
+│ thumbnail_url   │
 └─────────────────┘
 ```
 
@@ -54,6 +57,7 @@
 | provider | string | | OAuthプロバイダ |
 | uid | string | | OAuthユーザーID |
 | favorite_quote | string(50) | | お気に入り引用 |
+| favorite_quote_url | string | | 引用元URL |
 
 ### posts
 
@@ -65,6 +69,9 @@
 | youtube_video_id | string | UNIQUE | 動画ID |
 | youtube_title | string | | 動画タイトル |
 | youtube_channel_name | string | | チャンネル名 |
+| youtube_channel_id | string | | チャンネルID |
+| youtube_channel_thumbnail_url | string | | チャンネルサムネイル |
+| action_plan | text | | 旧形式（互換性のため残存） |
 | ai_summary | text | | AI要約 |
 | suggested_action_plans | jsonb | | AI提案アクションプラン |
 
@@ -76,10 +83,10 @@
 | post_id | bigint | FK, NOT NULL | 対象動画 |
 | user_id | bigint | FK | 作成者 |
 | content | text | | アクションプラン内容 |
-| deadline | date | | 期限（デフォルト: 作成日+7日） |
 | achieved_at | datetime | | 達成日時 |
 | reflection | text | | 感想（max: 500文字） |
 | result_image | string | | 達成証拠画像（S3キー） |
+| thumbnail_url | string | | サムネイル画像URL |
 
 ### entry_likes
 
@@ -98,13 +105,11 @@ class User < ApplicationRecord
   has_many :posts
   has_many :post_entries
   has_many :entry_likes
-  has_many :achievements
 end
 
 class Post < ApplicationRecord
   belongs_to :user, optional: true
   has_many :post_entries, dependent: :destroy
-  has_many :achievements, dependent: :destroy
 end
 
 class PostEntry < ApplicationRecord
@@ -126,5 +131,4 @@ end
 scope :recent, -> { order(created_at: :desc) }
 scope :not_achieved, -> { where(achieved_at: nil) }
 scope :achieved, -> { where.not(achieved_at: nil) }
-scope :expired, -> { not_achieved.where("deadline < ?", Date.current) }
 ```

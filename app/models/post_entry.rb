@@ -87,9 +87,11 @@ class PostEntry < ApplicationRecord
     end
   end
 
-  # 感想の編集
-  def update_reflection!(reflection_text:)
-    update!(reflection: reflection_text)                                              # 振り返りのみ更新
+  # 感想・画像の編集
+  def update_reflection!(reflection_text:, result_image_s3_key: nil)
+    attrs = { reflection: reflection_text }                                           # 更新属性を準備
+    attrs[:result_image] = result_image_s3_key if result_image_s3_key.present?        # 画像があれば追加
+    update!(attrs)                                                                    # 更新実行
   end
 
   private

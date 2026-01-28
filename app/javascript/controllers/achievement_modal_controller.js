@@ -8,7 +8,8 @@ export default class extends Controller {
     "overlay", "content", "reflectionInput", "reflectionDisplay",
     "imagePreview", "imageInput", "uploadArea", "clearImageBtn",
     "submitBtn", "editBtn", "loadingOverlay",
-    "editImageInput", "editImagePreview", "displayImage", "editImageSection"
+    "editImageInput", "editImagePreview", "displayImage", "editImageSection",
+    "imageContainer"
   ]
 
   static values = {
@@ -81,6 +82,15 @@ export default class extends Controller {
     if (this.hasImagePreviewTarget) {
       this.imagePreviewTarget.src = dataUrl
       this.imagePreviewTarget.style.display = 'block'
+
+      // 画像ロード後にアスペクト比を取得して設定
+      this.imagePreviewTarget.onload = () => {
+        if (this.hasImageContainerTarget) {
+          const img = this.imagePreviewTarget
+          const ratio = img.naturalWidth / img.naturalHeight
+          this.imageContainerTarget.style.aspectRatio = `${ratio}`
+        }
+      }
     }
     if (this.hasUploadAreaTarget) this.uploadAreaTarget.style.display = 'none'
     if (this.hasClearImageBtnTarget) this.clearImageBtnTarget.style.display = 'flex'
@@ -97,6 +107,10 @@ export default class extends Controller {
       this.imagePreviewTarget.style.display = 'none'
     }
     if (this.hasUploadAreaTarget) this.uploadAreaTarget.style.display = 'flex'
+    if (this.hasImageContainerTarget) {
+      this.imageContainerTarget.style.aspectRatio = '16/9'       // 元のサイズに戻す
+      this.imageContainerTarget.style.background = '#f3f4f6'     // 背景色を元に戻す
+    }
     if (this.hasClearImageBtnTarget) this.clearImageBtnTarget.style.display = 'none'
     if (this.hasImageInputTarget) this.imageInputTarget.value = ""
   }

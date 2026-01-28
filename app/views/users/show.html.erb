@@ -67,14 +67,14 @@
       title: "挑戦中のアクション",
       link_path: (pending_actions_path if is_own_page && pending_actions.present?),
       link_text: "全てを表示 →",
-      button_top: "56px",
+      button_top: "90px",
       show_content: pending_actions.present?,
       empty_message: "挑戦中のアクションプランがありません"
     } do %>
       <% pending_actions.each do |entry| %>
         <% post = entry.post %>
         <% entry_thumbnail = entry.signed_thumbnail_url || "https://i.ytimg.com/vi/#{post.youtube_video_id}/mqdefault.jpg" %>
-        <article class="flex-shrink-0 group relative" style="width: 200px; min-width: 200px; max-width: 200px;"
+        <article class="flex-shrink-0 group relative" style="width: 320px; min-width: 320px; max-width: 320px;"
                  data-controller="achievement-card"
                  data-achievement-card-entry-id-value="<%= entry.id %>"
                  data-achievement-card-post-id-value="<%= post.id %>"
@@ -116,20 +116,20 @@
         title: "達成したアクション",
         link_path: (achieved_actions_path if is_own_page),
         link_text: "全てを表示 →",
-        button_top: "56px"
+        button_top: "90px"
       } do %>
         <% achieved_entries.each do |entry| %>
           <% post = entry.post %>
           <% entry_user = entry.user %>
           <% entry_thumbnail = entry.signed_thumbnail_url || "https://i.ytimg.com/vi/#{post.youtube_video_id}/mqdefault.jpg" %>
 
-          <article class="flex-shrink-0 group" style="width: 200px; min-width: 200px; max-width: 200px;"
+          <article class="flex-shrink-0 group" style="width: 320px; min-width: 320px; max-width: 320px;"
                    data-controller="achievement-card"
                    data-achievement-card-entry-id-value="<%= entry.id %>"
                    data-achievement-card-post-id-value="<%= post.id %>"
                    data-achievement-card-show-url-value="<%= show_achievement_post_post_entry_path(post, entry) %>"
                    data-achievement-card-mode-value="display">
-            <div class="rounded-lg overflow-hidden bg-gray-100 cursor-pointer" style="width: 200px; height: 112px;"
+            <div class="rounded-lg overflow-hidden bg-gray-100 cursor-pointer" style="width: 320px; height: 180px;"
                  data-action="click->achievement-card#open">
               <%= image_tag entry_thumbnail,
                     alt: entry.content,

@@ -96,7 +96,7 @@ export default class extends Controller {
               <label class="block text-sm font-medium text-gray-700 mb-2">達成の記念写真<span class="text-red-500 ml-1">*</span></label>
 
               <div style="position: relative;">
-                <label style="position: relative; display: block; border-radius: 8px; overflow: hidden; background: #f3f4f6; aspect-ratio: 16/9; cursor: pointer;">
+                <label data-achievement-modal-target="imageContainer" style="position: relative; display: block; border-radius: 8px; overflow: hidden; background: #f3f4f6; aspect-ratio: 16/9; cursor: pointer;">
                   <div data-achievement-modal-target="uploadArea"
                        data-action="click->achievement-modal#triggerFileInput"
                        style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed #ccc; border-radius: 8px;">
@@ -109,7 +109,7 @@ export default class extends Controller {
                   <img data-achievement-modal-target="imagePreview"
                        src=""
                        alt="プレビュー"
-                       style="display: none; width: 100%; height: 100%; object-fit: cover;">
+                       style="display: none; width: 100%; height: 100%; object-fit: contain;">
                   <input type="file"
                          accept="image/jpeg,image/png,image/webp"
                          data-achievement-modal-target="imageInput"
@@ -198,15 +198,15 @@ export default class extends Controller {
               ` : ''}
             </div>
 
-            <div class="aspect-video bg-gray-100 rounded-t-2xl overflow-hidden relative">
+            <div class="bg-gray-100 rounded-t-2xl overflow-hidden relative flex items-center justify-center" style="max-height: 70vh;">
               <img src="${thumbnailUrl}"
                    alt=""
-                   class="w-full h-full object-cover"
+                   class="max-w-full max-h-[70vh] object-contain"
                    data-achievement-modal-target="displayImage">
               <!-- 編集用：新しい画像のプレビュー（初期非表示） -->
               <img src=""
                    alt="プレビュー"
-                   class="w-full h-full object-cover absolute inset-0 hidden"
+                   class="max-w-full max-h-[70vh] object-contain absolute inset-0 hidden"
                    data-achievement-modal-target="editImagePreview">
             </div>
             <!-- 編集用：画像変更リンク（初期非表示） -->

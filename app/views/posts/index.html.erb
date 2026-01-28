@@ -46,7 +46,7 @@
           <p class="text-gray-700 font-medium mb-2">まだアクションプランがありません</p>
         </div>
       <% else %>
-        <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));">
+        <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));">
           <% @posts.each do |post| %>
             <%= render 'posts/post_card_note', post: post %>
           <% end %>
@@ -68,7 +68,7 @@
           <p class="text-gray-700 font-medium mb-2">このチャンネルの投稿はまだありません</p>
         </div>
       <% else %>
-        <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));">
+        <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));">
           <% @posts.each do |post| %>
             <%= render 'posts/post_card_note', post: post %>
           <% end %>

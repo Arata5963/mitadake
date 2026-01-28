@@ -3,17 +3,17 @@
 
 <%= render layout: "shared/horizontal_scroll_section", locals: {
   title: "人気の動画",
-  button_top: "56px"
+  button_top: "90px"
 } do %>
   <% posts.each_with_index do |post, index| %>
     <% rank = index + 1 %>
-    <article class="flex-shrink-0 group flex items-start gap-2" style="width: 240px; min-width: 240px; max-width: 240px;">
-      <div class="flex-shrink-0 w-10 flex items-center justify-center pt-8">
+    <article class="flex-shrink-0 group flex items-start gap-2" style="width: 360px; min-width: 360px; max-width: 360px;">
+      <div class="flex-shrink-0 w-10 flex items-center justify-center pt-12">
         <span class="text-3xl font-black text-gray-900"><%= rank %></span>
       </div>
-      <div class="flex-1" style="width: 190px;">
+      <div class="flex-1" style="width: 320px;">
         <%= link_to post_path(post), class: "block" do %>
-          <div class="rounded-lg overflow-hidden bg-gray-100" style="width: 190px; height: 107px;">
+          <div class="rounded-lg overflow-hidden bg-gray-100" style="width: 320px; height: 180px;">
             <%= image_tag post.youtube_thumbnail_url(size: :mqdefault),
                   alt: post.youtube_title,
                   class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-200",

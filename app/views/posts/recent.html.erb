@@ -13,7 +13,7 @@
       </div>
     <% else %>
       <%# グリッド表示 %>
-      <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));">
+      <div class="grid gap-6" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));">
         <% @posts.each do |post| %>
           <%= render 'posts/post_card_note', post: post %>
         <% end %>

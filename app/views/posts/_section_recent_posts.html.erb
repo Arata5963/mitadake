@@ -5,12 +5,12 @@
   title: "投稿一覧",
   link_path: recent_posts_path,
   link_text: "全てを表示 →",
-  button_top: "56px"
+  button_top: "90px"
 } do %>
   <% posts.each do |post| %>
-    <article class="flex-shrink-0 group" style="width: 200px; min-width: 200px; max-width: 200px;">
+    <article class="flex-shrink-0 group" style="width: 320px; min-width: 320px; max-width: 320px;">
       <%= link_to post_path(post), class: "block" do %>
-        <div class="rounded-lg overflow-hidden bg-gray-100" style="width: 200px; height: 112px;">
+        <div class="rounded-lg overflow-hidden bg-gray-100" style="width: 320px; height: 180px;">
           <%= image_tag post.youtube_thumbnail_url(size: :mqdefault),
                 alt: post.youtube_title,
                 class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-200",

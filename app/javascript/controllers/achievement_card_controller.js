@@ -176,29 +176,39 @@ export default class extends Controller {
 
           <div class="relative bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto shadow-xl">
 
-            <div class="absolute top-3 right-3 flex items-center gap-1 z-10">
-              ${canEdit ? `
-                <a href="${editUrl}"
-                   class="w-8 h-8 flex items-center justify-center rounded-full bg-white/80 hover:bg-white text-gray-500 hover:text-gray-700"
-                   title="編集">
-                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                  </svg>
-                </a>
-              ` : ''}
-              ${!this.hideOriginalVideoValue ? `
-                <a href="${data.post.url}"
-                   class="w-8 h-8 flex items-center justify-center rounded-full bg-white/80 hover:bg-white text-gray-500 hover:text-gray-700"
-                   title="きっかけの動画">
-                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                  </svg>
-                </a>
-              ` : ''}
+            <div class="flex items-center justify-between p-4 border-b border-gray-100">
+              <div class="flex items-center gap-1">
+                ${canEdit ? `
+                  <a href="${editUrl}"
+                     class="flex items-center gap-1 px-2 py-1 hover:bg-gray-100 rounded text-xs text-gray-500 transition-colors"
+                     title="編集">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                    </svg>
+                  </a>
+                ` : ''}
+                ${!this.hideOriginalVideoValue ? `
+                  <a href="${data.post.url}"
+                     class="flex items-center gap-1 px-2 py-1 hover:bg-gray-100 rounded text-xs text-gray-500 transition-colors"
+                     title="きっかけの動画">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                  </a>
+                ` : ''}
+              </div>
+              <button type="button"
+                      class="flex items-center gap-1 px-2 py-1 hover:bg-gray-100 rounded text-xs text-gray-500 transition-colors"
+                      title="閉じる"
+                      data-action="click->achievement-modal#close">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
             </div>
 
-            <div class="bg-gray-100 rounded-t-2xl overflow-hidden relative flex items-center justify-center" style="max-height: 70vh;">
+            <div class="bg-gray-100 overflow-hidden relative flex items-center justify-center" style="max-height: 70vh;">
               <img src="${thumbnailUrl}"
                    alt=""
                    class="max-w-full max-h-[70vh] object-contain"
@@ -226,9 +236,7 @@ export default class extends Controller {
             ` : ''}
 
             <div class="p-4">
-              <h3 class="text-lg font-bold text-gray-900 mb-4">
-                ${this.escapeHtml(data.content)}
-              </h3>
+              <h3 class="text-lg font-bold text-gray-900 mb-4">${this.escapeHtml(data.content)}</h3>
 
               <div class="mb-4">
                 <div class="flex items-center justify-between mb-2">

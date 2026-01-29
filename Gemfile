@@ -69,7 +69,7 @@ end
 group :test do
   gem "capybara"                            # ブラウザテスト
   gem "selenium-webdriver"
-  gem "shoulda-matchers", "~> 6.4"
+  gem "shoulda-matchers", "~> 7.0"
   gem "database_cleaner-active_record"
   gem "simplecov", require: false
   gem "webmock"

@@ -25,8 +25,8 @@ RSpec.describe "Authentication", type: :system do
       # 4. 登録ボタンをクリック（実際のボタンテキスト: "登録する"）
       click_button "登録する"
 
-      # 5. トップページにリダイレクトされる
-      expect(page).to have_current_path(root_path)
+      # 5. 投稿一覧ページにリダイレクトされる
+      expect(page).to have_current_path(posts_path)             # ログイン後は/postsへ
 
       # 6. ログイン状態になる（ログアウトのテキストが表示される）
       expect(page).to have_content("ログアウト")
@@ -64,8 +64,8 @@ RSpec.describe "Authentication", type: :system do
       # 3. ログインボタンをクリック
       click_button "ログイン"
 
-      # 4. トップページにリダイレクトされる
-      expect(page).to have_current_path(root_path)
+      # 4. 投稿一覧ページにリダイレクトされる
+      expect(page).to have_current_path(posts_path)             # ログイン後は/postsへ
 
       # 5. ログアウトのテキストが表示される
       expect(page).to have_content("ログアウト")

@@ -9,9 +9,9 @@ RSpec.describe "Posts", type: :request do
 
   describe "GET /posts" do
     context "未ログインの場合" do
-      it "ランディングページを表示する" do
+      it "ルートにリダイレクトする" do
         get posts_path
-        expect(response).to have_http_status(200)
+        expect(response).to redirect_to(root_path)              # LPへリダイレクト
       end
     end
 

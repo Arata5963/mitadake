@@ -50,7 +50,7 @@ class GeminiService
     # Gemini APIにプロンプトを送信
     def call_gemini_with_text(api_key, prompt)
       uri = URI("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=#{api_key}")
-      request_body = { contents: [{ parts: [{ text: prompt }] }] }
+      request_body = { contents: [ { parts: [ { text: prompt } ] } ] }
 
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true                                      # HTTPS必須

@@ -40,7 +40,7 @@ RSpec.describe 'OmniauthCallbacks', type: :request do
         }.to change(User, :count).by(1)
 
         expect(response).to have_http_status(:found)
-        expect(response).to redirect_to(root_path)
+        expect(response).to redirect_to(root_path)               # root→posts_pathへ再リダイレクト
 
         # 作成されたユーザーの確認
         user = User.last
@@ -48,9 +48,10 @@ RSpec.describe 'OmniauthCallbacks', type: :request do
         expect(user.provider).to eq('google_oauth2')
         expect(user.uid).to eq('123456789')
 
-        # ログイン状態の確認
-        follow_redirect!
-        expect(response.body).to include('Google')
+        # ログイン状態の確認（投稿一覧ページへリダイレクト）
+        follow_redirect!                                         # root_path → posts_path
+        follow_redirect!                                         # posts_pathへ
+        expect(response).to have_http_status(:ok)
       end
     end
 

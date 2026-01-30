@@ -4,13 +4,30 @@
 >
 > 読み方：「みただけ？」
 
+## 目次
+
+- [サービス概要](#-サービス概要)
+- [サービスURL](#-サービスurl)
+- [開発背景](#-開発背景)
+- [ユーザー層](#-ユーザー層)
+- [使い方](#-使い方)
+- [機能紹介](#-機能紹介)
+- [技術構成](#-技術構成)
+- [ER図](#-er図)
+
+---
+
 ## ■ サービス概要
 
 YouTube動画から得た学びを具体的な「アクションプラン」に変換し、実践を支援する行動変革アプリです。
 
 動画を見て「これやってみたい！」と思った瞬間の熱量を逃さず、すぐに行動計画に落とし込めます。単なる動画ブックマークではなく、「見て終わり」から「やってみる」への変革を実現します。
 
-## ■ このサービスへの思い・作りたい理由
+## ■ サービスURL
+
+https://mitadake.com/posts
+
+## ■ 開発背景
 
 YouTube動画で素晴らしい情報や学びに出会っても、「見て終わり」になってしまうことがほとんどです。
 
@@ -22,7 +39,7 @@ YouTube動画で素晴らしい情報や学びに出会っても、「見て終�
 
 YouTube URLを入力するだけで動画情報が自動取得され、すぐにアクションプランを設定できる。このシンプルな体験により、動画からの学びを確実に実生活に反映できます。
 
-## ■ ユーザー層について
+## ■ ユーザー層
 
 YouTube動画で学びを得ているが、「見て終わり」になりがちな人。
 
@@ -32,7 +49,7 @@ YouTube動画で学びを得ているが、「見て終わり」になりがち�
 
 理由：動画を見て「良い情報だ」と思っても実践に移せない課題を持つ人は多い。「URL入力→アクションプラン設定→完了」というシンプルな流れで、誰でも簡単に学びを行動に変換できます。
 
-## ■ サービスの利用イメージ
+## ■ 使い方
 
 ### STEP 1: YouTube動画URLを入力
 
@@ -42,13 +59,13 @@ YouTube動画で学びを得ているが、「見て終わり」になりがち�
 ### STEP 2: アクションプランを設定
 
 動画から学んだことを具体的な行動に変換します。
-AIが動画内容に基づいたアクションプランを提案してくれるので、迷わず設定できます。
+YouTube風のタイトルで書くのがおすすめです。
 
-- 例：「話題のレシピを再現してみた」
-- 例：「プロ直伝の収納術で部屋を片付けてみた」
-- 例：「おすすめされた本を1冊読んでみた」
+- 例：「【再現】話題のレシピ作ってみた」
+- 例：「【挑戦】1週間早起き生活やってみた」
+- 例：「【レビュー】動画でおすすめされてた本を読んでみた」
 
-1人1つの未達成プランに集中する設計で、確実に実践できます。
+[![アクションプラン作成](https://i.gyazo.com/6f36d19573e044f91b30149578c4d242.gif)](https://gyazo.com/6f36d19573e044f91b30149578c4d242)
 
 ### STEP 3: 実践して達成記録
 
@@ -60,7 +77,6 @@ AIが動画内容に基づいたアクションプランを提案してくれる
 ### 推しポイント
 
 - **YouTube特化**：URL入力だけでサムネイル・タイトル・チャンネル名を自動取得
-- **AIアクションプラン提案**：動画内容に基づいてAIが具体的な行動を提案
 - **達成記録の可視化**：感想と画像で達成の瞬間を記録・共有
 - **動画と行動の紐付け**：いつでも元の動画に立ち返れる埋め込みプレイヤー表示
 
@@ -69,11 +85,11 @@ AIが動画内容に基づいたアクションプランを提案してくれる
 | 項目 | 本サービス | YouTube単体 | 習慣化アプリ |
 |------|-----------|-------------|-------------|
 | 動画の学び記録 | ◎ 自動取得 | × なし | × なし |
-| 行動への変換 | ◎ AI提案 | × なし | △ 行動のみ |
+| 行動への変換 | ◎ アクションプラン | × なし | △ 行動のみ |
 | 達成の可視化 | ◎ 画像・感想付き | × なし | ◎ あり |
 | 動画との紐付け | ◎ 埋め込み表示 | - | × なし |
 
-## ■ 機能候補
+## ■ 機能紹介
 
 ### 完了済み ✅
 
@@ -99,7 +115,7 @@ AIが動画内容に基づいたアクションプランを提案してくれる
 
 - [ ] ファビコン
 
-## ■ 機能の実装方針予定
+## ■ 技術構成
 
 ### 技術スタック
 
@@ -124,8 +140,69 @@ AIが動画内容に基づいたアクションプランを提案してくれる
 | CarrierWave | 画像アップロード機能 |
 | fog-aws / aws-sdk-s3 | S3ストレージ連携 |
 | google-apis-youtube_v3 | YouTube Data API |
-| gemini-ai | Gemini AI API（アクションプラン提案） |
 | meta-tags | OGP/SEO対応 |
 | RSpec | テストフレームワーク |
 | RuboCop | コード品質チェック |
+
+## ■ ER図
+
+```mermaid
+erDiagram
+    users ||--o{ posts : "投稿する"
+    users ||--o{ post_entries : "アクションプランを設定"
+    users ||--o{ entry_likes : "いいねする"
+    posts ||--o{ post_entries : "含む"
+    post_entries ||--o{ entry_likes : "いいねされる"
+
+    users {
+        bigint id PK
+        string email UK
+        string encrypted_password
+        string name
+        string avatar
+        string provider
+        string uid
+        string favorite_quote_url
+        datetime created_at
+        datetime updated_at
+    }
+
+    posts {
+        bigint id PK
+        bigint user_id FK
+        string youtube_url
+        string youtube_title
+        string youtube_channel_name
+        string youtube_video_id UK
+        string youtube_channel_id
+        string youtube_channel_thumbnail_url
+        text action_plan
+        text ai_summary
+        jsonb suggested_action_plans
+        datetime created_at
+        datetime updated_at
+    }
+
+    post_entries {
+        bigint id PK
+        bigint post_id FK
+        bigint user_id FK
+        text content
+        date deadline
+        datetime achieved_at
+        text reflection
+        string result_image
+        string thumbnail_url
+        datetime created_at
+        datetime updated_at
+    }
+
+    entry_likes {
+        bigint id PK
+        bigint user_id FK
+        bigint post_entry_id FK
+        datetime created_at
+        datetime updated_at
+    }
+```
 

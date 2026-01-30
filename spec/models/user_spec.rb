@@ -32,67 +32,24 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe "favorite_quote validations" do
-    it "両方入力されていれば有効" do
-      user = build(:user,
-                   favorite_quote: "今日も頑張ろう！",
-                   favorite_quote_url: "https://www.youtube.com/watch?v=abc123")
+  describe "favorite_quote_url validations" do
+    it "URLが空でも有効" do
+      user = build(:user, favorite_quote_url: nil)
       expect(user).to be_valid
-    end
-
-    it "両方空でも有効" do
-      user = build(:user, favorite_quote: nil, favorite_quote_url: nil)
-      expect(user).to be_valid
-    end
-
-    it "favorite_quoteのみ入力されていると無効" do
-      user = build(:user,
-                   favorite_quote: "今日も頑張ろう！",
-                   favorite_quote_url: nil)
-      expect(user).not_to be_valid
-      expect(user.errors[:base]).to include("すきな言葉と動画URLは両方入力するか、両方空にしてください")
-    end
-
-    it "favorite_quote_urlのみ入力されていると無効" do
-      user = build(:user,
-                   favorite_quote: nil,
-                   favorite_quote_url: "https://www.youtube.com/watch?v=abc123")
-      expect(user).not_to be_valid
-      expect(user.errors[:base]).to include("すきな言葉と動画URLは両方入力するか、両方空にしてください")
-    end
-
-    it "favorite_quoteが50文字以内なら有効" do
-      user = build(:user,
-                   favorite_quote: "あ" * 50,
-                   favorite_quote_url: "https://www.youtube.com/watch?v=abc123")
-      expect(user).to be_valid
-    end
-
-    it "favorite_quoteが51文字以上なら無効" do
-      user = build(:user,
-                   favorite_quote: "あ" * 51,
-                   favorite_quote_url: "https://www.youtube.com/watch?v=abc123")
-      expect(user).not_to be_valid
     end
 
     it "有効なYouTube URL（youtube.com）を受け入れる" do
-      user = build(:user,
-                   favorite_quote: "テスト",
-                   favorite_quote_url: "https://www.youtube.com/watch?v=abc123")
+      user = build(:user, favorite_quote_url: "https://www.youtube.com/watch?v=abc123")
       expect(user).to be_valid
     end
 
     it "有効なYouTube URL（youtu.be）を受け入れる" do
-      user = build(:user,
-                   favorite_quote: "テスト",
-                   favorite_quote_url: "https://youtu.be/abc123")
+      user = build(:user, favorite_quote_url: "https://youtu.be/abc123")
       expect(user).to be_valid
     end
 
     it "無効なURLを拒否する" do
-      user = build(:user,
-                   favorite_quote: "テスト",
-                   favorite_quote_url: "https://example.com/video")
+      user = build(:user, favorite_quote_url: "https://example.com/video")
       expect(user).not_to be_valid
       expect(user.errors[:favorite_quote_url]).to include("は有効なYouTube URLを入力してください")
     end

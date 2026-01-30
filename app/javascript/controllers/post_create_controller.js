@@ -11,7 +11,6 @@ export default class extends Controller {
     "input", "results", "pasteButton", "inputWrapper", "searchArea",
     "preview", "previewThumbnail", "previewTitle", "previewChannel",
     "actionPlanInput", "submitButton", "form",
-    "suggestions", "suggestionsContainer", "suggestButton", "convertButton",
     "collectionPreview", "previewCard", "previewImage", "previewActionPlan",
     "uploadPlaceholder", "fileInput", "clearImageButton"
   ]
@@ -19,8 +18,6 @@ export default class extends Controller {
   static values = {
     youtubeUrl: String,                                        // YouTube検索APIのURL
     createUrl: String,                                         // 投稿作成APIのURL
-    suggestUrl: String,                                        // AI提案APIのURL
-    convertUrl: String,                                        // タイトル変換APIのURL
     minLength: { type: Number, default: 2 }                    // 検索開始の最小文字数
   }
 
@@ -165,11 +162,9 @@ export default class extends Controller {
     this.previewThumbnailTarget.src = video.thumbnail.replace('mqdefault', 'sddefault')
     this.previewTitleTarget.textContent = video.title
     this.previewChannelTarget.textContent = video.channel
-    this.showSuggestButton()
     if (this.hasCollectionPreviewTarget) this.collectionPreviewTarget.style.display = "block"
     setTimeout(() => this.actionPlanInputTarget.focus(), 100)
     this.updateSubmitButton()
-    this.updateConvertButton()
   }
 
   // 動画選択をクリア
@@ -178,87 +173,12 @@ export default class extends Controller {
     this.inputTarget.value = ""
     this.previewTarget.style.display = "none"
     if (this.hasSearchAreaTarget) this.searchAreaTarget.style.display = "block"
-    this.hideSuggestions()
     this.updateSubmitButton()
     this.inputTarget.focus()
   }
 
-  // AI提案ボタンを表示
-  showSuggestButton() {
-    if (this.hasSuggestionsTarget) this.suggestionsTarget.style.display = "block"
-    if (this.hasSuggestionsContainerTarget) this.suggestionsContainerTarget.innerHTML = ""
-  }
-
-  // AI提案を非表示
-  hideSuggestions() {
-    if (this.hasSuggestionsTarget) this.suggestionsTarget.style.display = "none"
-    if (this.hasSuggestionsContainerTarget) this.suggestionsContainerTarget.innerHTML = ""
-  }
-
-  // AI提案を取得
-  async fetchAiSuggestions() {
-    if (!this.selectedVideo) return
-    if (this.hasSuggestButtonTarget) { this.suggestButtonTarget.disabled = true; this.suggestButtonTarget.innerHTML = `<div style="width: 12px; height: 12px; border: 2px solid #d1d5db; border-top-color: #333; border-radius: 50%; animation: spin 1s linear infinite;"></div><span>取得中</span>` }
-    try {
-      const response = await fetchJson(this.suggestUrlValue, { method: "POST", body: JSON.stringify({ video_id: this.selectedVideo.videoId, title: this.selectedVideo.title }) })
-      const data = await response.json()
-      if (data.success && data.action_plans?.length > 0) { this.renderSuggestions(data.action_plans); if (this.hasSuggestButtonTarget) this.suggestButtonTarget.style.display = "none" }
-      else { this.showSuggestError("提案を取得できませんでした") }
-    } catch (error) { console.error("AI suggestion error:", error); this.showSuggestError("提案を取得できませんでした") }
-  }
-
-  // AI提案エラー表示
-  showSuggestError(message) {
-    if (this.hasSuggestButtonTarget) { this.suggestButtonTarget.disabled = false; this.suggestButtonTarget.innerHTML = `AI提案` }
-    if (this.hasSuggestionsContainerTarget) this.suggestionsContainerTarget.innerHTML = `<p style="font-size: 12px; color: #888; margin: 0 0 8px 0;">${message}</p>`
-  }
-
-  // AI提案を描画
-  renderSuggestions(plans) {
-    if (!this.hasSuggestionsContainerTarget) return
-    this.suggestionsContainerTarget.innerHTML = plans.map(plan => `
-      <button type="button" data-action="click->post-create#selectSuggestion" data-plan="${escapeHtml(plan)}" class="suggestion-item"
-              style="display: flex; align-items: center; width: 100%; text-align: left; padding: 12px 14px; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 8px; font-size: 14px; color: #333; cursor: pointer; transition: all 0.15s;"
-              onmouseover="this.style.background='#f5f5f5'; this.style.borderColor='#333';" onmouseout="this.style.background='#fff'; this.style.borderColor='#e0e0e0';">
-        <span style="flex: 1;">${escapeHtml(plan)}</span><span style="flex-shrink: 0; color: #888; font-size: 12px;">選択 →</span>
-      </button>`).join("")
-  }
-
-  // AI提案を選択
-  selectSuggestion(event) {
-    const plan = event.currentTarget.dataset.plan
-    this.actionPlanInputTarget.value = plan
-    this.updateSubmitButton()
-    this.updateConvertButton()
-    this.updateCollectionPreview()
-    this.actionPlanInputTarget.focus()
-  }
-
-  // タイトル変換ボタンの表示制御
-  updateConvertButton() {
-    if (!this.hasConvertButtonTarget) return
-    const hasText = this.actionPlanInputTarget.value.trim().length > 0
-    this.convertButtonTarget.style.display = hasText && this.selectedVideo ? "inline-flex" : "none"
-  }
-
-  // タイトルをYouTube風に変換
-  async convertToYouTubeTitle() {
-    if (!this.hasConvertButtonTarget) return
-    const actionPlan = this.actionPlanInputTarget.value.trim()
-    if (!actionPlan) return
-    const originalHtml = this.convertButtonTarget.innerHTML
-    this.convertButtonTarget.disabled = true
-    this.convertButtonTarget.innerHTML = `<div style="width: 12px; height: 12px; border: 2px solid #d1d5db; border-top-color: #333; border-radius: 50%; animation: spin 1s linear infinite;"></div><span>変換中...</span>`
-    try {
-      const response = await fetchJson(this.convertUrlValue, { method: "POST", body: JSON.stringify({ action_plan: actionPlan }) })
-      const data = await response.json()
-      if (data.success && data.title) { this.actionPlanInputTarget.value = data.title; this.updateSubmitButton(); this.autoResizeTextarea(); this.convertButtonTarget.innerHTML = originalHtml; this.convertButtonTarget.disabled = false; this.convertButtonTarget.style.display = "none" }
-      else { alert(data.error || "変換に失敗しました"); this.convertButtonTarget.innerHTML = originalHtml; this.convertButtonTarget.disabled = false }
-    } catch (error) { console.error("Convert error:", error); alert("変換に失敗しました"); this.convertButtonTarget.innerHTML = originalHtml; this.convertButtonTarget.disabled = false }
-  }
-
   // アクションプラン入力時の処理
-  handleActionPlanInput() { this.updateSubmitButton(); this.autoResizeTextarea(); this.updateConvertButton(); this.updateCollectionPreview() }
+  handleActionPlanInput() { this.updateSubmitButton(); this.autoResizeTextarea(); this.updateCollectionPreview() }
   autoResizeTextarea() { const textarea = this.actionPlanInputTarget; textarea.style.height = "auto"; textarea.style.height = textarea.scrollHeight + "px" }
   focusInput() { if (this.hasInputWrapperTarget) this.inputWrapperTarget.style.borderColor = "#333" }
   blurInput() { if (this.hasInputWrapperTarget) this.inputWrapperTarget.style.borderColor = "#e0e0e0" }

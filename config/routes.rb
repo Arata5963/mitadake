@@ -34,8 +34,6 @@ Rails.application.routes.draw do
       get :search_posts                                        # 投稿検索
       post :find_or_create                                     # 動画を検索or作成
       post :create_with_action                                 # 動画+アクションプラン同時作成
-      post :convert_to_youtube_title                           # タイトル変換
-      post :suggest_action_plans                               # AI提案
       get :recent                                              # 最近の投稿
     end
 

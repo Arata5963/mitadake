@@ -43,7 +43,7 @@
     <% if post.youtube_channel_name.present? %>
       <div class="flex items-center gap-2 mt-1.5">
         <% if post.youtube_channel_thumbnail_url.present? %>
-          <%= image_tag post.youtube_channel_thumbnail_url, class: "w-5 h-5 rounded-full", alt: post.youtube_channel_name %>
+          <%= image_tag post.youtube_channel_thumbnail_url, class: "w-6 h-6 rounded-full", alt: post.youtube_channel_name %>
         <% end %>
         <span class="text-gray-500 text-sm"><%= post.youtube_channel_name %></span>
       </div>

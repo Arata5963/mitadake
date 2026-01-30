@@ -13,12 +13,10 @@ class User < ApplicationRecord
   mount_uploader :avatar, ImageUploader                                              # プロフィール画像アップローダー
 
   validates :name, presence: true                                                    # 名前は必須
-  validates :favorite_quote, length: { maximum: 50 }, allow_blank: true              # お気に入りの言葉は50文字まで
   validates :favorite_quote_url, format: {                                           # お気に入り動画URLの形式チェック
     with: %r{\A(https?://)?(www\.)?(youtube\.com/watch\?v=|youtu\.be/)[\w-]+(\?.*)?(?:#.*)?\z},  # YouTube URLの正規表現
     message: "は有効なYouTube URLを入力してください"                                  # エラーメッセージ
   }, allow_blank: true                                                               # 空でもOK
-  validate :favorite_quote_consistency                                               # 言葉とURLの整合性チェック
 
   # 達成数ランキングを取得
   def self.by_achieved_count(limit: 10, period: :all)
@@ -82,13 +80,4 @@ class User < ApplicationRecord
     end
   end
 
-  # お気に入りの言葉と動画URLの整合性チェック
-  def favorite_quote_consistency
-    quote_present = favorite_quote.present?                                          # 言葉が入力されているか
-    url_present = favorite_quote_url.present?                                        # URLが入力されているか
-
-    if quote_present != url_present                                                  # 片方だけ入力されている場合
-      errors.add(:base, "すきな言葉と動画URLは両方入力するか、両方空にしてください")   # エラーを追加
-    end
-  end
 end

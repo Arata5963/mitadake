@@ -8,8 +8,6 @@
        data-controller="post-edit"
        data-post-edit-youtube-url-value="<%= youtube_search_posts_path %>"
        data-post-edit-update-url-value="<%= update_with_action_post_path(@post) %>"
-       data-post-edit-suggest-url-value="<%= suggest_action_plans_posts_path %>"
-       data-post-edit-convert-url-value="<%= convert_to_youtube_title_posts_path %>"
        data-post-edit-initial-video-id-value="<%= @post.youtube_video_id %>"
        data-post-edit-initial-title-value="<%= @post.youtube_title %>"
        data-post-edit-initial-channel-value="<%= @post.youtube_channel_name %>"
@@ -64,45 +62,20 @@
 
     <%# アクションプラン入力セクション %>
     <div class="mb-6">
-      <div class="flex items-center justify-between mb-3">
-        <label class="text-sm font-semibold text-gray-900">アクションプラン</label>
-
-        <div class="flex gap-2 items-center">
-          <%# YouTubeタイトル風に変換ボタン %>
-          <button type="button"
-                  data-post-edit-target="convertButton"
-                  data-action="click->post-edit#convertToYouTubeTitle"
-                  class="hidden items-center gap-1 px-3 py-1.5 bg-white border border-gray-900 rounded-full text-gray-900 text-xs font-medium cursor-pointer">
-            タイトル風に変換
-          </button>
-
-          <%# AI提案ボタン %>
-          <div data-post-edit-target="suggestions" class="inline">
-            <button type="button"
-                    data-post-edit-target="suggestButton"
-                    data-action="click->post-edit#fetchAiSuggestions"
-                    class="inline-flex items-center gap-1 px-3 py-1.5 bg-white border border-gray-900 rounded-full text-gray-900 text-xs font-medium cursor-pointer">
-              AI提案
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <%# AI提案リスト %>
-      <div data-post-edit-target="suggestionsContainer" class="mb-3"></div>
+      <label class="block text-sm font-semibold text-gray-900 mb-3">アクションプラン</label>
 
       <%# テキストエリア（初期値あり） %>
       <div class="border border-gray-200 rounded-lg transition-colors duration-200 focus-within:border-gray-900" data-post-edit-target="inputWrapper">
         <textarea
           data-post-edit-target="actionPlanInput"
           data-action="input->post-edit#handleActionPlanInput focus->post-edit#focusInput blur->post-edit#blurInput"
-          placeholder="例：【実践】1日スマホなしで過ごしてみた"
+          placeholder="【実践】紹介されてた商品を買ってみた"
           rows="3"
           class="w-full border-none bg-transparent px-4 py-3 text-base text-gray-900 resize-none outline-none leading-relaxed"
         ><%= entry&.content %></textarea>
       </div>
 
-      <p class="text-xs text-gray-500 mt-2">※ YouTubeのタイトル風にアクションプランを設定しよう</p>
+      <p class="text-xs text-gray-500 mt-2">※ YouTubeのタイトル風に書いてみよう</p>
     </div>
 
     <%# 達成コレクションプレビュー（サムネイルクリックでアップロード） %>

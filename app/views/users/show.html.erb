@@ -31,19 +31,10 @@
             <% end %>
           <% end %>
         </div>
-        <% if user.favorite_quote.present? %>
-          <% if is_own_page %>
-            <%= link_to edit_profile_path, class: "block text-sm text-gray-600 mt-1 hover:text-gray-900 transition-colors" do %>
-              「<%= user.favorite_quote %>」
-            <% end %>
-          <% else %>
-            <p class="text-sm text-gray-600 mt-1">「<%= user.favorite_quote %>」</p>
-          <% end %>
-        <% end %>
       </div>
     </div>
 
-    <%# 引用元動画（favorite_quote_url から取得） %>
+    <%# お気に入りの動画（favorite_quote_url から取得） %>
     <% if quote_video_id.present? %>
       <section class="mb-6">
         <div data-controller="hero-video" data-hero-video-video-id-value="<%= quote_video_id %>" class="mb-6">

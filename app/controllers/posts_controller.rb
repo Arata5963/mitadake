@@ -4,7 +4,7 @@
 class PostsController < ApplicationController
   before_action :authenticate_user!, except: [                                       # ログイン不要なアクション
     :index, :show, :autocomplete, :youtube_search,                                   # 一覧・詳細・検索系
-    :find_or_create, :recent, :convert_to_youtube_title, :suggest_action_plans       # 動画作成・AI提案系
+    :find_or_create, :recent                                                         # 動画作成系
   ]
   before_action :set_post, only: [ :show, :edit, :update, :update_with_action, :destroy ]  # 動画取得が必要なアクション
   before_action :check_has_entries, only: [ :edit, :update, :update_with_action, :destroy ]  # 自分のエントリーがあるかチェック
@@ -177,53 +177,6 @@ class PostsController < ApplicationController
     query = params[:q].to_s.strip                                                    # クエリを取得
     results = query.length >= 2 ? search_existing_posts(query) : []                  # 2文字以上なら検索
     render json: results                                                             # JSONで返す
-  end
-
-  # AIアクションプラン提案を生成
-  def suggest_action_plans
-    video_id = params[:video_id].to_s.strip                                          # 動画IDを取得
-
-    if video_id.blank?                                                               # 動画IDが空の場合
-      render json: { success: false, error: "動画IDが必要です" }, status: :unprocessable_entity  # エラーを返す
-      return                                                                         # 処理終了
-    end
-
-    existing_post = Post.find_by(youtube_video_id: video_id)                         # 既存のPostを検索
-    if existing_post&.suggested_action_plans.present?                                # キャッシュがある場合
-      render json: { success: true, action_plans: existing_post.suggested_action_plans, cached: true }  # キャッシュを返す
-      return                                                                         # 処理終了
-    end
-
-    result = GeminiService.suggest_action_plans(                                     # GeminiServiceでAI生成
-      video_id: video_id,                                                            # 動画ID
-      title: params[:title].to_s.strip,                                              # タイトル
-      description: nil                                                               # 説明（省略）
-    )
-
-    if result[:success]                                                              # 成功した場合
-      existing_post&.update(suggested_action_plans: result[:action_plans])           # キャッシュとして保存
-      render json: { success: true, action_plans: result[:action_plans] }            # 成功レスポンス
-    else                                                                             # 失敗した場合
-      render json: { success: false, error: result[:error] }, status: :unprocessable_entity  # エラーレスポンス
-    end
-  end
-
-  # アクションプランをYouTubeタイトル風に変換
-  def convert_to_youtube_title
-    action_plan = params[:action_plan].to_s.strip                                    # アクションプランを取得
-
-    if action_plan.blank?                                                            # 空の場合
-      render json: { success: false, error: "アクションプランが必要です" }, status: :unprocessable_entity  # エラーを返す
-      return                                                                         # 処理終了
-    end
-
-    result = GeminiService.convert_to_youtube_title(action_plan)                     # GeminiServiceで変換
-
-    if result[:success]                                                              # 成功した場合
-      render json: { success: true, title: result[:title] }                          # 成功レスポンス
-    else                                                                             # 失敗した場合
-      render json: { success: false, error: result[:error] }, status: :unprocessable_entity  # エラーレスポンス
-    end
   end
 
   private

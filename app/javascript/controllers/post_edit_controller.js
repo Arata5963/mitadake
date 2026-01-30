@@ -11,7 +11,6 @@ export default class extends Controller {
     "input", "results", "inputWrapper",
     "preview", "previewThumbnail", "previewTitle", "previewChannel",
     "actionPlanInput", "submitButton",
-    "suggestions", "suggestionsContainer", "suggestButton", "convertButton",
     "collectionPreview", "previewCard", "previewImage", "previewActionPlan",
     "uploadPlaceholder", "fileInput", "clearImageButton"
   ]
@@ -19,8 +18,6 @@ export default class extends Controller {
   static values = {
     youtubeUrl: String,                                        // YouTube検索APIのURL
     updateUrl: String,                                         // 投稿更新APIのURL
-    suggestUrl: String,                                        // AI提案APIのURL
-    convertUrl: String,                                        // タイトル変換APIのURL
     minLength: { type: Number, default: 2 },                   // 検索開始の最小文字数
     initialVideoId: String,                                    // 初期動画ID
     initialTitle: String,                                      // 初期タイトル
@@ -147,7 +144,6 @@ export default class extends Controller {
     this.previewThumbnailTarget.src = video.thumbnail.replace('mqdefault', 'sddefault')
     this.previewTitleTarget.textContent = video.title
     this.previewChannelTarget.textContent = video.channel
-    this.updateConvertButton()
   }
 
   clearSelection() {
@@ -159,57 +155,7 @@ export default class extends Controller {
     this.previewTarget.style.display = "block"
   }
 
-  // AI提案
-  async fetchAiSuggestions() {
-    if (!this.selectedVideo) return
-    if (this.hasSuggestButtonTarget) { this.suggestButtonTarget.disabled = true; this.suggestButtonTarget.innerHTML = `<div style="width: 12px; height: 12px; border: 2px solid #d1d5db; border-top-color: #333; border-radius: 50%; animation: spin 1s linear infinite;"></div><span>取得中</span>` }
-    try {
-      const response = await fetchJson(this.suggestUrlValue, { method: "POST", body: JSON.stringify({ video_id: this.selectedVideo.videoId, title: this.selectedVideo.title }) })
-      const data = await response.json()
-      if (data.success && data.action_plans?.length > 0) { this.renderSuggestions(data.action_plans); if (this.hasSuggestButtonTarget) this.suggestButtonTarget.style.display = "none" }
-      else { this.showSuggestError("提案を取得できませんでした") }
-    } catch (error) { console.error("AI suggestion error:", error); this.showSuggestError("提案を取得できませんでした") }
-  }
-
-  showSuggestError(message) {
-    if (this.hasSuggestButtonTarget) { this.suggestButtonTarget.disabled = false; this.suggestButtonTarget.innerHTML = `AI提案` }
-    if (this.hasSuggestionsContainerTarget) this.suggestionsContainerTarget.innerHTML = `<p style="font-size: 12px; color: #888; margin: 0 0 8px 0;">${message}</p>`
-  }
-
-  renderSuggestions(plans) {
-    if (!this.hasSuggestionsContainerTarget) return
-    this.suggestionsContainerTarget.innerHTML = plans.map(plan => `
-      <button type="button" data-action="click->post-edit#selectSuggestion" data-plan="${escapeHtml(plan)}" class="suggestion-item"
-              style="display: flex; align-items: center; width: 100%; text-align: left; padding: 12px 14px; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 8px; font-size: 14px; color: #333; cursor: pointer; transition: all 0.15s;"
-              onmouseover="this.style.background='#f5f5f5'; this.style.borderColor='#333';" onmouseout="this.style.background='#fff'; this.style.borderColor='#e0e0e0';">
-        <span style="flex: 1;">${escapeHtml(plan)}</span><span style="flex-shrink: 0; color: #888; font-size: 12px;">選択 →</span>
-      </button>`).join("")
-  }
-
-  selectSuggestion(event) { this.actionPlanInputTarget.value = event.currentTarget.dataset.plan; this.updateConvertButton(); this.updateCollectionPreview(); this.actionPlanInputTarget.focus() }
-
-  updateConvertButton() {
-    if (!this.hasConvertButtonTarget) return
-    const hasText = this.actionPlanInputTarget.value.trim().length > 0
-    this.convertButtonTarget.style.display = hasText && this.selectedVideo ? "inline-flex" : "none"
-  }
-
-  async convertToYouTubeTitle() {
-    if (!this.hasConvertButtonTarget) return
-    const actionPlan = this.actionPlanInputTarget.value.trim()
-    if (!actionPlan) return
-    const originalHtml = this.convertButtonTarget.innerHTML
-    this.convertButtonTarget.disabled = true
-    this.convertButtonTarget.innerHTML = `<div style="width: 12px; height: 12px; border: 2px solid #d1d5db; border-top-color: #333; border-radius: 50%; animation: spin 1s linear infinite;"></div><span>変換中...</span>`
-    try {
-      const response = await fetchJson(this.convertUrlValue, { method: "POST", body: JSON.stringify({ action_plan: actionPlan }) })
-      const data = await response.json()
-      if (data.success && data.title) { this.actionPlanInputTarget.value = data.title; this.autoResizeTextarea(); this.convertButtonTarget.innerHTML = originalHtml; this.convertButtonTarget.disabled = false; this.convertButtonTarget.style.display = "none" }
-      else { alert(data.error || "変換に失敗しました"); this.convertButtonTarget.innerHTML = originalHtml; this.convertButtonTarget.disabled = false }
-    } catch (error) { console.error("Convert error:", error); alert("変換に失敗しました"); this.convertButtonTarget.innerHTML = originalHtml; this.convertButtonTarget.disabled = false }
-  }
-
-  handleActionPlanInput() { this.autoResizeTextarea(); this.updateConvertButton(); this.updateCollectionPreview() }
+  handleActionPlanInput() { this.autoResizeTextarea(); this.updateCollectionPreview() }
   autoResizeTextarea() { const textarea = this.actionPlanInputTarget; textarea.style.height = "auto"; textarea.style.height = textarea.scrollHeight + "px" }
   focusInput() { if (this.hasInputWrapperTarget) this.inputWrapperTarget.style.borderColor = "#333" }
   blurInput() { if (this.hasInputWrapperTarget) this.inputWrapperTarget.style.borderColor = "#e0e0e0" }

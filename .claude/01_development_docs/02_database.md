@@ -10,7 +10,6 @@
 │ email           │  │
 │ name            │  │
 │ avatar          │  │
-│ favorite_quote  │  │
 │ favorite_quote_url│ │
 └─────────────────┘  │
          │           │
@@ -56,8 +55,7 @@
 | avatar | string | | アバター画像パス |
 | provider | string | | OAuthプロバイダ |
 | uid | string | | OAuthユーザーID |
-| favorite_quote | string(50) | | お気に入り引用 |
-| favorite_quote_url | string | | 引用元URL |
+| favorite_quote_url | string | | お気に入り動画URL |
 
 ### posts
 

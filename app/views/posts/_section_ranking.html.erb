@@ -28,7 +28,7 @@
           <% end %>
           <div class="flex items-center gap-1 mt-1">
             <% if post.youtube_channel_thumbnail_url.present? %>
-              <%= image_tag post.youtube_channel_thumbnail_url, class: "w-4 h-4 rounded-full flex-shrink-0", loading: "lazy" %>
+              <%= image_tag post.youtube_channel_thumbnail_url, class: "w-6 h-6 rounded-full flex-shrink-0", loading: "lazy" %>
             <% end %>
             <p class="text-xs text-gray-500 truncate"><%= post.youtube_channel_name %></p>
           </div>

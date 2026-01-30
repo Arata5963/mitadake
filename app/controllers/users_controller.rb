@@ -124,13 +124,13 @@ class UsersController < ApplicationController
 
   # Strong Parameters（プロフィールのみ）
   def user_params
-    params.require(:user).permit(:name, :avatar, :avatar_cache, :favorite_quote, :favorite_quote_url)  # 許可パラメータ
+    params.require(:user).permit(:name, :avatar, :avatar_cache, :favorite_quote_url)  # 許可パラメータ
   end
 
   # Strong Parameters（パスワード変更含む）
   def user_params_with_password
     params.require(:user).permit(                          # 許可パラメータ
-      :name, :avatar, :avatar_cache, :favorite_quote, :favorite_quote_url,  # プロフィール
+      :name, :avatar, :avatar_cache, :favorite_quote_url,  # プロフィール
       :email, :password, :password_confirmation, :current_password  # 認証情報
     )
   end

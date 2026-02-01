@@ -134,11 +134,13 @@ export default class extends Controller {
 
             <div class="px-4 pb-4">
               <label class="block text-sm font-medium text-gray-700 mb-2">達成した感想<span class="text-red-500 ml-1">*</span></label>
-              <textarea class="w-full p-2 border border-gray-200 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                        rows="2"
+              <textarea class="w-full p-3 border border-gray-200 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent overflow-hidden"
+                        rows="1"
                         placeholder="感想を残そう"
                         maxlength="500"
-                        data-achievement-modal-target="reflectionInput"></textarea>
+                        data-achievement-modal-target="reflectionInput"
+                        data-action="input->achievement-modal#autoResize"
+                        style="min-height: 44px;"></textarea>
             </div>
 
             <div class="px-4 pb-4">
@@ -193,6 +195,15 @@ export default class extends Controller {
                       <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
                     </svg>
                   </a>
+                  <button type="button"
+                     class="flex items-center gap-1 px-2 py-1 hover:bg-gray-100 rounded text-xs text-gray-500 transition-colors"
+                     title="感想・画像を編集"
+                     data-action="click->achievement-modal#switchToEdit"
+                     data-achievement-modal-target="editBtn">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                    </svg>
+                  </button>
                 ` : ''}
                 ${!this.hideOriginalVideoValue ? `
                   <a href="${data.post.url}"
@@ -215,54 +226,51 @@ export default class extends Controller {
               </button>
             </div>
 
-            <div class="bg-gray-100 overflow-hidden relative flex items-center justify-center" style="max-height: 70vh;">
+            <label class="overflow-hidden relative block ${canEdit ? 'cursor-pointer' : ''}">
               <img src="${thumbnailUrl}"
                    alt=""
-                   class="max-w-full max-h-[70vh] object-contain"
+                   class="w-full h-auto"
+                   style="max-height: 70vh; object-fit: contain;"
                    data-achievement-modal-target="displayImage">
               <!-- 編集用：新しい画像のプレビュー（初期非表示） -->
               <img src=""
                    alt="プレビュー"
-                   class="max-w-full max-h-[70vh] object-contain absolute inset-0 hidden"
+                   class="w-full h-auto absolute inset-0 hidden"
+                   style="max-height: 70vh; object-fit: contain;"
                    data-achievement-modal-target="editImagePreview">
-            </div>
-            <!-- 編集用：画像変更リンク（初期非表示） -->
-            ${canEdit ? `
-              <div class="hidden flex justify-end px-4 pt-1" data-achievement-modal-target="editImageSection">
-                <button type="button"
-                        class="text-xs text-gray-500 hover:text-gray-700"
-                        data-action="click->achievement-modal#triggerEditFileInput">
-                  画像を変更
-                </button>
+              ${canEdit ? `
                 <input type="file"
                        accept="image/jpeg,image/png,image/webp"
                        data-achievement-modal-target="editImageInput"
                        data-action="change->achievement-modal#handleEditFileSelect"
                        style="display: none;">
-              </div>
-            ` : ''}
+              ` : ''}
+            </label>
 
             <div class="p-4">
-              <h3 class="text-lg font-bold text-gray-900 mb-4">${this.escapeHtml(data.content)}</h3>
+              <h3 class="text-lg font-bold text-gray-900 mb-3">${this.escapeHtml(data.content)}</h3>
 
-              <div class="mb-4">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-sm font-medium text-gray-700">感想</span>
-                  ${canEdit ? `
-                    <button type="button"
-                            class="text-xs text-gray-500 hover:text-gray-700"
-                            data-action="click->achievement-modal#switchToEdit"
-                            data-achievement-modal-target="editBtn">
-                      編集
-                    </button>
-                  ` : ''}
-                </div>
+              <div>
                 <p class="text-sm text-gray-600 whitespace-pre-wrap text-left" data-achievement-modal-target="reflectionDisplay">${this.escapeHtml(data.reflection)}</p>
-                <textarea class="hidden w-full p-3 border border-gray-200 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                          rows="3"
-                          placeholder="達成した感想を入力..."
-                          maxlength="500"
-                          data-achievement-modal-target="reflectionInput"></textarea>
+                <div class="hidden" data-achievement-modal-target="reflectionEditArea">
+                  ${canEdit ? `
+                    <div class="flex justify-end mb-1">
+                      <button type="button"
+                              class="text-xs text-gray-500 hover:text-gray-700"
+                              data-action="click->achievement-modal#saveReflection"
+                              data-achievement-modal-target="saveBtn">
+                        保存
+                      </button>
+                    </div>
+                  ` : ''}
+                  <textarea class="w-full p-3 border border-gray-200 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent overflow-hidden"
+                            rows="1"
+                            placeholder="達成した感想を入力..."
+                            maxlength="500"
+                            data-achievement-modal-target="reflectionInput"
+                            data-action="input->achievement-modal#autoResize"
+                            style="min-height: 44px;"></textarea>
+                </div>
               </div>
 
             </div>

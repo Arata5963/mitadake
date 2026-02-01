@@ -9,7 +9,7 @@ export default class extends Controller {
     "imagePreview", "imageInput", "uploadArea", "clearImageBtn",
     "submitBtn", "editBtn", "loadingOverlay",
     "editImageInput", "editImagePreview", "displayImage", "editImageSection",
-    "imageContainer"
+    "imageContainer", "reflectionEditArea", "saveBtn"
   ]
 
   static values = {
@@ -193,14 +193,14 @@ export default class extends Controller {
       const currentReflection = this.reflectionDisplayTarget.textContent.trim()
       this.reflectionInputTarget.value = currentReflection === "（感想なし）" ? "" : currentReflection
       this.reflectionDisplayTarget.classList.add("hidden")
-      this.reflectionInputTarget.classList.remove("hidden")
+      // 既存テキスト用に高さを調整
+      this.reflectionInputTarget.style.height = 'auto'
+      this.reflectionInputTarget.style.height = this.reflectionInputTarget.scrollHeight + 'px'
       this.reflectionInputTarget.focus()
     }
-    if (this.hasEditImageSectionTarget) this.editImageSectionTarget.classList.remove("hidden")  // 画像変更ボタンを表示
-    if (this.hasEditBtnTarget) {
-      this.editBtnTarget.textContent = "保存"
-      this.editBtnTarget.dataset.action = "click->achievement-modal#saveReflection"
-    }
+    if (this.hasReflectionEditAreaTarget) this.reflectionEditAreaTarget.classList.remove("hidden")  // 編集エリアを表示
+    if (this.hasEditImageSectionTarget) this.editImageSectionTarget.classList.remove("hidden")      // 画像変更ボタンを表示
+    if (this.hasEditBtnTarget) this.editBtnTarget.classList.add("hidden")                           // 吹き出しアイコンを非表示
     this.editSelectedFile = null                               // 編集用ファイルをリセット
     this.editUploadedS3Key = null                              // 編集用S3キーをリセット
   }
@@ -214,9 +214,9 @@ export default class extends Controller {
       return
     }
 
-    if (this.hasEditBtnTarget) {                               // 保存中表示
-      this.editBtnTarget.textContent = "保存中..."
-      this.editBtnTarget.disabled = true
+    if (this.hasSaveBtnTarget) {                               // 保存中表示
+      this.saveBtnTarget.textContent = "保存中..."
+      this.saveBtnTarget.disabled = true
     }
 
     try {
@@ -240,7 +240,7 @@ export default class extends Controller {
           this.reflectionDisplayTarget.textContent = data.reflection || "（感想なし）"
           this.reflectionDisplayTarget.classList.remove("hidden")
         }
-        if (this.hasReflectionInputTarget) this.reflectionInputTarget.classList.add("hidden")
+        if (this.hasReflectionEditAreaTarget) this.reflectionEditAreaTarget.classList.add("hidden")  // 編集エリアを非表示
         if (data.result_image_url && this.hasDisplayImageTarget) {  // 画像も更新された場合
           this.displayImageTarget.src = data.result_image_url       // 表示画像を更新
         }
@@ -249,29 +249,29 @@ export default class extends Controller {
           this.editImagePreviewTarget.src = ""
         }
         if (this.hasEditImageSectionTarget) this.editImageSectionTarget.classList.add("hidden")  // 変更ボタンを非表示
-        if (this.hasEditBtnTarget) {
-          this.editBtnTarget.textContent = "編集"
-          this.editBtnTarget.disabled = false
-          this.editBtnTarget.dataset.action = "click->achievement-modal#switchToEdit"
+        if (this.hasEditBtnTarget) this.editBtnTarget.classList.remove("hidden")                 // 吹き出しアイコンを再表示
+        if (this.hasSaveBtnTarget) {
+          this.saveBtnTarget.textContent = "保存"
+          this.saveBtnTarget.disabled = false
         }
         this.editSelectedFile = null                           // リセット
         this.editUploadedS3Key = null
       } else {
         alert(data.error || "保存に失敗しました")
-        this.restoreEditButton()
+        this.restoreSaveButton()
       }
     } catch (error) {
       console.error("Save reflection error:", error)
       alert("保存に失敗しました")
-      this.restoreEditButton()
+      this.restoreSaveButton()
     }
   }
 
-  // 編集ボタンを元に戻す
-  restoreEditButton() {
-    if (this.hasEditBtnTarget) {
-      this.editBtnTarget.textContent = "保存"
-      this.editBtnTarget.disabled = false
+  // 保存ボタンを元に戻す
+  restoreSaveButton() {
+    if (this.hasSaveBtnTarget) {
+      this.saveBtnTarget.textContent = "保存"
+      this.saveBtnTarget.disabled = false
     }
   }
 
@@ -301,8 +301,8 @@ export default class extends Controller {
     return s3_key
   }
 
-  // 編集用画像選択時の処理
-  handleEditFileSelect(event) {
+  // 編集用画像選択時の処理（自動保存）
+  async handleEditFileSelect(event) {
     const file = event.target.files[0]
     if (!file) return
 
@@ -315,6 +315,43 @@ export default class extends Controller {
     this.editUploadedS3Key = null                              // 新ファイル選択でリセット
     const previewUrl = URL.createObjectURL(file)               // ローカルプレビュー用URL
     this.showEditImagePreview(previewUrl)
+
+    // 画像を自動的にS3にアップロードして保存
+    await this.saveImageOnly()
+  }
+
+  // 画像のみを保存
+  async saveImageOnly() {
+    if (!this.editSelectedFile) return
+
+    try {
+      const s3Key = await this.uploadEditImageToS3()           // S3にアップロード
+      if (!s3Key) return
+
+      const response = await fetch(this.updateReflectionUrlValue, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", "Accept": "application/json", "X-CSRF-Token": this.csrfToken() },
+        body: JSON.stringify({ result_image_s3_key: s3Key })
+      })
+
+      const data = await response.json()
+      if (data.success) {
+        if (data.result_image_url && this.hasDisplayImageTarget) {
+          this.displayImageTarget.src = data.result_image_url  // 表示画像を更新
+        }
+        if (this.hasEditImagePreviewTarget) {
+          this.editImagePreviewTarget.classList.add("hidden")
+          this.editImagePreviewTarget.src = ""
+        }
+        this.editSelectedFile = null
+        this.editUploadedS3Key = null
+      } else {
+        alert(data.error || "画像の保存に失敗しました")
+      }
+    } catch (error) {
+      console.error("Save image error:", error)
+      alert("画像の保存に失敗しました")
+    }
   }
 
   // 編集用画像プレビューを表示
@@ -396,5 +433,12 @@ export default class extends Controller {
   // CSRFトークンを取得
   csrfToken() {
     return document.querySelector('meta[name="csrf-token"]')?.content
+  }
+
+  // テキストエリアの高さを自動調整
+  autoResize(event) {
+    const textarea = event.target
+    textarea.style.height = 'auto'                             // 一旦リセット
+    textarea.style.height = textarea.scrollHeight + 'px'       // 内容に合わせて高さを設定
   }
 }
